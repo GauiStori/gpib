@@ -1,0 +1,316 @@
+gpib (4.3.0-1) UNRELEASED; urgency=medium
+
+  * New upstream release
+  * Split user and kernel source, new source name
+  * Bump standards version to 4.2.1
+  * Disable pcmcia, headers have disappeared from the Debian 3.x kernel
+  * Disable tcl libraries, most hopefully temporarily
+  * Change from python-support to dh_python2
+  * Change XS-Python-Version to X-Python-Version
+  * Add symbols file
+  * Don't use gpib-xxx/linux-gpib directory structure anymore.
+    Change rules file cp -Rl `ls . ...
+  * Change from pycentral to pysupport
+  * Upgraded quile to 2.2
+  * Switch to dpkg-source 3.0 (quilt) format
+  * Remove pycompat
+
+ -- Gudjon I. Gudjonsson <gudjon@gudjon.org>  Mon, 25 Dec 2017 08:46:51 +0100
+
+gpib (3.2.11-1) unstable; urgency=low
+
+  [Ken McIvor]
+  * /etc/modprobe.d/gpib no longer invokes gpib_config when modules are loaded
+  * Updated gpib.rules to automatically load firmware and run gpib_config
+  * Added the gpib_config_wrapper script to wait until udev has created the
+    GPIB device files before running gpib_config
+  * libgpib-bin.postinst no longer creates GPIB device files
+  * libgpib-bin.postinst installs gpib.rules as a symlink in /etc/udev/rules.d
+  * libgpib-bin.prerm added to remove the gpib.rules symlink
+  * Removed hotplug configuration files
+  * Binaries and shared libraries are now installed in /bin, /sbin, and /lib
+    because they are required during boot before /usr is mounted
+  * README.Debian reflects the changes to the udev rules
+  [Carlo Segre]
+  * ACK NMUs 0.1 and 0.2 (Thanks Thomas & Barry)
+
+ -- Carlo Segre <segre@debian.org>  Thu, 05 Feb 2009 23:17:55 -0600
+
+gpib (3.2.11-0.2) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * revert
+    * libgpib-bin.postinst. Replace pwd with $(CURDIDR).
+  * drop update-modules call from libgpib-bin.postinst
+
+ -- Thomas Viehmann <tv@beamnet.de>  Sat, 11 Oct 2008 13:38:23 +0200
+
+
+gpib (3.2.11-0.1) unstable; urgency=medium
+
+  [ Thomas Viehmann ]
+  * Non-maintainer upload.
+  * New upstream version, required for kernel 2.6.26, the lenny
+    release kernel. Closes: #497922.
+  [ Barry deFreese ]
+    + Make modules to generate .ko files.
+    + Fix subdirs path in make call.
+  * Drop pycompat.
+  * Add XS-Python-Version.
+  * libgpib-bin.postinst. Replace pwd with $(CURDIDR).
+    + Remove path from update-modules.
+  * debian/gpib_config.1: Escape hyphens.
+  * Bump Standards Version to 3.8.0. (No changes needed).
+
+ -- Barry deFreese <bdefreese@debian.org>  Fri, 10 Oct 2008 11:52:30 -0400
+
+gpib (3.2.10-2) unstable; urgency=low
+
+  * Correct error in debian/rules for deleting extra gpib_php libraries.
+
+ -- Carlo Segre <segre@debian.org>  Sun, 13 Apr 2008 15:10:09 -0500
+
+gpib (3.2.10-1) unstable; urgency=low
+
+  * New upstream release (required for kernel versions > 2.6.22).
+  * Acknowledge NMU (Closes: #430998), thanks Amaya.
+  * Reduce and clarify long descriptions and move some of the descriptive
+    information into README.Debian (Closes: #452775).
+  * Remove gpib_php.a, gpib_php.la and gpib_php.so symlink from 
+    php5-gpib package (Closes: #452773).
+
+ -- Carlo Segre <segre@debian.org>  Sat, 12 Apr 2008 13:11:03 -0500
+
+gpib (3.2.09-2.1) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Remove gpib-modules from recommends (not available anymore). 
+    (Closes: #430998).
+
+ -- Amaya Rodrigo Sastre <amaya@debian.org>  Sun, 30 Mar 2008 21:29:24 +0200
+
+gpib (3.2.09-2) unstable; urgency=low
+
+  * Fix determination of phpapi version number
+  * Remove tnt4882-tms module from list as it will not compile cleanly 
+    (Closes: #445253)
+
+ -- Carlo Segre <segre@debian.org>  Mon, 22 Oct 2007 23:43:54 -0500
+
+gpib (3.2.09-1) unstable; urgency=low
+
+  * Clarify the licensing of the documentation in debian/copyright
+  * Add new module subdirectories to GPIB_MODULE_SUBDIRS
+  * Move to new upstream to match newer kernels 
+    (Closes: #430998, #423286, #425730, #417462, #375214)
+  * Changes for specific sub-packages
+    php5-gpib 
+     - Change to php5 dependency, add Conflicts: and Replaces:
+       to old php4-gpib package for proper upgrade 
+       (Closes: #424836, #432419).
+    libgpib-bin
+     - Acknowledge NMU (Closes: #416596), thanks Amos.
+     - Fix syntax of udev rules in debian/gpib.rules.  Must be 
+       "KERNEL==" (Closes: #368020).
+     - Add manpages for gpib_config and ibtest.
+    gpib-modules-source 
+     - Change dependencies to linux-source-2.6 and linux-headers-2.6.
+       (Closes: #387958)
+     - debian/rules: update the HP 82335 entry of GPIB_MODULE_SUBDIRS
+       so it points to the correct directory.
+    python-gpib
+     - Acknowledge NMU (Closes: #373440), thanks Pierre.
+  * Add Carlo Segre as Uploader with assent of Maintainer.
+
+ -- Carlo Segre <segre@debian.org>  Sat, 29 Sep 2007 23:52:10 -0500
+
+gpib (3.2.06-3.2) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Add dependency on adduser. (Closes: #416596).
+
+ -- Amos Waterland <apw@rossby.metr.ou.edu>  Thu, 05 Apr 2007 15:15:35 +0000
+
+gpib (3.2.06-3.1) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Update package to the last python policy (Closes: #373440).
+  * Wrap description correctly.
+
+ -- Pierre Habouzit <madcoder@debian.org>  Sun,  2 Jul 2006 00:25:58 +0200
+
+gpib (3.2.06-3) unstable; urgency=high
+
+  * break circular dependency around libgpib-bin; closes: Bug#356589 (libgpib0
+    has circular Depends on libgpib-bin)
+  * add lost no-segment.h patch; closes: Bug#360136
+    (gpib_3.2.06-2(amd64/unstable): Patch no-segment.h.patch does not exist
+  * debian/rules: add "LD_RUN_PATH=" to make invokation for the perl bindings
+    to dump the rpath; closes: Bug#359239
+    (libgpib-perl: LinuxGpib.so has trapdoor rpath /tmp/buildd/...)
+  * urgency high because the last two are RC and security critical
+  * now standards compliant to 3.6.2
+
+ -- Robert Jordens <jordens@debian.org>  Mon,  3 Apr 2006 13:12:17 +0200
+
+gpib (3.2.06-2) unstable; urgency=medium
+
+  * ines-gpib-irq-fix.patch (backported from CVS gead): fix problems 
+    with INES pcmcia cards
+  * device-fix.patch: make class_(device_)?_(create|destroy) more flexible to
+    compile correctly with kernels >= 2.6.15; closes: Bug#357240 (segfaults
+    with kernel 2.6.15)
+  * urgency medium because this is RC
+
+ -- Robert Jordens <jordens@debian.org>  Fri, 17 Mar 2006 00:35:56 +0100
+
+gpib (3.2.06-1) unstable; urgency=low
+
+  * new upstream release:
+    + debian/patches/ines.h-add-unaccel.patch: included upstream
+  * upload to experimental to not hinder the CXX transition group
+  * debian/patches/add-new-pci-ids.h.patch: take the new pci ids header from
+    CVS since the old one does not compile on >= 2.6.12;
+    closes: Bug#352759
+  * debian/watch: update
+  * debian/control.modules.in: recommend udev/hotplug
+
+ -- Robert Jordens <jordens@debian.org>  Sat,  4 Mar 2006 20:49:13 +0100
+
+gpib (3.2.04-5) unstable; urgency=low
+
+  * debian/{control,rules}: use output from php4-config --phpapi instead of
+    grepping the include file and depend on a recent php4-dev
+    to rebuild against new phpapi
+
+ -- Robert Jordens <jordens@debian.org>  Wed,  5 Oct 2005 15:57:01 +0200
+
+gpib (3.2.04-4) unstable; urgency=low
+
+  * debisn/{control, python2.4-gpib, python2.2-gpib, rules}: 
+    build python2.4 bindings, drop the 2.2 ones.
+
+ -- Robert Jordens <jordens@debian.org>  Tue,  2 Aug 2005 01:16:02 +0200
+
+gpib (3.2.04-3) unstable; urgency=low
+
+  * Pah. Really fix modprobe and modutils files
+
+ -- Robert Jordens <jordens@debian.org>  Thu, 16 Jun 2005 18:42:29 +0200
+
+gpib (3.2.04-2) unstable; urgency=low
+
+  * debian/control: move kernel-package to suggests and -headers|-source to
+    recommends; closes: Bug#314189 [should not *depend* on kernel-source and
+    kernel-package]
+  * re-double modprobe.d as modutils
+
+ -- Robert Jordens <jordens@debian.org>  Wed, 15 Jun 2005 18:42:37 +0200
+
+gpib (3.2.04-1) unstable; urgency=low
+
+  * new upstream release
+    + add hp_82341 to modules
+    + debian/patches/ines.h-add-unaccel.patch: fixes missing declaration
+  * permissions files ignored as of udev 0.051-1, use rules.d
+    closes: Bug#311943 [/dev/gpib* created in wrong group at startup]
+  * make modutils a modprobe.d.
+    closes: Bug#311944 [Post install configuration of devices fails]
+  * make the depends on libgpib-bin a recommends.
+
+ -- Robert Jordens <jordens@debian.org>  Mon, 13 Jun 2005 10:44:50 +0200
+
+gpib (3.2.03-2) unstable; urgency=medium
+
+  * rebuild against the new PHP4 without ZTS; revert most of the changes from
+    3.2.02-5; closes: Bug#301326
+  * urgency medium due to above changes in PHP
+
+ -- Robert Jordens <jordens@debian.org>  Fri, 25 Mar 2005 11:43:55 +0100
+
+gpib (3.2.03-1) unstable; urgency=low
+
+  * new upstream release
+    + debian/patches/no-timeout-in-urb.patch applied upstream
+
+ -- Robert Jordens <jordens@debian.org>  Tue,  1 Mar 2005 16:57:32 +0100
+
+gpib (3.2.02-5) unstable; urgency=medium
+
+  * debian/control: b-dep on php4-dev (>= 4:4.3.10-3); 
+    debian/rules: php4-gpib: depends on the right phpapi-$phpapiver
+    closes: Bug#294013 (php4-gpib: phpapi revision requires a new upload 
+    in sid)
+  * urgency medium due to above change
+
+ -- Robert Jordens <jordens@debian.org>  Tue,  8 Feb 2005 14:14:17 +0100
+
+gpib (3.2.02-4) unstable; urgency=low
+
+  * debian/modutils/gpib added: runs gpib_config after loading a module;
+    debian/libgpib-bin.postinst: added update-modules call
+    closes: Bug#291643: gpib_config not run at boot time.
+
+ -- Robert Jordens <jordens@debian.org>  Thu, 27 Jan 2005 14:28:33 +0100
+
+gpib (3.2.02-3) unstable; urgency=high
+
+  * damn!
+  * debian/patches/regen-autotools.patch: updated; sorry autobuilders
+  * urgency still high because of the bugfix two revisions before
+
+ -- Robert Jordens <jordens@debian.org>  Mon, 17 Jan 2005 15:44:10 +0100
+
+gpib (3.2.02-2) unstable; urgency=high
+
+  * debian/patches/dont-install-pcmcia-and-usb-stuff.patch,
+    debian/libgpib-bin.install updated:
+    dont let the agilent usb driver mess with /etc. fixes the current
+    FTBFS
+  * urgency still high because of the bug fix in the upload before
+
+ -- Robert Jordens <jordens@debian.org>  Mon, 17 Jan 2005 14:43:31 +0100
+
+gpib (3.2.02-1) unstable; urgency=high
+
+  * debian/control.modules.in: fix gpib-modules-_KVERS_
+    Build-dependencies;
+    closes: Bug#289443: gpib-modules-source: Dependency Problems
+  * urgency: high because the bug above is release critical
+  * new upstream release
+    + AM-MAINTAINER-MODE.patch, SONAME-lib.patch,
+      allow-null-in-python-bindings.patch,
+      dont-build-bindings-automatically.patch,
+      dont-check-for-kernel-source.patch, fix-doc-install.patch
+      gpib-HEADERS-fix.patch: applied upstream
+    + dont-build-modules.patch, regen-autotools.patch: adapted
+    + debian/control: updated GPIB_MODULE_SUBDIRS
+  * debian/libgpib-bin.postinst: add device nodes if not udev
+    or devfs and add the gpib group
+    closes: Bug#290594: Device nodes /dev/gpib* not created.
+  * debian/patches/no-timeout-in-urb.patch added: there is no
+    timeout in urb as of 2.6.9:
+    <http://linux.bkbits.net:8080/linux-2.6/diffs/include/linux/usb.h@1.117?nav=cset@1.1832.8.20>
+  * debian/gpib.permissions: added for udev. Gets installed under
+    libgpib-bin:/etc/udev/permissions.d
+  * build-python-from-toplevel.patch: fixed python module
+    installation path; thanks to Wayne Stambaugh
+    <wstambaugh@charter.net> for noticing.
+  * debian/control: description fix for libgpib-bin
+
+ -- Robert Jordens <jordens@debian.org>  Sun, 16 Jan 2005 22:42:46 +0100
+
+gpib (3.2.01-2) unstable; urgency=low
+
+  * debian/patches/gpib-HEADERS-fix.patch: install headers under gpib/
+  * debian/patches/SONAME-lib.patch: 
+    move libgpib-3.2.01.so to /usr/lib/libgpib.so.0
+
+ -- Robert Jordens <jordens@debian.org>  Tue, 21 Dec 2004 22:03:47 +0100
+
+gpib (3.2.01-1) unstable; urgency=low
+
+  * Initial Release. closes: #281002 (the ITP)
+
+ -- Robert Jordens <jordens@debian.org>  Sat, 13 Nov 2004 01:12:53 +0100
+

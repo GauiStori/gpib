@@ -1,0 +1,19 @@
+Source: gpib
+Priority: optional
+Section: science
+Maintainer: Robert Jordens <jordens@debian.org>
+Build-Depends: debhelper (>= 5), quilt, dh-buildinfo,
+ modules-assistant, kernel-headers-2.6 | kernel-source-2.6, bzip2
+Standards-Version: 3.7.2
+
+Package: gpib-modules-_KVERS_
+Section: science
+Architecture: any
+Provides: gpib-modules
+Recommends: libgpib-bin, udev (>= 0.103) 
+Description: kernel modules (kernel _KVERS_) for various GPIB boards
+ ${Common:Description}
+ This packages contains the loadable for the kernel modules for various
+ GPIB boards. The firmware for some boards is available from
+ <http://linux-gpib.sourceforge.net/firmware/>. The modules in this packages
+ are compiled for kernel version _KVERS_.

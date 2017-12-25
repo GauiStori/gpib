@@ -1,0 +1,19 @@
+# Nota bene, the minor numbers must be fixed according to the /etc/gpib.conf file
+# gpib.agent <Module> <idVendor:idProduct> <Minor>
+# X is written if the value is not used
+
+ACTION!="add", GOTO="gpib_usb_end"
+SUBSYSTEM!="usb", GOTO="gpib_usb_end"
+
+#NI b prior to loading
+ATTRS{idVendor}=="3923", ATTRS{idProduct}=="702b", RUN+="/lib/udev/gpib.agent $env{DEVICE} 3923:702b X"
+#Keithley prior to loading
+ATTRS{idVendor}=="3923", ATTRS{idProduct}=="713b", RUN+="/lib/udev/gpib.agent $env{DEVICE} 3923:713b X"
+
+#Agilent devices
+#82357A prior to loading
+ATTRS{idVendor}=="0957", ATTRS{idProduct}=="0007", RUN+="/lib/udev/gpib.agent $env{DEVICE} 0957:0007 X"
+#82357B before loading
+ATTRS{idVendor}=="0957", ATTRS{idProduct}=="0518", RUN+="/lib/udev/gpib.agent $env{DEVICE} 0957:0518 X"
+
+LABEL="gpib_usb_end"

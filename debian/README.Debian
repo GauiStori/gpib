@@ -1,0 +1,40 @@
+gpib for Debian GNU/Linux
+-------------------------
+
+To get a working GPIB setup you have to do the following:
+
+ 1. Check whether your GPIB adapter is support: check at
+    <http://linux-gpib.sourceforge.net> or install lingpib-dev and look
+    at the help files in /usr/share/doc/libgpib-doc
+
+ 2. Install gpib-modules-source and compile the kernel modules:
+
+    a. Easy way with module-assistant: m-a a-i gpib
+       as root should be sufficient, provided you have the kernel-source
+       or kernel-headers package for your currently running kernel
+       version installed and unpacked.
+
+    b. With make-kpkg (kernel-package): see the kernel-package
+       documentation for this.
+
+ 3. Install the resulting gpib-modules-KVERS package.
+
+ 4. Install libgpib-bin, libgpib0-dev. If you are using a usb adapter
+    which needs firmware, you can download that from
+    <http://linux-gpib.sourceforge.net/firmware/>.
+ 
+ 5. Configure /etc/gpib.conf according to your setup. Pay special
+    attention to the board_type variable.
+    /usr/share/doc/libgpib-doc provides the explanations for the settings.
+
+ 6. When using pcmcia, gpib_config is run automatically but if you remove
+    it from the computer, you need to run gpib_config again.
+    When using usb modules, read the documentation on linux-gpib.sf.net
+    The driver firmware is not yet implemented in the package.
+    All other boards should load automatically and gpib_config should be
+    run automatically as well.
+
+ 7. Now should be set. You can play with the examples in libgpib-doc
+    (ibtest), python-gpib, libgpib-perl and php5-gpib.
+
+ -- Robert Jordens <jordens@debian.org>  Sat, 13 Nov 2004 01:12:53 +0100

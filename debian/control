@@ -1,0 +1,98 @@
+Source: gpib
+Section: science
+Priority: optional
+Maintainer: Gudjon I. Gudjonsson <gudjon@gudjon.org>
+Build-Depends: debhelper (>= 11), 
+               dh-python,
+               autotools-dev, 
+               automake, 
+               bison, 
+               flex, 
+               bzip2,
+               doxygen, 
+               docbook-utils, 
+               docbook-to-man,
+               tcl8.6-dev, 
+               perl, 
+               python3-all-dev
+Standards-Version: 4.2.1
+
+Package: libgpib-dev
+Section: libdevel
+Architecture: any
+Replaces: libgpib0-dev
+Depends: libgpib0 (= ${binary:Version}), 
+         ${shlibs:Depends}, 
+         ${misc:Depends}
+Description: C bindings for GPIB (IEEE 488) kernel driver -- headers
+ ${Common:Description}
+ This package contains headers, documentation and static libraries.
+
+Package: libgpib0
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends},
+         ${misc:Depends}
+Recommends: gpib-modules, libgpib-bin
+Description: C bindings for GPIB (IEEE 488) kernel driver
+ ${Common:Description}
+ This package contains the shared library.
+
+Package: libgpib-bin
+Architecture: any
+Depends: ${shlibs:Depends}, 
+         ${misc:Depends}
+Description: Support and configuration applications for the GPIB library
+ ${Common:Description}
+ This package contains configuration files and binaries for libgpib
+
+Package: libgpib-perl
+Section: perl
+Architecture: any
+Depends: perl (>=5.8.8), 
+         ${shlibs:Depends}, 
+         ${perl:Depends}, 
+         ${misc:Depends}
+Description: Perl bindings for the GPIB library
+ ${Common:Description}
+ This package contains the bindings for perl.
+
+Package: python3-gpib
+Section: python
+Architecture: any
+Depends: ${shlibs:Depends},
+         ${python3:Depends},
+         ${misc:Depends}
+Provides: ${python3:Provides}
+Description: Python3 bindings for the GPIB library
+ ${Common:Description}
+ This package contains the bindings for Python3.
+
+Package: libtcl8.6-gpib
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, 
+         ${misc:Depends}
+Description: Tcl 8.6 bindings for the GPIB library
+ ${Common:Description}
+ This package contains the bindings for tcl8.6.
+
+Package: libgpib-doc
+Section: doc
+Architecture: all
+Depends: ${misc:Depends}
+Recommends: w3m | www-browser
+Description:  Documentation for the linux-gpib library
+ ${Common:Description}
+ This package contains the documentation and examples for the
+ linux-gpib library.
+
+Package: gpib-modules-source
+Architecture: all
+Depends:  ${misc:Depends}, bzip2
+Recommends: module-assistant
+Suggests: kernel-package
+Description: kernel modules for various GPIB boards
+ ${Common:Description}
+ This package contains the source for the kernel modules for various
+ GPIB boards.

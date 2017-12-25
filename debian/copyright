@@ -1,0 +1,48 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Source: http://linux-gpib.sourceforge.net/
+
+Files: *
+Copyright: 2001-2014 Frank Mori Hess <fmhess@users.sourceforge.net>
+           1997-1999 David A. Schleef <ds@stm.lbl.gov>
+           2005-2006 Ian Abbott
+           2003 Bernd Porr <Bernd.Porr@cn.stir.ac.uk>
+License: GPL-2+
+
+Files: drivers/gpib/eastwood/eastwood_gpib.*
+Copyright: 2006 Fluke Corporation
+License: GPL-2+
+
+Files: language/php/*
+Copyright: 2003 Michel Billaud <billaud@labri.fr>
+License: GPL-2+
+
+Files: language/guile/*
+Copyright: 2003 Stefan Jahn <stefan@lkcc.org>
+License: GPL-2+
+
+Files: language/perl/*
+Copyright: 2003 by John R. Ackermann <jra@febo.com>
+           2002 Thomas Nisius <tnisius@web.de>
+License: GPL-2+
+
+Files: debian/*
+Copyright: 2014 Gudjon I. Gudjonsson <gudjon@gudjon.org>
+License: GPL-2
+
+Files: language/tcl/*
+Copyright: 1990 Regents of the University of California
+License: Expat
+
+Files: install-sh
+Copyright: 1994 X Consortium
+License: BSD-3-clause
+
+License: GPL-2
+ On Debian systems, the full text of the GNU General Public
+ License version 2 can be found in the file
+ `/usr/share/common-licenses/GPL-2'.
+
+License: GPL-2+
+ On Debian systems, the full text of the GNU General Public
+ License version 2 can be found in the file
+ `/usr/share/common-licenses/GPL-2'.
