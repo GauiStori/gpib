@@ -1,0 +1,338 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ibrsv2</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="	Linux-GPIB 4.3.0
+ Documentation"
+HREF="t1.html"><LINK
+REL="UP"
+TITLE="	'Traditional' API Functions"
+HREF="reference.html#AEN899"><LINK
+REL="PREVIOUS"
+TITLE="ibrsv"
+HREF="reference-function-ibrsv.html"><LINK
+REL="NEXT"
+TITLE="ibsad"
+HREF="reference-function-ibsad.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Linux-GPIB 4.3.0
+ Documentation</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="reference-function-ibrsv.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="reference-function-ibsad.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="REFERENCE-FUNCTION-IBRSV2"
+></A
+>ibrsv2</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN2228"
+></A
+><H2
+>Name</H2
+>ibrsv2&nbsp;--&nbsp;request service (board)</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN2231"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><A
+NAME="AEN2232"
+></A
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="FUNCSYNOPSISINFO"
+>#include &#60;gpib/ib.h&#62;</PRE
+></TD
+></TR
+></TABLE
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>int <TT
+CLASS="FUNCTION"
+>ibrsv2</TT
+></CODE
+>(int <TT
+CLASS="PARAMETER"
+><I
+>ud</I
+></TT
+>, int <TT
+CLASS="PARAMETER"
+><I
+>status_byte</I
+></TT
+>, int <TT
+CLASS="PARAMETER"
+><I
+>new_reason_for_request</I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN2243"
+></A
+><H2
+>	Description
+	</H2
+><P
+>	The serial poll response byte of the board specified by the board
+	descriptor <TT
+CLASS="PARAMETER"
+><I
+>ud</I
+></TT
+> is set to <TT
+CLASS="PARAMETER"
+><I
+>status_byte</I
+></TT
+>.
+	A service request may be generated, cleared, or left unaffected depending on the values of
+	MSS (bit 6 in <TT
+CLASS="PARAMETER"
+><I
+>status_byte</I
+></TT
+>) and 
+	<TT
+CLASS="PARAMETER"
+><I
+>new_reason_for_request</I
+></TT
+>.  
+	</P
+><P
+>	There are three valid
+	possibilities for MSS and <TT
+CLASS="PARAMETER"
+><I
+>new_reason_for_request</I
+></TT
+>.  
+	If MSS is 1 and <TT
+CLASS="PARAMETER"
+><I
+>new_reason_for_request</I
+></TT
+> is nonzero, then 
+	the IEEE 488.2 local message "reqt" will be set true.  reqt sets local
+	message "rsv" true which in turn causes
+	the board to request service by asserting the SRQ line.
+	If the MSS bit is 0 and <TT
+CLASS="PARAMETER"
+><I
+>new_reason_for_request</I
+></TT
+> is also 0, then 
+	the "reqf" message will be set true, causing rsv to clear and
+	the board to stop requesting service.  Finally, if MSS is 1 and
+	<TT
+CLASS="PARAMETER"
+><I
+>new_reason_for_request</I
+></TT
+> is 0, then ibrsv2 will have no effect on
+	the service request state (it will only update the status byte).
+	The fourth possibilty of MSS is 0 (which implies no service request) and 
+	<TT
+CLASS="PARAMETER"
+><I
+>new_reason_for_request</I
+></TT
+> is nonzero (which implies there is a service request)
+	is contradictory and will be rejected with an EARG error.
+	</P
+><P
+>	Boards will also automatically stop requesting service when they are
+	serial polled by the controller.
+	</P
+><P
+>	This function follows the preferred implementation technique described in
+	IEEE 488.2 section 11.3.3.4.1.  It can be used to avoid the spurious requests 
+	for service that <A
+HREF="reference-function-ibrsv.html"
+>ibrsv()</A
+> is
+	prone to.  However, not all drivers/hardware implement support for
+	this function.  In such a case, this function may result in a ECAP error, and
+	you will have to fall back on using the simpler ibrsv().
+	</P
+><P
+>	If you are implementing a 488.2 device, this function should be called every
+	time either the status byte changes, or the service request enable register changes.
+	The value for <TT
+CLASS="PARAMETER"
+><I
+>new_reason_for_request</I
+></TT
+> may be calculated
+	from:
+	<TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>	new_reason_for_request = (status_byte &#38;	service_request_enable) &#38;
+                         	~(old_status_byte &#38; old_service_request_enable);
+	</PRE
+></TD
+></TR
+></TABLE
+>
+	</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN2262"
+></A
+><H2
+>	Return value
+	</H2
+><P
+>		The value of <A
+HREF="reference-globals-ibsta.html"
+>ibsta</A
+> is returned.
+	</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="reference-function-ibrsv.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="t1.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="reference-function-ibsad.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ibrsv</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="reference.html#AEN899"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ibsad</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,293 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ibeos</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="	Linux-GPIB 4.3.0
+ Documentation"
+HREF="t1.html"><LINK
+REL="UP"
+TITLE="	'Traditional' API Functions"
+HREF="reference.html#AEN899"><LINK
+REL="PREVIOUS"
+TITLE="ibdev"
+HREF="reference-function-ibdev.html"><LINK
+REL="NEXT"
+TITLE="ibeot"
+HREF="reference-function-ibeot.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Linux-GPIB 4.3.0
+ Documentation</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="reference-function-ibdev.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="reference-function-ibeot.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="REFERENCE-FUNCTION-IBEOS"
+></A
+>ibeos</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN1500"
+></A
+><H2
+>Name</H2
+>ibeos&nbsp;--&nbsp;set end-of-string mode (board or device)</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN1503"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><A
+NAME="AEN1504"
+></A
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="FUNCSYNOPSISINFO"
+>#include &#60;gpib/ib.h&#62;</PRE
+></TD
+></TR
+></TABLE
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>int <TT
+CLASS="FUNCTION"
+>ibeos</TT
+></CODE
+>(int <TT
+CLASS="PARAMETER"
+><I
+>ud</I
+></TT
+>, int <TT
+CLASS="PARAMETER"
+><I
+>eosmode</I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN1513"
+></A
+><H2
+>	Description
+	</H2
+><P
+>	ibeos() is used to set the end-of-string character and mode.  The least
+	significant 8 bits of <TT
+CLASS="PARAMETER"
+><I
+>eosmode</I
+></TT
+> specify the
+	eos character.  You may also bitwise-or one or more of the following
+	bits to set the eos mode:
+	</P
+><P
+>	<DIV
+CLASS="TABLE"
+><A
+NAME="AEN1518"
+></A
+><P
+><B
+>Table 1. End-of-String Mode Bits</B
+></P
+><TABLE
+BORDER="1"
+WIDTH="100%"
+BGCOLOR="#E0E0E0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+>constant</TH
+><TH
+>value (hexadecimal)</TH
+><TH
+>meaning</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>REOS</TD
+><TD
+>0x400</TD
+><TD
+>Enable termination of reads when eos character is received.</TD
+></TR
+><TR
+><TD
+>XEOS</TD
+><TD
+>0x800</TD
+><TD
+>Assert the EOI line whenever the eos character is sent during writes.</TD
+></TR
+><TR
+><TD
+>BIN</TD
+><TD
+>0x1000</TD
+><TD
+>Match eos character using all 8 bits (instead of only looking at
+	the 7 least significant bits).</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+>
+	</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN1539"
+></A
+><H2
+>	Return value
+	</H2
+><P
+>		The value of <A
+HREF="reference-globals-ibsta.html"
+>ibsta</A
+> is returned.
+	</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="reference-function-ibdev.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="t1.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="reference-function-ibeot.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ibdev</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="reference.html#AEN899"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ibeot</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

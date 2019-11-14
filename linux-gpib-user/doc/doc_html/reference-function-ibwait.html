@@ -1,0 +1,299 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ibwait</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="	Linux-GPIB 4.3.0
+ Documentation"
+HREF="t1.html"><LINK
+REL="UP"
+TITLE="	'Traditional' API Functions"
+HREF="reference.html#AEN899"><LINK
+REL="PREVIOUS"
+TITLE="ibvers"
+HREF="reference-function-ibvers.html"><LINK
+REL="NEXT"
+TITLE="ibwrt"
+HREF="reference-function-ibwrt.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Linux-GPIB 4.3.0
+ Documentation</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="reference-function-ibvers.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="reference-function-ibwrt.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="REFERENCE-FUNCTION-IBWAIT"
+></A
+>ibwait</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN2561"
+></A
+><H2
+>Name</H2
+>ibwait&nbsp;--&nbsp;wait for event (board or device)</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN2564"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><A
+NAME="AEN2565"
+></A
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="FUNCSYNOPSISINFO"
+>#include &#60;gpib/ib.h&#62;</PRE
+></TD
+></TR
+></TABLE
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>int <TT
+CLASS="FUNCTION"
+>ibwait</TT
+></CODE
+>(int <TT
+CLASS="PARAMETER"
+><I
+>ud</I
+></TT
+>, int <TT
+CLASS="PARAMETER"
+><I
+>status_mask</I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN2574"
+></A
+><H2
+>	Description
+	</H2
+><P
+>	ibwait() will sleep until one of the conditions specified in
+	<TT
+CLASS="PARAMETER"
+><I
+>status_mask</I
+></TT
+> is true.  The meaning of
+	the bits in <TT
+CLASS="PARAMETER"
+><I
+>status_mask</I
+></TT
+> are the same
+	as the bits of the <A
+HREF="reference-globals-ibsta.html"
+>ibsta</A
+>
+	status variable.
+	</P
+><P
+>	If <TT
+CLASS="PARAMETER"
+><I
+>status_mask</I
+></TT
+> is zero, then ibwait() will
+	return immediately.  This is useful if you simply wish to get an
+	updated ibsta.
+	</P
+><P
+>	When calling ibwait() on a device, only the following
+	condition bits in the <TT
+CLASS="PARAMETER"
+><I
+>status_mask</I
+></TT
+> are
+	valid: TIMO, END, CMPL, and RQS. For the RQS bit to be set in
+	the returned ibsta automatic serial polling must be enabled
+	for the board controlling the device, see
+	<A
+HREF="reference-function-ibconfig.html"
+>ibconfig()</A
+>.
+	The RQS condition is cleared by serial polling the device, see
+	<A
+HREF="reference-function-ibrsp.html"
+>ibrsp()</A
+>.
+	</P
+><P
+>	If you wish to resynchronize and obtain the results from an asynchronous I/O operation,
+	you must wait on CMPL by setting its bit in the <TT
+CLASS="PARAMETER"
+><I
+>status_mask</I
+></TT
+> parameter.
+	Then if ibwait returns with CMPL set, it will have updated iberr, ibcnt, and the ERR bit of ibsta 
+	with the most recent asynchronous I/O results.
+	</P
+><P
+>	If TIMO is set in the <TT
+CLASS="PARAMETER"
+><I
+>status_mask</I
+></TT
+> parameter, then ibwait
+	will timeout after the time period set by <A
+HREF="reference-function-ibtmo.html"
+>ibtmo</A
+>
+	and set TIMO in ibsta.
+	</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN2591"
+></A
+><H2
+>	Return value
+	</H2
+><P
+>	The value of <A
+HREF="reference-globals-ibsta.html"
+>ibsta</A
+> is returned.
+	</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="reference-function-ibvers.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="t1.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="reference-function-ibwrt.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ibvers</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="reference.html#AEN899"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ibwrt</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

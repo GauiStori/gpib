@@ -1,0 +1,237 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>SendSetup</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="	Linux-GPIB 4.3.0
+ Documentation"
+HREF="t1.html"><LINK
+REL="UP"
+TITLE='	"Multidevice" API Functions'
+HREF="reference.html#AEN2693"><LINK
+REL="PREVIOUS"
+TITLE="SendLLO"
+HREF="reference-function-sendllo.html"><LINK
+REL="NEXT"
+TITLE="SetRWLS"
+HREF="reference-function-setrwls.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Linux-GPIB 4.3.0
+ Documentation</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="reference-function-sendllo.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="reference-function-setrwls.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="REFERENCE-FUNCTION-SENDSETUP"
+></A
+>SendSetup</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN3308"
+></A
+><H2
+>Name</H2
+>SendSetup&nbsp;--&nbsp;perform send addressing</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN3311"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><A
+NAME="AEN3312"
+></A
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="FUNCSYNOPSISINFO"
+>#include &#60;gpib/ib.h&#62;</PRE
+></TD
+></TR
+></TABLE
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>void <TT
+CLASS="FUNCTION"
+>SendSetup</TT
+></CODE
+>(int <TT
+CLASS="PARAMETER"
+><I
+>board_desc</I
+></TT
+>, const Addr4882_t <TT
+CLASS="PARAMETER"
+><I
+>addressList[]</I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN3321"
+></A
+><H2
+>	Description
+	</H2
+><P
+>	SendSetup() addresses the devices in <TT
+CLASS="PARAMETER"
+><I
+>addressList</I
+></TT
+>
+	as listeners, and addresses the interface board as talker.
+  A subsequent
+	<A
+HREF="reference-function-senddatabytes.html"
+>SendDataBytes()</A
+> call
+	will write data to the devices.
+	</P
+><P
+>	You may find it simpler to use the slightly higher level functions
+	<A
+HREF="reference-function-send.html"
+>Send()</A
+> or
+	<A
+HREF="reference-function-sendlist.html"
+>SendList()</A
+>, since
+	they does not require
+	addressing and writing of data to be performed separately.
+	</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="reference-function-sendllo.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="t1.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="reference-function-setrwls.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>SendLLO</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="reference.html#AEN2693"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>SetRWLS</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,281 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ibppc</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="	Linux-GPIB 4.3.0
+ Documentation"
+HREF="t1.html"><LINK
+REL="UP"
+TITLE="	'Traditional' API Functions"
+HREF="reference.html#AEN899"><LINK
+REL="PREVIOUS"
+TITLE="ibpct"
+HREF="reference-function-ibpct.html"><LINK
+REL="NEXT"
+TITLE="ibrd"
+HREF="reference-function-ibrd.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Linux-GPIB 4.3.0
+ Documentation</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="reference-function-ibpct.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="reference-function-ibrd.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="REFERENCE-FUNCTION-IBPPC"
+></A
+>ibppc</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN1959"
+></A
+><H2
+>Name</H2
+>ibppc&nbsp;--&nbsp;parallel poll configure (board or device)</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN1962"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><A
+NAME="AEN1963"
+></A
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="FUNCSYNOPSISINFO"
+>#include &#60;gpib/ib.h&#62;</PRE
+></TD
+></TR
+></TABLE
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>int <TT
+CLASS="FUNCTION"
+>ibppc</TT
+></CODE
+>(int <TT
+CLASS="PARAMETER"
+><I
+>ud</I
+></TT
+>, int <TT
+CLASS="PARAMETER"
+><I
+>configuration</I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN1972"
+></A
+><H2
+>	Description
+	</H2
+><P
+>	Configures the parallel poll response of the device or board specified
+	by <TT
+CLASS="PARAMETER"
+><I
+>ud</I
+></TT
+>.  The <TT
+CLASS="PARAMETER"
+><I
+>configuration</I
+></TT
+>
+	should either be set to the 'PPD' constant to disable parallel poll
+	responses, or set to the return value of the
+	<A
+HREF="reference-function-ppe-byte.html"
+>PPE_byte()</A
+> inline
+	function to enable and
+	configure the parallel poll response.
+	</P
+><P
+>If <TT
+CLASS="PARAMETER"
+><I
+>ud</I
+></TT
+> is a device descriptor then
+	the device will be remotely configured by the controller.
+	</P
+><P
+>If <TT
+CLASS="PARAMETER"
+><I
+>ud</I
+></TT
+> is a board descriptor then
+	the board will be locally configured.  Note, in order to do a local
+	parallel poll configuration IbcPP2 must be set using 
+	<A
+HREF="reference-function-ibconfig.html"
+>ibconfig()</A
+>.
+	IEEE 488.2 prohibits local parallel poll configuration (IEEE 488.1 PP2 subset), 
+	requiring support for remote parallel poll configuration (IEEE 488.1 PP1 subset)
+	instead.
+	</P
+><P
+>	After configuring the parallel poll response of devices on a bus,
+	you may use
+	<A
+HREF="reference-function-ibrpp.html"
+>ibrpp()</A
+> to
+	parallel poll the devices.
+	</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN1985"
+></A
+><H2
+>	Return value
+	</H2
+><P
+>	The value of <A
+HREF="reference-globals-ibsta.html"
+>ibsta</A
+> is returned.
+	</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="reference-function-ibpct.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="t1.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="reference-function-ibrd.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ibpct</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="reference.html#AEN899"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ibrd</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,269 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>RcvRespMsg</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="	Linux-GPIB 4.3.0
+ Documentation"
+HREF="t1.html"><LINK
+REL="UP"
+TITLE='	"Multidevice" API Functions'
+HREF="reference.html#AEN2693"><LINK
+REL="PREVIOUS"
+TITLE="PPollUnconfig"
+HREF="reference-function-ppollunconfig.html"><LINK
+REL="NEXT"
+TITLE="ReadStatusByte"
+HREF="reference-function-readstatusbyte.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Linux-GPIB 4.3.0
+ Documentation</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="reference-function-ppollunconfig.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="reference-function-readstatusbyte.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="REFERENCE-FUNCTION-RCVRESPMSG"
+></A
+>RcvRespMsg</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN2988"
+></A
+><H2
+>Name</H2
+>RcvRespMsg&nbsp;--&nbsp;read data</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN2991"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><A
+NAME="AEN2992"
+></A
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="FUNCSYNOPSISINFO"
+>#include &#60;gpib/ib.h&#62;</PRE
+></TD
+></TR
+></TABLE
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>void <TT
+CLASS="FUNCTION"
+>RcvRespMsg</TT
+></CODE
+>(int <TT
+CLASS="PARAMETER"
+><I
+>board_desc</I
+></TT
+>, void *<TT
+CLASS="PARAMETER"
+><I
+>buffer</I
+></TT
+>, long <TT
+CLASS="PARAMETER"
+><I
+>count</I
+></TT
+>, int <TT
+CLASS="PARAMETER"
+><I
+>termination</I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN3005"
+></A
+><H2
+>	Description
+	</H2
+><P
+>	RcvRespMsg() reads data from the bus.
+	A device must have already been addressed as talker (and the
+	board as listener) before calling this function.  Addressing may
+	be accomplished with the
+	<A
+HREF="reference-function-receivesetup.html"
+>ReceiveSetup()</A
+>
+	function.
+	</P
+><P
+>	Up to <TT
+CLASS="PARAMETER"
+><I
+>count</I
+></TT
+> bytes are read into the array
+	specified by <TT
+CLASS="PARAMETER"
+><I
+>buffer</I
+></TT
+>.  The <TT
+CLASS="PARAMETER"
+><I
+>termination</I
+></TT
+>
+	argument specifies the 8-bit end-of-string character (which must
+	be a value from 0 to 255) whose
+	reception will terminate a read.  <TT
+CLASS="PARAMETER"
+><I
+>termination</I
+></TT
+>
+	can also be set to the 'STOPend' constant, in which case no
+	end-of-string character will be used.  Assertion of the EOI line
+	will always end a read.
+	</P
+><P
+>	You may find it simpler to use the slightly higher level function
+	<A
+HREF="reference-function-receive.html"
+>Receive()</A
+>, since
+	it does not require
+	addressing and reading of data to be performed separately.
+	</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="reference-function-ppollunconfig.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="t1.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="reference-function-readstatusbyte.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>PPollUnconfig</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="reference.html#AEN2693"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ReadStatusByte</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

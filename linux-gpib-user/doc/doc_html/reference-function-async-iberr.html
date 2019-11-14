@@ -1,0 +1,242 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>AsyncIberr</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="	Linux-GPIB 4.3.0
+ Documentation"
+HREF="t1.html"><LINK
+REL="UP"
+TITLE="	Utility Functions"
+HREF="reference.html#AEN3469"><LINK
+REL="PREVIOUS"
+TITLE="AsyncIbcnt and AsyncIbcntl"
+HREF="reference-function-async-ibcnt.html"><LINK
+REL="NEXT"
+TITLE="AsyncIbsta"
+HREF="reference-function-async-ibsta.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Linux-GPIB 4.3.0
+ Documentation</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="reference-function-async-ibcnt.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="reference-function-async-ibsta.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="REFERENCE-FUNCTION-ASYNC-IBERR"
+></A
+>AsyncIberr</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN3504"
+></A
+><H2
+>Name</H2
+>AsyncIberr&nbsp;--&nbsp;iberr value for last asynchronous I/O operation</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN3507"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><A
+NAME="AEN3508"
+></A
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="FUNCSYNOPSISINFO"
+>#include &#60;gpib/ib.h&#62;</PRE
+></TD
+></TR
+></TABLE
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>int <TT
+CLASS="FUNCTION"
+>AsyncIberr</TT
+></CODE
+>(void);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN3514"
+></A
+><H2
+>	Description
+	</H2
+><P
+>	AsyncIberr() returns a thread-local error number related to the global
+	variable <A
+HREF="reference-globals-iberr.html"
+>iberr</A
+>.
+	Its value corresponds to the result of the last asynchronous I/O operation
+	resynchronized to the current thread 
+	by an <A
+HREF="reference-function-ibwait.html"
+>ibwait</A
+>
+	or <A
+HREF="reference-function-ibstop.html"
+>ibstop</A
+> call.
+	This
+	function only reflects the result of the asynchronous I/O operation itself
+	and not, for example, the ibwait which resynchronized the asynchronous result
+	to the current thread.  Thus the result from AsyncIberr() is easier
+	to interpret than ThreadIberr(), since it is unambiguous whether the value
+	is associated with the asynchronous I/O result, or with the function call used
+	to resynchronize (ibwait or ibstop).
+	</P
+><P
+>This function is a Linux-GPIB extension.</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN3521"
+></A
+><H2
+>	Return value
+	</H2
+><P
+>	A value related to <A
+HREF="reference-globals-iberr.html"
+>iberr</A
+>
+	corresponding to the last asynchronous I/O operation resynchronized
+	to the current thread is returned.
+	</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="reference-function-async-ibcnt.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="t1.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="reference-function-async-ibsta.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>AsyncIbcnt and AsyncIbcntl</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="reference.html#AEN3469"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>AsyncIbsta</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

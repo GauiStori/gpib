@@ -1,0 +1,247 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>TestSys</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="	Linux-GPIB 4.3.0
+ Documentation"
+HREF="t1.html"><LINK
+REL="UP"
+TITLE='	"Multidevice" API Functions'
+HREF="reference.html#AEN2693"><LINK
+REL="PREVIOUS"
+TITLE="TestSRQ"
+HREF="reference-function-testsrq.html"><LINK
+REL="NEXT"
+TITLE="Trigger"
+HREF="reference-function-trigger.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Linux-GPIB 4.3.0
+ Documentation</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="reference-function-testsrq.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="reference-function-trigger.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="REFERENCE-FUNCTION-TESTSYS"
+></A
+>TestSys</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN3379"
+></A
+><H2
+>Name</H2
+>TestSys&nbsp;--&nbsp;perform self-test queries on devices</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN3382"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><A
+NAME="AEN3383"
+></A
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="FUNCSYNOPSISINFO"
+>#include &#60;gpib/ib.h&#62;</PRE
+></TD
+></TR
+></TABLE
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>void <TT
+CLASS="FUNCTION"
+>TestSys</TT
+></CODE
+>(int <TT
+CLASS="PARAMETER"
+><I
+>board_desc</I
+></TT
+>, const Addr4882_t <TT
+CLASS="PARAMETER"
+><I
+>addressList[]</I
+></TT
+>, short <TT
+CLASS="PARAMETER"
+><I
+>results[]</I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN3394"
+></A
+><H2
+>	Description
+	</H2
+><P
+>	TestSys() sends the '*TST?' message to all the devices in the
+	<TT
+CLASS="PARAMETER"
+><I
+>addressList</I
+></TT
+> array, then reads their
+	responses into the <TT
+CLASS="PARAMETER"
+><I
+>results</I
+></TT
+> array.
+	This will cause devices that conform to the IEEE 488.2 standard
+	to perform a self-test and respond with a zero on success.
+	A non-zero response indicates an error during the self-test.
+	</P
+><P
+>	The number of devices which responded with nonzero values from
+	their self-tests is returned in
+	<A
+HREF="reference-globals-ibcnt.html"
+>ibcnt and ibcntl</A
+>.
+	If a device fails to respond to the *TST? query, an error
+	will be flagged in
+	<A
+HREF="reference-globals-ibsta.html"
+>ibsta</A
+> (this
+	is different than NI's documented behaviour which is broken).
+	</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="reference-function-testsrq.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="t1.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="reference-function-trigger.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>TestSRQ</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="reference.html#AEN2693"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Trigger</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,665 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ibask</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="	Linux-GPIB 4.3.0
+ Documentation"
+HREF="t1.html"><LINK
+REL="UP"
+TITLE="	'Traditional' API Functions"
+HREF="reference.html#AEN899"><LINK
+REL="PREVIOUS"
+TITLE="	Linux-GPIB Reference"
+HREF="reference.html"><LINK
+REL="NEXT"
+TITLE="ibbna"
+HREF="reference-function-ibbna.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Linux-GPIB 4.3.0
+ Documentation</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="reference.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="reference-function-ibbna.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="REFERENCE-FUNCTION-IBASK"
+></A
+>ibask</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN905"
+></A
+><H2
+>Name</H2
+>ibask&nbsp;--&nbsp;query configuration (board or device)</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN908"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><A
+NAME="AEN909"
+></A
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="FUNCSYNOPSISINFO"
+>#include &#60;gpib/ib.h&#62;</PRE
+></TD
+></TR
+></TABLE
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>int <TT
+CLASS="FUNCTION"
+>ibask</TT
+></CODE
+>(int <TT
+CLASS="PARAMETER"
+><I
+>ud</I
+></TT
+>, int <TT
+CLASS="PARAMETER"
+><I
+>option</I
+></TT
+>, int *<TT
+CLASS="PARAMETER"
+><I
+>result</I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN920"
+></A
+><H2
+>	Description
+	</H2
+><P
+>	Queries various configuration settings associated with the
+	board or device descriptor <TT
+CLASS="PARAMETER"
+><I
+>ud</I
+></TT
+>.  The
+	<TT
+CLASS="PARAMETER"
+><I
+>option</I
+></TT
+> argument specifies the particular
+	setting you wish to query.  The result of the query is written
+	to the location specified by <TT
+CLASS="PARAMETER"
+><I
+>result</I
+></TT
+>.
+	To change the descriptor's configuration, see
+	<A
+HREF="reference-function-ibconfig.html"
+>ibconfig()</A
+>.
+	</P
+><P
+>	<DIV
+CLASS="TABLE"
+><A
+NAME="AEN928"
+></A
+><P
+><B
+>Table 1. ibask options</B
+></P
+><TABLE
+BORDER="1"
+WIDTH="100%"
+BGCOLOR="#E0E0E0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+>option</TH
+><TH
+>value (hexadecimal)</TH
+><TH
+>result of query</TH
+><TH
+>used for board/device</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>IbaPAD</TD
+><TD
+>0x1</TD
+><TD
+>GPIB primary address</TD
+><TD
+>board or device</TD
+></TR
+><TR
+><TD
+>IbaSAD</TD
+><TD
+>0x2</TD
+><TD
+>GPIB secondary address (0 for none, 0x60 to 0x7e for secondary
+	addresses 0 to 30)</TD
+><TD
+>board or device</TD
+></TR
+><TR
+><TD
+>IbaTMO</TD
+><TD
+>0x3</TD
+><TD
+>Timeout setting for io operations (a number from 0 to 17).  See
+	<A
+HREF="reference-function-ibtmo.html"
+>ibmto()</A
+>.
+	</TD
+><TD
+>board or device</TD
+></TR
+><TR
+><TD
+>IbaEOT</TD
+><TD
+>0x4</TD
+><TD
+>Nonzero if EOI is asserted with last byte on writes.
+	See <A
+HREF="reference-function-ibeot.html"
+>ibeot()</A
+>.
+	</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>IbaPPC</TD
+><TD
+>0x5</TD
+><TD
+>Parallel poll configuration.  See
+	<A
+HREF="reference-function-ibppc.html"
+>ibppc()</A
+>.
+	</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>IbaREADDR</TD
+><TD
+>0x6</TD
+><TD
+>Useless, included for compatibility only.</TD
+><TD
+>device</TD
+></TR
+><TR
+><TD
+>IbaAUTOPOLL</TD
+><TD
+>0x7</TD
+><TD
+>Nonzero if automatic serial polling is enabled.</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>IbaCICPROT</TD
+><TD
+>0x8</TD
+><TD
+>Useless, included for compatibility only.</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>IbaSC</TD
+><TD
+>0xa</TD
+><TD
+>Nonzero if board is system controller.
+	See <A
+HREF="reference-function-ibrsc.html"
+>ibrsc()</A
+>.
+	</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>IbaSRE</TD
+><TD
+>0xb</TD
+><TD
+>Nonzero if board autmatically asserts REN line when
+	it becomes the system controller.  See
+	<A
+HREF="reference-function-ibsre.html"
+>ibsre()</A
+>.
+	</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>IbaEOSrd</TD
+><TD
+>0xc</TD
+><TD
+>Nonzero if termination of reads on reception of the end-of-string
+	character is enabled.  See <A
+HREF="reference-function-ibeos.html"
+>ibeos()</A
+>,
+	in particular the REOS bit.
+	</TD
+><TD
+>board or device</TD
+></TR
+><TR
+><TD
+>IbaEOSwrt</TD
+><TD
+>0xd</TD
+><TD
+>Nonzero if EOI is asserted whenever end-of-string character is
+	sent.  See <A
+HREF="reference-function-ibeos.html"
+>ibeos()</A
+>,
+	in particular the XEOS bit.</TD
+><TD
+>board or device</TD
+></TR
+><TR
+><TD
+>IbaEOScmp</TD
+><TD
+>0xe</TD
+><TD
+>Nonzero if all 8 bits are used to match end-of-string
+	character.  Zero if only least significant 7 bits are used.
+	See <A
+HREF="reference-function-ibeos.html"
+>ibeos()</A
+>,
+	in particular the BIN bit.</TD
+><TD
+>board or device</TD
+></TR
+><TR
+><TD
+>IbaEOSchar</TD
+><TD
+>0xf</TD
+><TD
+>The end-of-string byte.</TD
+><TD
+>board or device</TD
+></TR
+><TR
+><TD
+>IbaPP2</TD
+><TD
+>0x10</TD
+><TD
+>Nonzero if in local parallel poll configure mode.  Zero
+	if in remote parallel poll configure mode.</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>IbaTIMING</TD
+><TD
+>0x11</TD
+><TD
+>Number indicating T1 delay.  1 for 2 microseconds, 2 for 500
+	nanoseconds, 3 for 350 nanoseconds.  The values are declared in
+	the header files as the constants T1_DELAY_2000ns, T1_DELAY_500ns,
+	and T1_DELAY_350ns.
+	</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>IbaReadAdjust</TD
+><TD
+>0x13</TD
+><TD
+>Nonzero if byte pairs are automatically swapped during
+	reads.</TD
+><TD
+>board or device</TD
+></TR
+><TR
+><TD
+>IbaWriteAdjust</TD
+><TD
+>0x14</TD
+><TD
+>Nonzero if byte pairs are automatically swapped during
+	writes.</TD
+><TD
+>board or device</TD
+></TR
+><TR
+><TD
+>IbaEventQueue</TD
+><TD
+>0x15</TD
+><TD
+>Nonzero if event queue is enabled.</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>IbaSPollBit</TD
+><TD
+>0x16</TD
+><TD
+>Nonzero if the use of the SPOLL bit in ibsta is enabled.</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>IbaSendLLO</TD
+><TD
+>0x17</TD
+><TD
+>Nonzero if devices connected to this board are automatically
+	put into local lockout
+	mode when brought online with ibfind() or ibdev().</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>IbaSPollTime</TD
+><TD
+>0x18</TD
+><TD
+>Timeout for serial polls.  The value of the result
+	is between 0 and 17, and has the same meaning as in
+	<A
+HREF="reference-function-ibtmo.html"
+>ibtmo()</A
+>.
+	</TD
+><TD
+>device</TD
+></TR
+><TR
+><TD
+>IbaPPollTime</TD
+><TD
+>0x19</TD
+><TD
+>Timeout for parallel polls.  The value of the result
+	is between 0 and 17, and has the same meaning as in
+	<A
+HREF="reference-function-ibtmo.html"
+>ibtmo()</A
+>.
+	</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>IbaEndBitIsNormal</TD
+><TD
+>0x1a</TD
+><TD
+>Nonzero if END bit of ibsta is set on reception of end-of-string
+	character or EOI.  Zero if END bit is only set on EOI.</TD
+><TD
+>board or device</TD
+></TR
+><TR
+><TD
+>IbaUnAddr</TD
+><TD
+>0x1b</TD
+><TD
+>Nonzero if UNT (untalk) and UNL (unlisten) commands are automatically
+	sent after a completed io operation using this descriptor.</TD
+><TD
+>device</TD
+></TR
+><TR
+><TD
+>IbaHSCableLength</TD
+><TD
+>0x1f</TD
+><TD
+>Useless, included only for compatibility.</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>IbaIst</TD
+><TD
+>0x20</TD
+><TD
+>Individual status bit, a.k.a. 'ist'.</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>IbaRsv</TD
+><TD
+>0x21</TD
+><TD
+>The current status byte this board will use to respond to
+	serial polls.</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>IbaBNA</TD
+><TD
+>0x200</TD
+><TD
+>Board index (minor number) of interface board which is
+	the controller-in-charge of this device's GPIB bus.</TD
+><TD
+>device</TD
+></TR
+><TR
+><TD
+>Iba7BitEOS</TD
+><TD
+>0x1000</TD
+><TD
+>Nonzero if board supports 7 bit EOS comparisons.
+	See <A
+HREF="reference-function-ibeos.html"
+>ibeos()</A
+>,
+	in particular the BIN bit.  This is a Linux-GPIB extension.</TD
+><TD
+>board</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+>
+	</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN1099"
+></A
+><H2
+>	Return value
+	</H2
+><P
+>	The value of <A
+HREF="reference-globals-ibsta.html"
+>ibsta</A
+> is returned.
+	</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="reference.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="t1.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="reference-function-ibbna.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Linux-GPIB Reference</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="reference.html#AEN899"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ibbna</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

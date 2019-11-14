@@ -1,0 +1,281 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ibwrta</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="	Linux-GPIB 4.3.0
+ Documentation"
+HREF="t1.html"><LINK
+REL="UP"
+TITLE="	'Traditional' API Functions"
+HREF="reference.html#AEN899"><LINK
+REL="PREVIOUS"
+TITLE="ibwrt"
+HREF="reference-function-ibwrt.html"><LINK
+REL="NEXT"
+TITLE="ibwrtf"
+HREF="reference-function-ibwrtf.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Linux-GPIB 4.3.0
+ Documentation</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="reference-function-ibwrt.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="reference-function-ibwrtf.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="REFERENCE-FUNCTION-IBWRTA"
+></A
+>ibwrta</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN2636"
+></A
+><H2
+>Name</H2
+>ibwrta&nbsp;--&nbsp;write data bytes asynchronously (board or device)</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN2639"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><A
+NAME="AEN2640"
+></A
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="FUNCSYNOPSISINFO"
+>#include &#60;gpib/ib.h&#62;</PRE
+></TD
+></TR
+></TABLE
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>int <TT
+CLASS="FUNCTION"
+>ibwrta</TT
+></CODE
+>(int <TT
+CLASS="PARAMETER"
+><I
+>ud</I
+></TT
+>, const void *<TT
+CLASS="PARAMETER"
+><I
+>buffer</I
+></TT
+>, long <TT
+CLASS="PARAMETER"
+><I
+>num_bytes</I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN2651"
+></A
+><H2
+>	Description
+	</H2
+><P
+>	ibwrta() is similar to
+	<A
+HREF="reference-function-ibwrt.html"
+>ibwrt()</A
+>
+	except it operates asynchronously.  ibwrta() does not
+	wait for the sending of the data bytes to complete, but
+	rather returns immediately.
+	</P
+><P
+>	While an asynchronous
+	operation is in progress, most library functions will
+	fail with an EOIP error.  In order to sucessfully
+	complete an
+	asynchronous operation, you must call
+	<A
+HREF="reference-function-ibwait.html"
+>ibwait()</A
+>
+	with CMPL set in the wait mask, until the CMPL bit is set ibsta.  Asynchronous
+	operations
+	may also be aborted with an
+	<A
+HREF="reference-function-ibstop.html"
+>ibstop()</A
+>
+	or
+	<A
+HREF="reference-function-ibonl.html"
+>ibonl()</A
+>
+	call.
+	</P
+><P
+>After the asynchronous I/O has completed and the results resynchronized
+	with the current thread, the Linux-GPIB extensions 
+	<A
+HREF="reference-function-async-ibsta.html"
+>AsyncIbsta</A
+>, 
+	<A
+HREF="reference-function-async-iberr.html"
+>AsyncIberr</A
+>, 
+	<A
+HREF="reference-function-async-ibcnt.html"
+>AsyncIbcnt and AsyncIbcntl</A
+>
+	may be useful to more cleanly separate the results of the asynchronous I/O from
+	the results of the ibwait or similar call used to resynchronize.
+	</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN2663"
+></A
+><H2
+>	Return value
+	</H2
+><P
+>	The value of <A
+HREF="reference-globals-ibsta.html"
+>ibsta</A
+> is returned.
+	</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="reference-function-ibwrt.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="t1.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="reference-function-ibwrtf.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ibwrt</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="reference.html#AEN899"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ibwrtf</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

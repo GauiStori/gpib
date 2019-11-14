@@ -1,0 +1,491 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>GPIB protocol</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="	Linux-GPIB 4.3.0
+ Documentation"
+HREF="t1.html"><LINK
+REL="PREVIOUS"
+TITLE="ThreadIbsta"
+HREF="reference-function-thread-ibsta.html"><LINK
+REL="NEXT"
+TITLE="GNU Free Documentation License"
+HREF="gfdl.html"></HEAD
+><BODY
+CLASS="SECTION"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Linux-GPIB 4.3.0
+ Documentation</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="reference-function-thread-ibsta.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="gfdl.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECTION"
+><H1
+CLASS="SECTION"
+><A
+NAME="GPIB-PROTOCOL"
+>GPIB protocol</A
+></H1
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="REFERENCE-COMMAND-BYTES"
+>GPIB command bytes</A
+></H2
+><P
+>	The meaning and values of the possible GPIB command bytes
+	are as follows:
+	</P
+><P
+>	<DIV
+CLASS="TABLE"
+><A
+NAME="AEN3829"
+></A
+><P
+><B
+>Table 13. GPIB command bytes</B
+></P
+><TABLE
+BORDER="1"
+WIDTH="100%"
+BGCOLOR="#E0E0E0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+>byte value (hexadecimal)</TH
+><TH
+>name</TH
+><TH
+>description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>0x1</TD
+><TD
+>GTL</TD
+><TD
+>Go to local</TD
+></TR
+><TR
+><TD
+>0x4</TD
+><TD
+>SDC</TD
+><TD
+>Selected device clear</TD
+></TR
+><TR
+><TD
+>0x5</TD
+><TD
+>PPConfig (also 'PPC' on non-powerpc architectures)</TD
+><TD
+>Parallel poll configure</TD
+></TR
+><TR
+><TD
+>0x8</TD
+><TD
+>GET</TD
+><TD
+>Group execute trigger</TD
+></TR
+><TR
+><TD
+>0x9</TD
+><TD
+>TCT</TD
+><TD
+>Take control</TD
+></TR
+><TR
+><TD
+>0x11</TD
+><TD
+>LLO</TD
+><TD
+>Local lockout</TD
+></TR
+><TR
+><TD
+>0x14</TD
+><TD
+>DCL</TD
+><TD
+>Device clear</TD
+></TR
+><TR
+><TD
+>0x15</TD
+><TD
+>PPU</TD
+><TD
+>Parallel poll unconfigure</TD
+></TR
+><TR
+><TD
+>0x18</TD
+><TD
+>SPE</TD
+><TD
+>Serial poll enable</TD
+></TR
+><TR
+><TD
+>0x19</TD
+><TD
+>SPD</TD
+><TD
+>Serial poll disable</TD
+></TR
+><TR
+><TD
+>0x1f</TD
+><TD
+>CFE</TD
+><TD
+>Configure enable</TD
+></TR
+><TR
+><TD
+>0x20 to 0x3e</TD
+><TD
+>MLA0 to MLA30</TD
+><TD
+>My (primary) listen address 0 to 30</TD
+></TR
+><TR
+><TD
+>0x3f</TD
+><TD
+>UNL</TD
+><TD
+>Unlisten</TD
+></TR
+><TR
+><TD
+>0x40 to 0x5e</TD
+><TD
+>MTA0 to MTA30</TD
+><TD
+>My (primary) talk address 0 to 30</TD
+></TR
+><TR
+><TD
+>0x5f</TD
+><TD
+>UNT</TD
+><TD
+>Untalk</TD
+></TR
+><TR
+><TD
+>0x60 to 0x6f</TD
+><TD
+>MSA0 to MSA15, also PPE, also CFG1 to CFG15</TD
+><TD
+>	<P
+>	When following a primary talk or primary listen address, this is
+	"my secondary address" MSA0 (0x60) to MSA15 (0x6f).  When following a PPC "parallel
+	poll configure", this is PPE "parallel poll enable".  When
+	following a CFE "configure enable", this is
+	CFG1 (0x61) to CFG15 (0x6f) "configure n meters". </P
+>
+	<P
+>	For parallel poll enable, the least significant 3 bits
+	of the command byte specify which DIO line the device
+	should use to send its parallel poll response.  The
+	fourth least significant bit (0x8)
+	indicates the 'sense' or polarity the device should use
+	when responding.
+	</P
+>
+	</TD
+></TR
+><TR
+><TD
+>0x70 to 0x7e</TD
+><TD
+>MSA16 to MSA30, also PPD</TD
+><TD
+>When following a talk or listen address, this is
+	'my secondary address' 16 to 30.  When following a parallel
+	poll configure, this is 'parallel poll disable'.</TD
+></TR
+><TR
+><TD
+>0x7f</TD
+><TD
+>PPD</TD
+><TD
+>Parallel poll disable</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+>
+	</P
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="GPIB-PROTOCOL-BUS-LINES"
+>GPIB bus lines</A
+></H2
+><P
+>Physically, the GPIB bus consists of 8 data lines, 3 handshaking
+lines, and 5 control lines (and 8 ground
+lines).  Brief descriptions
+of how they are used follow:</P
+><P
+>	<DIV
+CLASS="TABLE"
+><A
+NAME="AEN3916"
+></A
+><P
+><B
+>Table 14. GPIB bus lines</B
+></P
+><TABLE
+BORDER="1"
+WIDTH="100%"
+BGCOLOR="#E0E0E0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+>bus line</TH
+><TH
+>description</TH
+><TH
+>pin number</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>DIO1 through DIO8</TD
+><TD
+>Data input/output bits.  These 8 lines are used to read and write the 8 bits
+	of a data or command byte that is being sent over the bus.</TD
+><TD
+>DIO1 to DIO4 use pins 1 to 4, DIO5 to DIO8 use pins 13 to 16</TD
+></TR
+><TR
+><TD
+>EOI</TD
+><TD
+>End-or-identify.  This line is asserted with the last byte of
+	data during a write, to indicate the end of the message.  It can
+	also be asserted along with the ATN line to conduct a parallel poll.</TD
+><TD
+>5</TD
+></TR
+><TR
+><TD
+>DAV</TD
+><TD
+>Data valid.  This is a handshaking line, used to signal that
+	the value being sent with DIO1-DIO8 is valid.  During transfers the
+	DIO1-DIO8 lines are set, then the DAV line is asserted after
+	a delay called the 'T1 delay'.  The T1 delay lets the data lines
+	settle to stable values before they are read.</TD
+><TD
+>6</TD
+></TR
+><TR
+><TD
+>NRFD</TD
+><TD
+>Not ready for data.  NRFD is a handshaking line asserted by
+	listeners to indicate
+	they are not ready to receive a new data byte.</TD
+><TD
+>7</TD
+></TR
+><TR
+><TD
+>NDAC</TD
+><TD
+>Not data accepted.  NDAC is a handshaking line asserted by
+	listeners to indicate
+	they have not yet read the byte contained on the DIO lines.</TD
+><TD
+>8</TD
+></TR
+><TR
+><TD
+>IFC</TD
+><TD
+>Interface clear.  The system controller can assert this line
+	(it should be asserted for at least 100 microseconds) to reset
+	the bus and make itself controller-in-charge.</TD
+><TD
+>9</TD
+></TR
+><TR
+><TD
+>SRQ</TD
+><TD
+>Service request.  Devices on the bus can assert this line
+	to request service from the controller-in-charge.  The controller
+	can then poll the devices until it finds the device requesting
+	service, and perform whatever action is necessary.</TD
+><TD
+>10</TD
+></TR
+><TR
+><TD
+>ATN</TD
+><TD
+>Attention.  ATN is asserted to indicate that the DIO lines
+	contain a <A
+HREF="gpib-protocol.html#REFERENCE-COMMAND-BYTES"
+>command byte</A
+>
+	(as opposed to a data byte).  Also, it is asserted with EOI
+	when conducting parallel polls.</TD
+><TD
+>11</TD
+></TR
+><TR
+><TD
+>REN</TD
+><TD
+>Remote enable.  Asserted by the system controller, it enables
+	devices to enter remote mode.  When REN is asserted, a device will
+	enter remote mode when it is addressed by the controller.  When
+	REN is false, all devices will immediately return to local mode.
+	</TD
+><TD
+>17</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+></P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="reference-function-thread-ibsta.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="t1.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="gfdl.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ThreadIbsta</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>GNU Free Documentation License</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

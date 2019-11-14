@@ -1,0 +1,286 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>FindLstn</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="	Linux-GPIB 4.3.0
+ Documentation"
+HREF="t1.html"><LINK
+REL="UP"
+TITLE='	"Multidevice" API Functions'
+HREF="reference.html#AEN2693"><LINK
+REL="PREVIOUS"
+TITLE="EnableRemote"
+HREF="reference-function-enableremote.html"><LINK
+REL="NEXT"
+TITLE="FindRQS"
+HREF="reference-function-findrqs.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Linux-GPIB 4.3.0
+ Documentation</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="reference-function-enableremote.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="reference-function-findrqs.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="REFERENCE-FUNCTION-FINDLSTN"
+></A
+>FindLstn</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN2831"
+></A
+><H2
+>Name</H2
+>FindLstn&nbsp;--&nbsp;find devices</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN2834"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><A
+NAME="AEN2835"
+></A
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="FUNCSYNOPSISINFO"
+>#include &#60;gpib/ib.h&#62;</PRE
+></TD
+></TR
+></TABLE
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>void <TT
+CLASS="FUNCTION"
+>FindLstn</TT
+></CODE
+>(int <TT
+CLASS="PARAMETER"
+><I
+>board_desc</I
+></TT
+>, const Addr4882_t <TT
+CLASS="PARAMETER"
+><I
+>padList[]</I
+></TT
+>, Addr4882_t <TT
+CLASS="PARAMETER"
+><I
+>resultList[]</I
+></TT
+>, int <TT
+CLASS="PARAMETER"
+><I
+>maxNumResults</I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN2848"
+></A
+><H2
+>	Description
+	</H2
+><P
+>	FindLstn() will check the primary addresses in the <TT
+CLASS="PARAMETER"
+><I
+>padList</I
+></TT
+>
+	array for devices.  The GPIB addresses of all devices found will be stored in the
+	<TT
+CLASS="PARAMETER"
+><I
+>resultList</I
+></TT
+> array, and
+	<A
+HREF="reference-globals-ibcnt.html"
+>ibcnt</A
+>
+	will be set to the number
+	of devices found.  The <TT
+CLASS="PARAMETER"
+><I
+>maxNumResults</I
+></TT
+> parameter
+	limits the maximum number of results that will be returned, and is usually
+	set to the number of elements in the <TT
+CLASS="PARAMETER"
+><I
+>resultList</I
+></TT
+> array.
+	If more than <TT
+CLASS="PARAMETER"
+><I
+>maxNumResults</I
+></TT
+> devices are found, an
+	ETAB error is returned in <A
+HREF="reference-globals-iberr.html"
+>iberr</A
+>.
+	The <TT
+CLASS="PARAMETER"
+><I
+>padList</I
+></TT
+> should consist of primary addresses only,
+	with no secondary addresses (all possible secondary addresses will be checked
+	as necessary).
+	</P
+><P
+>	Your GPIB board must have the capability to monitor the NDAC bus line in order
+	to use this function (see <A
+HREF="reference-function-iblines.html"
+>iblines</A
+>).
+	</P
+><P
+>	This function has the additional effect of addressing the board as talker
+	for the duration of the Find Listeners protocol,
+	which is beyond what IEEE 488.2 specifies.
+	This is done because some boards cannot reliably read the state of
+	the NDAC bus line unless they are the talker.  Being the talker 
+	causes the board's gpib transceiver to configure NDAC as an input,
+	so its state can be reliably read from the bus through the transceiver.
+	</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="reference-function-enableremote.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="t1.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="reference-function-findrqs.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>EnableRemote</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="reference.html#AEN2693"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>FindRQS</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

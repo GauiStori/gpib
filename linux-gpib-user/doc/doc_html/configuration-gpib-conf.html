@@ -1,0 +1,538 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>gpib.conf</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="	Linux-GPIB 4.3.0
+ Documentation"
+HREF="t1.html"><LINK
+REL="UP"
+TITLE="	Configuration"
+HREF="configuration.html"><LINK
+REL="PREVIOUS"
+TITLE="	Configuration"
+HREF="configuration.html"><LINK
+REL="NEXT"
+TITLE="gpib_config"
+HREF="configuration-gpib-config.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Linux-GPIB 4.3.0
+ Documentation</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="configuration.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="configuration-gpib-config.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="CONFIGURATION-GPIB-CONF"
+></A
+>gpib.conf</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN32"
+></A
+><H2
+>Name</H2
+>gpib.conf&nbsp;--&nbsp;GPIB library configuration file</DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN35"
+></A
+><H2
+>Description</H2
+><P
+>The library, and the administration tool
+<A
+HREF="configuration-gpib-config.html"
+>gpib_config</A
+>
+read their configuration information from the
+file gpib.conf.  The file is located in the sysconfdir directory configured
+when linux-gpib was compiled.  The sysconfdir is typically set to /etc or
+/usr/local/etc.  A template gpib.conf
+file can be found in the util/templates/ subdirectory of the linux-gpib
+package.</P
+><P
+>The configuration file must contain one or more 'interface' entries, and
+can contain zero or more 'device' entries.  'device' entries are only
+required if you wish to open device descriptors with
+<A
+HREF="reference-function-ibfind.html"
+>ibfind()</A
+> instead
+of using <A
+HREF="reference-function-ibdev.html"
+>ibdev()</A
+>.
+Several example entries, and a table summarizing the possible
+options follow.</P
+><P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>&#13;interface {
+	minor = 0
+	board_type = "ni_pci"
+	pad = 0
+	master = yes
+}
+
+interface {
+	minor = 1
+	board_type = "ines_pci"
+	name = "joe"
+	pad = 5
+	sad = 0
+	timeout = T10s
+	pci_bus = 0
+	pci_slot = 0xd
+	master = no
+}
+
+interface {
+	minor = 2
+	board_type = "pcII"
+	pad = 3
+	sad = 0x62
+	eos = 0x0d
+	set-reos = yes
+	set-bin = no
+	set-xeos = no
+	set-eot = yes
+	base = 0x300
+	irq  = 5
+	dma  = 0
+	master = no
+}
+
+device {
+	minor = 0
+	name = "counter"
+	pad = 24
+}
+
+device {
+	minor = 0
+	name = "voltmeter"
+	pad = 7
+	sad = 110
+	eos = 0xa
+	set-reos = yes
+	set-bin = no
+	set-xeos = yes
+	set-eot = no
+	timeout = T1s
+}&#13;</PRE
+></TD
+></TR
+></TABLE
+></P
+><P
+>	<DIV
+CLASS="TABLE"
+><A
+NAME="AEN45"
+></A
+><P
+><B
+>Table 1. configuration options</B
+></P
+><TABLE
+BORDER="1"
+WIDTH="100%"
+BGCOLOR="#E0E0E0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+>option name</TH
+><TH
+>description</TH
+><TH
+>used by interface or device entries</TH
+><TH
+>required or optional</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>base</TD
+><TD
+>Specifies the base ioport or io memory address for a
+	board that lacks plug-and-play capability.</TD
+><TD
+>interface</TD
+><TD
+>optional</TD
+></TR
+><TR
+><TD
+>board_type</TD
+><TD
+>Specifies the type of interface board.  See the drivers.txt
+	file for a list of possible board types, and the kernel driver
+	module that supports them.</TD
+><TD
+>interface</TD
+><TD
+>required</TD
+></TR
+><TR
+><TD
+>dma</TD
+><TD
+>Specifies the dma channel for a board that lacks plug-and-play
+	capability.</TD
+><TD
+>interface</TD
+><TD
+>optional</TD
+></TR
+><TR
+><TD
+>eos</TD
+><TD
+>Sets the end-of-string byte for board or device descriptors
+	obtained with ibfind().  See also the set-reos, set-bin, and set-xeos
+	options.</TD
+><TD
+>interface or device</TD
+><TD
+>optional</TD
+></TR
+><TR
+><TD
+>irq</TD
+><TD
+>Specifies the interrupt level for a board that lacks
+	plug-and-play capability.</TD
+><TD
+>interface</TD
+><TD
+>optional</TD
+></TR
+><TR
+><TD
+>master</TD
+><TD
+>Set to 'yes' if you want the interface board to
+	be the system controller of the bus.  There can only
+	be one system controller on a bus.</TD
+><TD
+>interface</TD
+><TD
+>required</TD
+></TR
+><TR
+><TD
+>minor</TD
+><TD
+>'minor' specifies the minor number of the device file this
+	interface board will use.  A 'minor' of 0 corresponds
+	to /dev/gpib0, 1 is /dev/gpib1, etc.  The minor number is also
+	equal to the 'board index' which can be used as a board descriptor,
+	and is passed as one of the arguments of <A
+HREF="reference-function-ibdev.html"
+>	ibdev()</A
+>
+	</TD
+><TD
+>interface</TD
+><TD
+>required</TD
+></TR
+><TR
+><TD
+>name</TD
+><TD
+>The 'name' specifies the name which can be used with ibfind()
+	to get a descriptor for the board or device associated with this entry.</TD
+><TD
+>interface or device</TD
+><TD
+>optional</TD
+></TR
+><TR
+><TD
+>pad</TD
+><TD
+>Specifies the primary GPIB address (valid addresses are 0 to 30).
+	For interfaces, this is the primary address that the board will be
+	assigned when it is first brought online.  For devices, this is address
+	that will be used by device descriptors obtained with ibfind().</TD
+><TD
+>interface or device</TD
+><TD
+>required</TD
+></TR
+><TR
+><TD
+>pci_bus</TD
+><TD
+>Useful for distinguishing between multiple PCI cards.  If
+	you have more than one PCI card that with the same 'board_type', you can
+	use the 'pci_bus' and 'pci_slot' options to specify the particular
+	card you are interested in.  </TD
+><TD
+>interface</TD
+><TD
+>optional</TD
+></TR
+><TR
+><TD
+>pci_slot</TD
+><TD
+>Can be used in conjunction with 'pci_bus' to specify
+	a particular pci card.</TD
+><TD
+>interface</TD
+><TD
+>optional</TD
+></TR
+><TR
+><TD
+>sad</TD
+><TD
+>Specifies the secondary GPIB address.  Valid values are 0, or
+	0x60 to 0x7e hexadecimal (96 to 126 decimal).  A value of 0 means
+	secondary addressing is disabled (the default).  Secondary addresses
+	from 0 to 30
+	are specified by the library's convention of adding an offset of 0x60.
+	</TD
+><TD
+>interface or device</TD
+><TD
+>optional</TD
+></TR
+><TR
+><TD
+>serial_number</TD
+><TD
+>A string which may be used to select a particular piece of hardware by its serial number.</TD
+><TD
+>interface</TD
+><TD
+>optional</TD
+></TR
+><TR
+><TD
+>set-bin</TD
+><TD
+>Enables 8-bit comparisons when matching the
+	end-of-string byte, instead of only comparing the
+	7 least significant bits.  Only affects descriptors
+	returned by ibfind(), and has same effect as setting
+	the BIN bit in a
+	<A
+HREF="reference-function-ibeos.html"
+>ibeos()</A
+>
+	call.</TD
+><TD
+>interface or device</TD
+><TD
+>optional</TD
+></TR
+><TR
+><TD
+>set-eot</TD
+><TD
+>Enables assertion of the EOI line at the
+	end of writes, for descriptors
+	returned by ibfind().  See
+	<A
+HREF="reference-function-ibeot.html"
+>ibeot()</A
+>.</TD
+><TD
+>interface or device</TD
+><TD
+>optional</TD
+></TR
+><TR
+><TD
+>set-reos</TD
+><TD
+>Enables the termination of reads on reception of the
+	end-of-string byte for descriptors returned by ibfind().
+	Same as setting the REOS bit in a
+	<A
+HREF="reference-function-ibeos.html"
+>ibeos()</A
+>
+	call.</TD
+><TD
+>interface or device</TD
+><TD
+>optional</TD
+></TR
+><TR
+><TD
+>set-xeos</TD
+><TD
+>Enables the assertion of EOI on transmission of the
+	end-of-string byte for descriptors returned by ibfind().
+	Same as setting the XEOS bit in a
+	<A
+HREF="reference-function-ibeos.html"
+>ibeos()</A
+>
+	call.</TD
+><TD
+>interface or device</TD
+><TD
+>optional</TD
+></TR
+><TR
+><TD
+>sysfs_device_path</TD
+><TD
+>A string which may be used to select a particular piece of hardware by its sysfs device path.</TD
+><TD
+>interface</TD
+><TD
+>optional</TD
+></TR
+><TR
+><TD
+>timeout</TD
+><TD
+>Sets the io timeout for a board or device descriptor opened through
+	ibfind().  The possible settings are the same as the constants
+	used by <A
+HREF="reference-function-ibtmo.html"
+>ibtmo()</A
+>.</TD
+><TD
+>interface or device</TD
+><TD
+>optional</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+></P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="configuration.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="t1.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="configuration-gpib-config.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Configuration</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="configuration.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>gpib_config</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

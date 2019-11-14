@@ -1,0 +1,17 @@
+#!/bin/sh
+
+PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin:/bin:/usr/bin:/usr/local/bin
+HOME=/root
+export HOME PATH
+
+mylog() {
+	if [ -x /usr/bin/logger ]; then
+		/usr/bin/logger -t "$0" -- "$1"
+	fi 
+}
+
+mylog "entered for Product: $PRODUCT Devpath: $DEVPATH Serial: $SERIAL"
+mylog "gpib_config options: $GPIB_CONFIG_OPTIONS"
+
+gpib_config $GPIB_CONFIG_OPTIONS --sysfs-device-path $DEVPATH
+

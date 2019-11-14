@@ -1,0 +1,713 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ibconfig</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="	Linux-GPIB 4.3.0
+ Documentation"
+HREF="t1.html"><LINK
+REL="UP"
+TITLE="	'Traditional' API Functions"
+HREF="reference.html#AEN899"><LINK
+REL="PREVIOUS"
+TITLE="ibcmda"
+HREF="reference-function-ibcmda.html"><LINK
+REL="NEXT"
+TITLE="ibdev"
+HREF="reference-function-ibdev.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Linux-GPIB 4.3.0
+ Documentation</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="reference-function-ibcmda.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="reference-function-ibdev.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="REFERENCE-FUNCTION-IBCONFIG"
+></A
+>ibconfig</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN1254"
+></A
+><H2
+>Name</H2
+>ibconfig&nbsp;--&nbsp;change configuration (board or device)</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN1257"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><A
+NAME="AEN1258"
+></A
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="FUNCSYNOPSISINFO"
+>#include &#60;gpib/ib.h&#62;</PRE
+></TD
+></TR
+></TABLE
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>int <TT
+CLASS="FUNCTION"
+>ibconfig</TT
+></CODE
+>(int <TT
+CLASS="PARAMETER"
+><I
+>ud</I
+></TT
+>, int <TT
+CLASS="PARAMETER"
+><I
+>option</I
+></TT
+>, int <TT
+CLASS="PARAMETER"
+><I
+>setting</I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN1269"
+></A
+><H2
+>	Description
+	</H2
+><P
+>	Changes various configuration settings associated with the
+	board or device descriptor <TT
+CLASS="PARAMETER"
+><I
+>ud</I
+></TT
+>.  The
+	<TT
+CLASS="PARAMETER"
+><I
+>option</I
+></TT
+> argument specifies the particular
+	setting you wish to modify.  The <TT
+CLASS="PARAMETER"
+><I
+>setting</I
+></TT
+>
+	argument specifies the option's new configuration.
+	To query the descriptor's configuration, see
+	<A
+HREF="reference-function-ibask.html"
+>ibask()</A
+>.
+	</P
+><P
+>	<DIV
+CLASS="TABLE"
+><A
+NAME="AEN1277"
+></A
+><P
+><B
+>Table 1. ibconfig options</B
+></P
+><TABLE
+BORDER="1"
+WIDTH="100%"
+BGCOLOR="#E0E0E0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+>option</TH
+><TH
+>value (hexadecimal)</TH
+><TH
+>effect</TH
+><TH
+>used for board/device</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>IbcPAD</TD
+><TD
+>0x1</TD
+><TD
+>Sets GPIB primary address.  Same as
+	<A
+HREF="reference-function-ibpad.html"
+>ibpad()</A
+>
+	</TD
+><TD
+>board or device</TD
+></TR
+><TR
+><TD
+>IbcSAD</TD
+><TD
+>0x2</TD
+><TD
+>Sets GPIB secondary address.  Same as
+	<A
+HREF="reference-function-ibsad.html"
+>ibsad()</A
+>
+	</TD
+><TD
+>board or device</TD
+></TR
+><TR
+><TD
+>IbcTMO</TD
+><TD
+>0x3</TD
+><TD
+>Sets timeout for io operations.  Same as
+	<A
+HREF="reference-function-ibtmo.html"
+>ibmto()</A
+>.
+	</TD
+><TD
+>board or device</TD
+></TR
+><TR
+><TD
+>IbcEOT</TD
+><TD
+>0x4</TD
+><TD
+>If setting is nonzero, EOI is asserted with last byte on writes.
+	Same as <A
+HREF="reference-function-ibeot.html"
+>ibeot()</A
+>.
+	</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>IbcPPC</TD
+><TD
+>0x5</TD
+><TD
+>Sets parallel poll configuration.  Same as
+	<A
+HREF="reference-function-ibppc.html"
+>ibppc()</A
+>.
+	</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>IbcREADDR</TD
+><TD
+>0x6</TD
+><TD
+>Useless, included for compatibility only.</TD
+><TD
+>device</TD
+></TR
+><TR
+><TD
+>IbcAUTOPOLL</TD
+><TD
+>0x7</TD
+><TD
+>If setting is nonzero then automatic serial polling is enabled.</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>IbcCICPROT</TD
+><TD
+>0x8</TD
+><TD
+>Useless, included for compatibility only.</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>IbcSC</TD
+><TD
+>0xa</TD
+><TD
+>If setting is nonzero, board becomes system controller.
+	Same as <A
+HREF="reference-function-ibrsc.html"
+>ibrsc()</A
+>.
+	</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>IbcSRE</TD
+><TD
+>0xb</TD
+><TD
+>If setting is nonzero then board asserts REN line.  Otherwise
+	REN is unasserted.  Same as
+	<A
+HREF="reference-function-ibsre.html"
+>ibsre()</A
+>.
+	</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>IbcEOSrd</TD
+><TD
+>0xc</TD
+><TD
+>If setting is nonzero then reads are terminated on reception
+	of the end-of-string character.
+	See <A
+HREF="reference-function-ibeos.html"
+>ibeos()</A
+>,
+	in particular the REOS bit.
+	</TD
+><TD
+>board or device</TD
+></TR
+><TR
+><TD
+>IbcEOSwrt</TD
+><TD
+>0xd</TD
+><TD
+>If setting is nonzero then EOI is asserted whenever
+	the end-of-string character is
+	sent.  See <A
+HREF="reference-function-ibeos.html"
+>ibeos()</A
+>,
+	in particular the XEOS bit.</TD
+><TD
+>board or device</TD
+></TR
+><TR
+><TD
+>IbcEOScmp</TD
+><TD
+>0xe</TD
+><TD
+>If setting is nonzero then all 8 bits are used to match
+	the end-of-string
+	character.  Otherwise only the least significant 7 bits are used.
+	See <A
+HREF="reference-function-ibeos.html"
+>ibeos()</A
+>,
+	in particular the BIN bit.</TD
+><TD
+>board or device</TD
+></TR
+><TR
+><TD
+>IbcEOSchar</TD
+><TD
+>0xf</TD
+><TD
+>Sets the end-of-string byte.
+	See <A
+HREF="reference-function-ibeos.html"
+>ibeos()</A
+>.
+	</TD
+><TD
+>board or device</TD
+></TR
+><TR
+><TD
+>IbcPP2</TD
+><TD
+>0x10</TD
+><TD
+>If setting is nonzero then the board is put into
+	local parallel poll configure mode (IEEE 488.1 PP2 subset), and will not change
+	its parallel poll configuration in response to receiving
+	'parallel poll enable' command bytes from the controller-in-charge.
+	Instead, the parallel poll configuration is set locally by doing a board-level
+	call of <A
+HREF="reference-function-ibppc.html"
+>ibppc()</A
+>.
+	A zero value puts the board in remote parallel poll configure mode
+	(IEEE 488.1 PP1 subset).  IEEE 488.2 requires devices to support
+	the remote PP1 subset and not the local PP2 subset.
+	Some older hardware does not support local parallel poll
+	configure mode.
+	</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>IbcTIMING</TD
+><TD
+>0x11</TD
+><TD
+>Sets the T1 delay.  Use setting of 1 for 2 microseconds, 2 for 500
+	nanoseconds, or 3 for 350 nanoseconds.  These values are declared in
+	the header files as the constants T1_DELAY_2000ns, T1_DELAY_500ns,
+	and T1_DELAY_350ns.  A 2 microsecond T1 delay is safest, but
+	will limit maximum transfer speeds to a few hundred kilobytes
+	per second.
+	</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>IbcReadAdjust</TD
+><TD
+>0x13</TD
+><TD
+>If setting is nonzero then byte pairs are automatically swapped
+	during reads.  Presently, this feature is unimplemented.
+	</TD
+><TD
+>board or device</TD
+></TR
+><TR
+><TD
+>IbcWriteAdjust</TD
+><TD
+>0x14</TD
+><TD
+>If setting is nonzero then byte pairs are automatically swapped
+	during writes.  Presently, this feature is unimplemented.
+	</TD
+><TD
+>board or device</TD
+></TR
+><TR
+><TD
+>IbcEventQueue</TD
+><TD
+>0x15</TD
+><TD
+>If setting is nonzero then the event queue is enabled.  The
+	event queue is disabled by default.</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>IbcSPollBit</TD
+><TD
+>0x16</TD
+><TD
+>If the setting is nonzero then the use of the SPOLL bit in ibsta is enabled.
+	</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>IbcSendLLO</TD
+><TD
+>0x17</TD
+><TD
+>If the setting is nonzero then devices connected to this board are automatically
+	put into local lockout
+	mode when brought online with ibfind() or ibdev().</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>IbcSPollTime</TD
+><TD
+>0x18</TD
+><TD
+>Sets timeout for serial polls.  The setting must be
+	between 0 and 17, which correspond to the same time periods as in
+	<A
+HREF="reference-function-ibtmo.html"
+>ibtmo()</A
+>.
+	</TD
+><TD
+>device</TD
+></TR
+><TR
+><TD
+>IbcPPollTime</TD
+><TD
+>0x19</TD
+><TD
+>Sets timeout for parallel polls.  The setting must be
+	between 0 and 17, which correspond to the same time periods as in
+	<A
+HREF="reference-function-ibtmo.html"
+>ibtmo()</A
+>.
+	</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>IbcEndBitIsNormal</TD
+><TD
+>0x1a</TD
+><TD
+>If setting is nonzero then the END bit of ibsta is set on
+	reception of the end-of-string character or EOI (default).  Otherwise
+	END bit is only set on EOI.</TD
+><TD
+>board or device</TD
+></TR
+><TR
+><TD
+>IbcUnAddr</TD
+><TD
+>0x1b</TD
+><TD
+>If setting is nonzero then UNT (untalk) and UNL (unlisten) commands
+	are automatically sent after a completed io operation using this descriptor.
+	This option is off by default.</TD
+><TD
+>device</TD
+></TR
+><TR
+><TD
+>IbcHSCableLength</TD
+><TD
+>0x1f</TD
+><TD
+>Configures the total cable length in meters for your system, by sending the command
+	bytes CFE and CFGn.  This is required to enable high speed noninterlocked
+	handshaking (a.k.a. HS488) and set associated handshake timings.  
+	Valid <TT
+CLASS="PARAMETER"
+><I
+>setting</I
+></TT
+> values
+	are 0 through 15.  A value of zero disables noninterlocked handshaking,
+	otherwise the value is the total number of meters of cable.</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>IbcIst</TD
+><TD
+>0x20</TD
+><TD
+>Sets the individual status bit, a.k.a. 'ist'.  Same
+	as <A
+HREF="reference-function-ibist.html"
+>ibist()</A
+>.
+	</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>IbcRsv</TD
+><TD
+>0x21</TD
+><TD
+>Sets the current status byte this board will use to respond to
+	serial polls.  Same as <A
+HREF="reference-function-ibrsv.html"
+>ibrsv()</A
+>.
+	</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>IbcBNA</TD
+><TD
+>0x200</TD
+><TD
+>Changes the GPIB interface board used to access a device.  The
+	setting specifies the board index of the new access board.  This configuration
+	option is similar to <A
+HREF="reference-function-ibbna.html"
+>ibbna()</A
+>
+	except the new board is specified by its board index instead of a name.
+	</TD
+><TD
+>device</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+>
+	</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN1450"
+></A
+><H2
+>	Return value
+	</H2
+><P
+>	The value of <A
+HREF="reference-globals-ibsta.html"
+>ibsta</A
+> is returned.
+	</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="reference-function-ibcmda.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="t1.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="reference-function-ibdev.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ibcmda</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="reference.html#AEN899"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ibdev</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

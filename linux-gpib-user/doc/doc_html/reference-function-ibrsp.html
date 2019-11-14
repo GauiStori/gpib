@@ -1,0 +1,336 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ibrsp</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="	Linux-GPIB 4.3.0
+ Documentation"
+HREF="t1.html"><LINK
+REL="UP"
+TITLE="	'Traditional' API Functions"
+HREF="reference.html#AEN899"><LINK
+REL="PREVIOUS"
+TITLE="ibrsc"
+HREF="reference-function-ibrsc.html"><LINK
+REL="NEXT"
+TITLE="ibrsv"
+HREF="reference-function-ibrsv.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Linux-GPIB 4.3.0
+ Documentation</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="reference-function-ibrsc.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="reference-function-ibrsv.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="REFERENCE-FUNCTION-IBRSP"
+></A
+>ibrsp</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN2146"
+></A
+><H2
+>Name</H2
+>ibrsp&nbsp;--&nbsp; read status byte /  serial poll (device)</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN2149"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><A
+NAME="AEN2150"
+></A
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="FUNCSYNOPSISINFO"
+>#include &#60;gpib/ib.h&#62;</PRE
+></TD
+></TR
+></TABLE
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>int <TT
+CLASS="FUNCTION"
+>ibrsp</TT
+></CODE
+>(int <TT
+CLASS="PARAMETER"
+><I
+>ud</I
+></TT
+>, char *<TT
+CLASS="PARAMETER"
+><I
+>result</I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN2159"
+></A
+><H2
+>    Description
+  </H2
+><P
+>    ibrsp() obtains the status byte from the device specified
+    by <TT
+CLASS="PARAMETER"
+><I
+>ud</I
+></TT
+>. The status byte is stored in the
+    location specified by <TT
+CLASS="PARAMETER"
+><I
+>result</I
+></TT
+>.
+  </P
+><P
+>    If automatic serial polling is enabled on the board controlling
+    the device, the status byte is automatically read and queued
+    whenever the device requests service. If the status byte queue
+    is not empty <TT
+CLASS="FUNCTION"
+>ibrsp()</TT
+> obtains the status
+    byte information from the queue. If the queue is empty the
+    status byte is obtained by serial polling the
+    device. Automatic serial polling is controlled with
+    <A
+HREF="reference-function-ibconfig.html"
+>ibconfig()</A
+>.
+    The contents of the status byte returned
+    in <TT
+CLASS="PARAMETER"
+><I
+>result</I
+></TT
+> are device specific. Refer to
+    the device manufacturer's documentation for details. For
+    devices conforming to the IEEE488.1 or 2 specification the
+    bits defined in the table below are available if enabled in
+    the device's Status Byte Enable register.
+    <DIV
+CLASS="TABLE"
+><A
+NAME="AEN2168"
+></A
+><P
+><B
+>Table 1. Standard IEEE.488 GPIB status byte bits</B
+></P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+>constant</TH
+><TH
+>value</TH
+><TH
+>description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>IbStbRQS</TD
+><TD
+>0x40</TD
+><TD
+>The request service bit is set when device asserts
+	      RQS. It is cleared by serial polling the
+	      device. Supported by devices conforming to IEEE 488.1 or
+	      IEEE 488.2.
+	    </TD
+></TR
+><TR
+><TD
+>IbStbESB</TD
+><TD
+>0x20</TD
+><TD
+>The event-status bit is set when there are one or more
+	      bits set in the device's Standard Event Status Register.  It
+	      is cleared by reading the Standard Event Status Register.
+	      For devices conforming to IEEE 488.2 only.</TD
+></TR
+><TR
+><TD
+>IbStbMAV</TD
+><TD
+>0x10</TD
+><TD
+>The message available bit indicates whether or not the
+	      device's data output queue is empty. Whenever the device has
+	      data available, this bit will be set. It is cleared when the
+	      output queue is empty. The queue is emptied by reading data
+	      from the device with
+	      <A
+HREF="reference-function-ibrd.html"
+>ibrd()</A
+> for
+	      example. For devices conforming to IEEE 488.2 only.</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+>
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN2190"
+></A
+><H2
+>	Return value
+	</H2
+><P
+>	The value of <A
+HREF="reference-globals-ibsta.html"
+>ibsta</A
+> is returned.
+	</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="reference-function-ibrsc.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="t1.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="reference-function-ibrsv.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ibrsc</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="reference.html#AEN899"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ibrsv</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

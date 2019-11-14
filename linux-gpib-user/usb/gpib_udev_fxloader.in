@@ -1,0 +1,81 @@
+#!/bin/sh
+
+DATADIR=@datadir@
+FXLOAD=fxload
+FXLOAD_OPTIONS=
+
+PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin:/bin:/usr/bin:/usr/local/bin
+HOME=/root
+export HOME PATH
+FIRMWARE=
+SS_LOADER=
+
+mylog() {
+	if [ -x /usr/bin/logger ]; then
+		/usr/bin/logger -t "$0" -- "$1"
+	fi 
+}
+
+# pre-renumeration device IDs
+case $PRODUCT in
+
+	# ni-usb-b or kusb-488 without firmware
+	3923/702b/* | 3923/713b/*)
+		FIRMWARE=$DATADIR/usb/ni_usb_gpib/niusbb_firmware.hex
+		SS_LOADER=$DATADIR/usb/ni_usb_gpib/niusbb_loader.hex
+		FXLOAD_OPTIONS="-t fx"
+		;;
+
+	# 82357a without firmware
+	957/7/*)
+		FIRMWARE=$DATADIR/usb/agilent_82357a/82357a_fw.hex
+		;;
+
+	# 82357b without firmware
+	957/518/*)
+		FIRMWARE=$DATADIR/usb/agilent_82357a/measat_releaseX1.8.hex
+		FXLOAD_OPTIONS="-t fx2"
+		;;
+
+	*)
+		mylog "unsupported Product: $PRODUCT"
+		exit 1;
+		;;
+esac
+
+# quit unless we were called to download some firmware
+if [ "$FIRMWARE" = "" ]; then
+	# OR:  restructure to do other things for
+	# specific post-renumeration devices
+	exit 0
+fi
+
+# missing firmware?
+if [ ! -r $FIRMWARE ]; then
+	mylog "missing firmware $FIRMWARE for $PRODUCT ??"
+	exit 1
+fi
+
+# missing fxload?
+if ! which $FXLOAD; then
+	mylog "missing $FXLOAD ??"
+	exit 1
+fi
+
+mylog "loading firmware $FIRMWARE for $PRODUCT to $DEVICE"
+
+if [ "$SS_LOADER" = "" ]; then
+	SS_LOADER_OPTION=""
+else
+	# missing second stage loader?
+	if [ ! -r $SS_LOADER ]; then
+		mylog "missing second stage loader $SS_LOADER for $PRODUCT ??"
+		exit 1
+	fi
+
+	SS_LOADER_OPTION="-s $SS_LOADER"
+	mylog "using second stage loader $SS_LOADER"
+fi
+
+
+$FXLOAD $FXLOAD_OPTIONS -I $FIRMWARE $SS_LOADER_OPTION

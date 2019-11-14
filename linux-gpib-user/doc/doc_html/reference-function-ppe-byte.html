@@ -1,0 +1,266 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>PPE_byte</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="	Linux-GPIB 4.3.0
+ Documentation"
+HREF="t1.html"><LINK
+REL="UP"
+TITLE="	Utility Functions"
+HREF="reference.html#AEN3469"><LINK
+REL="PREVIOUS"
+TITLE="MTA"
+HREF="reference-function-mta.html"><LINK
+REL="NEXT"
+TITLE="ThreadIbcnt and ThreadIbcntl"
+HREF="reference-function-thread-ibcnt.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Linux-GPIB 4.3.0
+ Documentation</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="reference-function-mta.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="reference-function-thread-ibcnt.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="REFERENCE-FUNCTION-PPE-BYTE"
+></A
+>PPE_byte</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN3727"
+></A
+><H2
+>Name</H2
+>PPE_byte&nbsp;--&nbsp;generate 'parallel poll enable' command byte</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN3730"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><A
+NAME="AEN3731"
+></A
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="FUNCSYNOPSISINFO"
+>#include &#60;gpib/ib.h&#62;</PRE
+></TD
+></TR
+></TABLE
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>uint8_t <TT
+CLASS="FUNCTION"
+>PPE_byte</TT
+></CODE
+>(unsigned int <TT
+CLASS="PARAMETER"
+><I
+>dio_line</I
+></TT
+>, int <TT
+CLASS="PARAMETER"
+><I
+>sense</I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN3740"
+></A
+><H2
+>	Description
+	</H2
+><P
+>	PPE_byte() returns a 'parallel poll enable'
+	<A
+HREF="gpib-protocol.html#REFERENCE-COMMAND-BYTES"
+>command byte</A
+> corresponding
+	to the <TT
+CLASS="PARAMETER"
+><I
+>dio_line</I
+></TT
+> and <TT
+CLASS="PARAMETER"
+><I
+>sense</I
+></TT
+>
+	arguments.  The <TT
+CLASS="PARAMETER"
+><I
+>dio_line</I
+></TT
+> (valid values are 1 through 8)
+	specifies which dio line the device being configured should use to send
+	back its parallel poll response.  The <TT
+CLASS="PARAMETER"
+><I
+>sense</I
+></TT
+> argument
+	specifies the polarity of the response.  If <TT
+CLASS="PARAMETER"
+><I
+>sense</I
+></TT
+>
+	is nonzero, then the specified dio line will be asserted to indicate
+	that the 'individual status bit' (or 'ist') is 1.  If <TT
+CLASS="PARAMETER"
+><I
+>sense</I
+></TT
+>
+	is zero, then the specified dio line will be asserted when ist is zero.
+	</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN3750"
+></A
+><H2
+>	Return value
+	</H2
+><P
+>	The appropriate PPE command byte is returned.
+	</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="reference-function-mta.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="t1.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="reference-function-thread-ibcnt.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>MTA</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="reference.html#AEN3469"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ThreadIbcnt and ThreadIbcntl</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

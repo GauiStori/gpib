@@ -1,0 +1,287 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ibrd</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="	Linux-GPIB 4.3.0
+ Documentation"
+HREF="t1.html"><LINK
+REL="UP"
+TITLE="	'Traditional' API Functions"
+HREF="reference.html#AEN899"><LINK
+REL="PREVIOUS"
+TITLE="ibppc"
+HREF="reference-function-ibppc.html"><LINK
+REL="NEXT"
+TITLE="ibrda"
+HREF="reference-function-ibrda.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Linux-GPIB 4.3.0
+ Documentation</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="reference-function-ibppc.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="reference-function-ibrda.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="REFERENCE-FUNCTION-IBRD"
+></A
+>ibrd</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN1993"
+></A
+><H2
+>Name</H2
+>ibrd&nbsp;--&nbsp;read data bytes (board or device)</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN1996"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><A
+NAME="AEN1997"
+></A
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="FUNCSYNOPSISINFO"
+>#include &#60;gpib/ib.h&#62;</PRE
+></TD
+></TR
+></TABLE
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>int <TT
+CLASS="FUNCTION"
+>ibrd</TT
+></CODE
+>(int <TT
+CLASS="PARAMETER"
+><I
+>ud</I
+></TT
+>, void *<TT
+CLASS="PARAMETER"
+><I
+>buffer</I
+></TT
+>, long <TT
+CLASS="PARAMETER"
+><I
+>num_bytes</I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN2008"
+></A
+><H2
+>	Description
+	</H2
+><P
+>	ibrd() is used to read data bytes from a device or board.  The argument
+	<TT
+CLASS="PARAMETER"
+><I
+>ud</I
+></TT
+> can be either a device or board descriptor.
+  Up to
+	<TT
+CLASS="PARAMETER"
+><I
+>num_bytes</I
+></TT
+> bytes
+	are read into the user-supplied array <TT
+CLASS="PARAMETER"
+><I
+>buffer</I
+></TT
+>.
+	The read may be terminated by a
+	timeout occuring(see <A
+HREF="reference-function-ibtmo.html"
+>ibtmo()</A
+>),
+	the talker asserting the EOI line, the board receiving the
+	end-of-string character (see
+	<A
+HREF="reference-function-ibeos.html"
+>ibeos()</A
+>), receiving a device
+	clear command, or receiving an interface clear.
+	</P
+><P
+>	If <TT
+CLASS="PARAMETER"
+><I
+>ud</I
+></TT
+> is a device descriptor, then the library
+	automatically handles addressing the device as talker and the interface
+	board as listener before performing the read.
+	</P
+><P
+>	If <TT
+CLASS="PARAMETER"
+><I
+>ud</I
+></TT
+> is a board descriptor, no addressing
+	is performed and the board must be addressed as a listener
+	by the controller-in-charge.
+	</P
+><P
+>	After the ibrd() call, ibcnt and ibcntl are set to the number of bytes
+	read.
+	</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN2021"
+></A
+><H2
+>	Return value
+	</H2
+><P
+>	The value of <A
+HREF="reference-globals-ibsta.html"
+>ibsta</A
+> is returned.
+	</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="reference-function-ibppc.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="t1.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="reference-function-ibrda.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ibppc</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="reference.html#AEN899"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ibrda</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,171 @@
+
+Installing Linux-GPIB kernel space
+--------------------------------------------------------------------
+
+A) First steps:
+---------------
+
+o) Installing your Hardware:
+
+	If you have an old ISA board it may need to be configured by
+	setting the appropriate board jumpers or switches for its
+	base-address, interrupt-level (IRQ) and dma-request channel
+	(DMA).  Please choose a free base-address, irq and dma for
+	your system (refer to your hardware documentation for
+	this). You can "cat" /proc/interrupts, /proc/dma,
+	/proc/ioports, and /proc/iomem to get information on
+	interrupt, dma lines, io ports, and io memory already in use
+	by other drivers. Now shut down your system and install the
+	board in your computer.
+
+o) 	Unpacking the Software:
+
+        Unpack the archives with the 'tar' program, for example
+	'tar -xzf linux-gpib-kernel-4.2.0.tar.gz'.
+
+	You will also need the linux kernel source code, or a
+	reasonable approximation thereof. Ideally, you have the
+	linux source your current kernel was compiled from, or are
+	willing to compile a fresh kernel.  Otherwise, your
+	distribution may provide a useable setup you can compile
+	against (usually pointed at by a symbolic link at
+	/lib/modules/<kernel_version>/build).  For example, on Debian
+	you can install the kernel-headers package which matches the
+	kernel you are running and all should be well.
+
+	You could also prepare a kernel source tree that matches
+	the kernel you are currently running if you have its config file (in
+	the Debian distibution the config files for the kernel-image packages
+	are in the /boot directory).  Perform the following steps:
+
+	1) Get a copy of the kernel source that matches the kernel you
+	   are running.  Unpack it and copy your kernel config file to
+	   '.config' in the top directory of your kernel source.
+	   Note: you will need to have write permission to your kernel
+	   source directory when compiling linux-gpib, so it might be
+	   easiest to unpack the kernel source into a user-owned
+	   directory.
+
+	2) You might need to edit the file 'Makefile' in the kernel
+	   source.  At the top of the Makefile, the variable
+	   EXTRAVERSION is defined.  If necessary, change it to match
+	   your kernel (for example, if the command 'uname -r'
+	   produces "2.6.8-1-386" then your EXTRAVERSION should be set
+	   as 'EXTRAVERSION=-1-386'.
+
+        3) run 'make oldconfig' in your kernel source directory.  
+
+        4) run 'make vmlinux' and 'make modules' in the kernel source
+	   directory.  This will compile the Linux kernel and modules
+	   (and take a long time).  You can probably get by with just
+	   doing a 'make modules_prepare' instead, and your GPIB
+	   driver modules should still work.  However, the GPIB
+	   modules will taint your kernel when loaded.  Tainting is a
+	   flag to kernel developers that something fishy has been
+	   done, and they tend to ignore bug reports from tainted
+	   kernels.
+
+B) Building the Linux-GPIB drivers
+----------------------------------
+
+o) cd to your linux-gpib-kernel directory and  type 'make' to
+        build the drivers for the current running kernel.
+        Now the Package will be compiled.
+
+o)	For custom builds these are the environment variables that can
+	be used in any combination.
+
+          VERBOSE=<0 | 1>
+	  Default VERBOSE=0 for condensed ouput during make.
+	  For detailed make output: make VERBOSE=1
+	  
+          LINUX_SRCDIR=<path_to_linux_kernel_sources>
+	  Default LINUX_SRCDIR=/lib/modules/<kernel_version>/build
+	  To build against a kernel other than the one you are running
+	  on:  make LINUX_SRCDIR=<path_to_linux_kernel_sources>
+
+	  GPIB_SRCDIR=<path_to_linux_gpib_kernel_sources>
+	  Default GPIB_SRCDIR=<current_working_directory>
+
+	  ENABLE_ISA
+	  If you have an ISA based card and your kernel version is
+	  earlier than 3.12.0 or you have a later kernel with
+	  CONFIG_ISA not set you need enable ISA support.
+	  By default ENABLE_ISA is not set.
+	  To enable ISA support: make ENABLE_ISA="yes"
+
+	  GPIB-DEBUG=<0 | 1>
+	  GPIB-DEBUG is used to control the console output of the drivers.
+	  By default it is set to 0 which disables debug output.
+	  To enable driver debug output: make GPIB_DEBUG=1
+
+	  CROSS_COMPILE
+	  CROSS_COMPILE=<prefix_path_to_build_tools>
+ 	  By default CROSS_COMPILE is not set and the tools that were
+	  used to build the kernel are also used to build the gpib
+	  modules.
+
+	  ARCH
+	  ARCH=<target_architecture>
+          By default ARCH is not set and its value is determined from the
+          running system by the linux kernel build scripts.
+
+C) Installing the Linux-GPIB drivers
+------------------------------------
+
+	Type 'make install' (as root).  This will copy the kernel
+	drivers to /lib/modules/<kernel_version>/gpib.
+
+        If the build was made against a different kernel from the
+        running one the LINUX_SRCDIR variable used for the build 
+        must also be specified: 
+        
+        sudo make install LINUX_SRCDIR=<path_to_linux_kernel_sources>
+
+	To install the modules to a different directory a prefix can
+	be added to the installation directory using the
+	INSTALL_MOD_PATH variable. By default the variable is not set.
+	The modules are installed in
+	$(INSTALL_MOD_PATH)/lib/modules/<kernel_version>/gpib
+
+        The VERBOSE variable can also be used.
+
+D) Loading the driver modules
+-----------------------------
+
+
+o) PCI and ISA boards
+
+	You can load the driver module by typing
+
+		modprobe <driver name>
+
+	See the documentation in linux-gpib-user-x.x.x/doc/ to see
+	which driver your board is supported by.
+
+        You need to run the 'gpib_config' utility to setup the driver
+	before you can use it (the 'minor' options specifies which
+	board index you are setting up):
+
+		gpib_config --minor 0
+
+        In most modern systems the modprobe utility, which is run at
+        boot-up, will automatically ensure that the appropriate
+        modules are loaded when the boards/adaptors are plugged in.
+	'sudo modprobe -c' will show the list of modules it has detected.
+
+  	You can also set up the modules to load automatically by adding lines
+	something like 
+
+	alias char-major-160 gpib_common
+	alias gpib0 tnt4882
+	install tnt4882 PATH=/sbin:/usr/sbin:/usr/local/sbin:$PATH;modprobe --ignore-install tnt4882;gpib_config --minor 0
+
+	to /etc/modprobe.conf, which would autoload the tnt4882.o
+	module and run gpib_config when the library is used.  In the
+	Debian distribution, modprobe.conf is modified by adding a
+	file to the /etc/modprobe.d directory, and then running
+	'update-modules'.
+
+o) For PCMCIA and USB adaptors see the linux-gpib-user-x.x.x/INSTALL file.
+

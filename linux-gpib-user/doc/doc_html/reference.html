@@ -1,0 +1,659 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>	Linux-GPIB Reference</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="	Linux-GPIB 4.3.0
+ Documentation"
+HREF="t1.html"><LINK
+REL="PREVIOUS"
+TITLE="	Supported Hardware"
+HREF="supported-hardware.html"><LINK
+REL="NEXT"
+TITLE="ibcnt and ibcntl"
+HREF="reference-globals-ibcnt.html"></HEAD
+><BODY
+CLASS="SECTION"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Linux-GPIB 4.3.0
+ Documentation</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="supported-hardware.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="reference-globals-ibcnt.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECTION"
+><H1
+CLASS="SECTION"
+><A
+NAME="REFERENCE"
+>Linux-GPIB Reference</A
+></H1
+><P
+>	Reference for libgpib functions, macros, and constants.</P
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN680"
+>Global Variables</A
+></H2
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+><A
+HREF="reference-globals-ibcnt.html"
+>ibcnt and ibcntl</A
+>&nbsp;--&nbsp;hold number of bytes transferred, or errno</DT
+><DT
+><A
+HREF="reference-globals-iberr.html"
+>iberr</A
+>&nbsp;--&nbsp;holds error code</DT
+><DT
+><A
+HREF="reference-globals-ibsta.html"
+>ibsta</A
+>&nbsp;--&nbsp;holds status</DT
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN899"
+>'Traditional' API Functions</A
+></H2
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+><A
+HREF="reference-function-ibask.html"
+>ibask</A
+>&nbsp;--&nbsp;query configuration (board or device)</DT
+><DT
+><A
+HREF="reference-function-ibbna.html"
+>ibbna</A
+>&nbsp;--&nbsp;change access board (device)</DT
+><DT
+><A
+HREF="reference-function-ibcac.html"
+>ibcac</A
+>&nbsp;--&nbsp;assert ATN (board)</DT
+><DT
+><A
+HREF="reference-function-ibclr.html"
+>ibclr</A
+>&nbsp;--&nbsp;clear device (device)</DT
+><DT
+><A
+HREF="reference-function-ibcmd.html"
+>ibcmd</A
+>&nbsp;--&nbsp;write command bytes (board)</DT
+><DT
+><A
+HREF="reference-function-ibcmda.html"
+>ibcmda</A
+>&nbsp;--&nbsp;write command bytes asynchronously (board)</DT
+><DT
+><A
+HREF="reference-function-ibconfig.html"
+>ibconfig</A
+>&nbsp;--&nbsp;change configuration (board or device)</DT
+><DT
+><A
+HREF="reference-function-ibdev.html"
+>ibdev</A
+>&nbsp;--&nbsp;open a device (device)</DT
+><DT
+><A
+HREF="reference-function-ibeos.html"
+>ibeos</A
+>&nbsp;--&nbsp;set end-of-string mode (board or device)</DT
+><DT
+><A
+HREF="reference-function-ibeot.html"
+>ibeot</A
+>&nbsp;--&nbsp;assert EOI with last data byte (board or device)</DT
+><DT
+><A
+HREF="reference-function-ibevent.html"
+>ibevent</A
+>&nbsp;--&nbsp;get events from event queue (board)</DT
+><DT
+><A
+HREF="reference-function-ibfind.html"
+>ibfind</A
+>&nbsp;--&nbsp;open a board or device (board or device)</DT
+><DT
+><A
+HREF="reference-function-ibgts.html"
+>ibgts</A
+>&nbsp;--&nbsp;release ATN (board)</DT
+><DT
+><A
+HREF="reference-function-ibist.html"
+>ibist</A
+>&nbsp;--&nbsp;set individual status bit (board)</DT
+><DT
+><A
+HREF="reference-function-iblines.html"
+>iblines</A
+>&nbsp;--&nbsp;monitor bus lines (board)</DT
+><DT
+><A
+HREF="reference-function-ibln.html"
+>ibln</A
+>&nbsp;--&nbsp;check if listener is present (board or device)</DT
+><DT
+><A
+HREF="reference-function-ibloc.html"
+>ibloc</A
+>&nbsp;--&nbsp;go to local mode (board or device)</DT
+><DT
+><A
+HREF="reference-function-ibonl.html"
+>ibonl</A
+>&nbsp;--&nbsp;close or reinitialize descriptor (board or device)</DT
+><DT
+><A
+HREF="reference-function-ibpad.html"
+>ibpad</A
+>&nbsp;--&nbsp;set primary GPIB address (board or device)</DT
+><DT
+><A
+HREF="reference-function-ibpct.html"
+>ibpct</A
+>&nbsp;--&nbsp;pass control (board)</DT
+><DT
+><A
+HREF="reference-function-ibppc.html"
+>ibppc</A
+>&nbsp;--&nbsp;parallel poll configure (board or device)</DT
+><DT
+><A
+HREF="reference-function-ibrd.html"
+>ibrd</A
+>&nbsp;--&nbsp;read data bytes (board or device)</DT
+><DT
+><A
+HREF="reference-function-ibrda.html"
+>ibrda</A
+>&nbsp;--&nbsp;read data bytes asynchronously (board or device)</DT
+><DT
+><A
+HREF="reference-function-ibrdf.html"
+>ibrdf</A
+>&nbsp;--&nbsp;read data bytes to file (board or device)</DT
+><DT
+><A
+HREF="reference-function-ibrpp.html"
+>ibrpp</A
+>&nbsp;--&nbsp;perform a parallel poll (board or device)</DT
+><DT
+><A
+HREF="reference-function-ibrsc.html"
+>ibrsc</A
+>&nbsp;--&nbsp;request system control (board)</DT
+><DT
+><A
+HREF="reference-function-ibrsp.html"
+>ibrsp</A
+>&nbsp;--&nbsp; read status byte /  serial poll (device)</DT
+><DT
+><A
+HREF="reference-function-ibrsv.html"
+>ibrsv</A
+>&nbsp;--&nbsp;request service (board)</DT
+><DT
+><A
+HREF="reference-function-ibrsv2.html"
+>ibrsv2</A
+>&nbsp;--&nbsp;request service (board)</DT
+><DT
+><A
+HREF="reference-function-ibsad.html"
+>ibsad</A
+>&nbsp;--&nbsp;set secondary GPIB address (board or device)</DT
+><DT
+><A
+HREF="reference-function-ibsic.html"
+>ibsic</A
+>&nbsp;--&nbsp;perform interface clear (board)</DT
+><DT
+><A
+HREF="reference-function-ibspb.html"
+>ibspb</A
+>&nbsp;--&nbsp; obtain length of serial poll bytes queue (device)</DT
+><DT
+><A
+HREF="reference-function-ibsre.html"
+>ibsre</A
+>&nbsp;--&nbsp;set remote enable (board)</DT
+><DT
+><A
+HREF="reference-function-ibstop.html"
+>ibstop</A
+>&nbsp;--&nbsp;abort asynchronous i/o operation (board or device)</DT
+><DT
+><A
+HREF="reference-function-ibtmo.html"
+>ibtmo</A
+>&nbsp;--&nbsp;adjust io timeout (board or device)</DT
+><DT
+><A
+HREF="reference-function-ibtrg.html"
+>ibtrg</A
+>&nbsp;--&nbsp;trigger device (device)</DT
+><DT
+><A
+HREF="reference-function-ibvers.html"
+>ibvers</A
+>&nbsp;--&nbsp;Obtain the current linux gpib version.</DT
+><DT
+><A
+HREF="reference-function-ibwait.html"
+>ibwait</A
+>&nbsp;--&nbsp;wait for event (board or device)</DT
+><DT
+><A
+HREF="reference-function-ibwrt.html"
+>ibwrt</A
+>&nbsp;--&nbsp;write data bytes (board or device)</DT
+><DT
+><A
+HREF="reference-function-ibwrta.html"
+>ibwrta</A
+>&nbsp;--&nbsp;write data bytes asynchronously (board or device)</DT
+><DT
+><A
+HREF="reference-function-ibwrtf.html"
+>ibwrtf</A
+>&nbsp;--&nbsp;write data bytes from file (board or device)</DT
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN2693"
+>"Multidevice" API Functions</A
+></H2
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+><A
+HREF="reference-function-allspoll.html"
+>AllSPoll</A
+>&nbsp;--&nbsp;serial poll multiple devices</DT
+><DT
+><A
+HREF="reference-function-devclear.html"
+>DevClear</A
+>&nbsp;--&nbsp;clear a device</DT
+><DT
+><A
+HREF="reference-function-devclearlist.html"
+>DevClearList</A
+>&nbsp;--&nbsp;clear multiple devices</DT
+><DT
+><A
+HREF="reference-function-enablelocal.html"
+>EnableLocal</A
+>&nbsp;--&nbsp;put devices into local mode.</DT
+><DT
+><A
+HREF="reference-function-enableremote.html"
+>EnableRemote</A
+>&nbsp;--&nbsp;put devices into remote mode.</DT
+><DT
+><A
+HREF="reference-function-findlstn.html"
+>FindLstn</A
+>&nbsp;--&nbsp;find devices</DT
+><DT
+><A
+HREF="reference-function-findrqs.html"
+>FindRQS</A
+>&nbsp;--&nbsp;find device requesting service and read its status byte</DT
+><DT
+><A
+HREF="reference-function-passcontrol.html"
+>PassControl</A
+>&nbsp;--&nbsp;make device controller-in-charge</DT
+><DT
+><A
+HREF="reference-function-ppoll.html"
+>PPoll</A
+>&nbsp;--&nbsp;parallel poll devices</DT
+><DT
+><A
+HREF="reference-function-ppollconfig.html"
+>PPollConfig</A
+>&nbsp;--&nbsp;configure a device's parallel poll response</DT
+><DT
+><A
+HREF="reference-function-ppollunconfig.html"
+>PPollUnconfig</A
+>&nbsp;--&nbsp;disable devices' parallel poll response</DT
+><DT
+><A
+HREF="reference-function-rcvrespmsg.html"
+>RcvRespMsg</A
+>&nbsp;--&nbsp;read data</DT
+><DT
+><A
+HREF="reference-function-readstatusbyte.html"
+>ReadStatusByte</A
+>&nbsp;--&nbsp;serial poll a device</DT
+><DT
+><A
+HREF="reference-function-receive.html"
+>Receive</A
+>&nbsp;--&nbsp;perform receive addressing and read data</DT
+><DT
+><A
+HREF="reference-function-receivesetup.html"
+>ReceiveSetup</A
+>&nbsp;--&nbsp;perform receive addressing</DT
+><DT
+><A
+HREF="reference-function-resetsys.html"
+>ResetSys</A
+>&nbsp;--&nbsp;reset system</DT
+><DT
+><A
+HREF="reference-function-send.html"
+>Send</A
+>&nbsp;--&nbsp;perform send addressing and write data</DT
+><DT
+><A
+HREF="reference-function-sendcmds.html"
+>SendCmds</A
+>&nbsp;--&nbsp;write command bytes onto bus</DT
+><DT
+><A
+HREF="reference-function-senddatabytes.html"
+>SendDataBytes</A
+>&nbsp;--&nbsp;write data</DT
+><DT
+><A
+HREF="reference-function-sendifc.html"
+>SendIFC</A
+>&nbsp;--&nbsp;perform interface clear</DT
+><DT
+><A
+HREF="reference-function-sendlist.html"
+>SendList</A
+>&nbsp;--&nbsp;write data to multiple devices</DT
+><DT
+><A
+HREF="reference-function-sendllo.html"
+>SendLLO</A
+>&nbsp;--&nbsp;put devices into local lockout mode</DT
+><DT
+><A
+HREF="reference-function-sendsetup.html"
+>SendSetup</A
+>&nbsp;--&nbsp;perform send addressing</DT
+><DT
+><A
+HREF="reference-function-setrwls.html"
+>SetRWLS</A
+>&nbsp;--&nbsp;put devices into remote with lockout state</DT
+><DT
+><A
+HREF="reference-function-testsrq.html"
+>TestSRQ</A
+>&nbsp;--&nbsp;query state of SRQ bus line</DT
+><DT
+><A
+HREF="reference-function-testsys.html"
+>TestSys</A
+>&nbsp;--&nbsp;perform self-test queries on devices</DT
+><DT
+><A
+HREF="reference-function-trigger.html"
+>Trigger</A
+>&nbsp;--&nbsp;trigger a device</DT
+><DT
+><A
+HREF="reference-function-triggerlist.html"
+>TriggerList</A
+>&nbsp;--&nbsp;trigger multiple devices</DT
+><DT
+><A
+HREF="reference-function-waitsrq.html"
+>WaitSRQ</A
+>&nbsp;--&nbsp;sleep until the SRQ bus line is asserted</DT
+></DL
+></DIV
+><P
+>The "Multidevice" API functions provide similar functionality to the "Traditional" API functions.
+However, some of the "multidevice" functions can be
+performed on multiple devices simultaneously.  For example,
+<A
+HREF="reference-function-sendlist.html"
+>SendList()</A
+>
+can be used to write a message to multiple devices.  Such functions take an array of Addr4882_t
+as an argument.  The end of the array is specified by setting the last element to the
+constant NOADDR.</P
+></DIV
+><DIV
+CLASS="SECTION"
+><H2
+CLASS="SECTION"
+><A
+NAME="AEN3469"
+>Utility Functions</A
+></H2
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+><A
+HREF="reference-function-async-ibcnt.html"
+>AsyncIbcnt and AsyncIbcntl</A
+>&nbsp;--&nbsp;ibcnt and ibcntl values for last asynchronous I/O operation</DT
+><DT
+><A
+HREF="reference-function-async-iberr.html"
+>AsyncIberr</A
+>&nbsp;--&nbsp;iberr value for last asynchronous I/O operation</DT
+><DT
+><A
+HREF="reference-function-async-ibsta.html"
+>AsyncIbsta</A
+>&nbsp;--&nbsp;ibsta value for last asynchronous I/O operation</DT
+><DT
+><A
+HREF="reference-function-cfgn.html"
+>CFGn</A
+>&nbsp;--&nbsp;generate 'configure n meters' command byte</DT
+><DT
+><A
+HREF="reference-function-get-pad.html"
+>GetPAD</A
+>&nbsp;--&nbsp;extract primary address from an Addr4882_t value</DT
+><DT
+><A
+HREF="reference-function-get-sad.html"
+>GetSAD</A
+>&nbsp;--&nbsp;extract secondary address from an Addr4882_t value</DT
+><DT
+><A
+HREF="reference-function-make-addr.html"
+>MakeAddr</A
+>&nbsp;--&nbsp;pack primary and secondary address into an Addr4882_t value</DT
+><DT
+><A
+HREF="reference-function-mla.html"
+>MLA</A
+>&nbsp;--&nbsp;generate 'my listen address' command byte</DT
+><DT
+><A
+HREF="reference-function-msa.html"
+>MSA</A
+>&nbsp;--&nbsp;generate 'my secondary address' command byte</DT
+><DT
+><A
+HREF="reference-function-mta.html"
+>MTA</A
+>&nbsp;--&nbsp;generate 'my talk address' command byte</DT
+><DT
+><A
+HREF="reference-function-ppe-byte.html"
+>PPE_byte</A
+>&nbsp;--&nbsp;generate 'parallel poll enable' command byte</DT
+><DT
+><A
+HREF="reference-function-thread-ibcnt.html"
+>ThreadIbcnt and ThreadIbcntl</A
+>&nbsp;--&nbsp;thread-specific ibcnt and ibcntl values</DT
+><DT
+><A
+HREF="reference-function-thread-iberr.html"
+>ThreadIberr</A
+>&nbsp;--&nbsp;thread-specific iberr value</DT
+><DT
+><A
+HREF="reference-function-thread-ibsta.html"
+>ThreadIbsta</A
+>&nbsp;--&nbsp;thread-specific ibsta value</DT
+></DL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="supported-hardware.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="t1.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="reference-globals-ibcnt.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Supported Hardware</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ibcnt and ibcntl</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

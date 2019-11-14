@@ -1,0 +1,41 @@
+#!/usr/local/bin/php
+<?php
+{
+
+
+	$ii = 0;
+	$xx = "bbbbb";
+
+	$dev = ibdev(0,5,0,T1s,1,0);
+	print "Number of dev is $dev\n";
+
+	$xx = "ID?";
+
+	$ii = ibwrt($dev,$xx,strlen($xx));
+	$zz = ibcnt();
+	echo("ibwrt returns: $ii $zz\n");
+	$err = iberr();
+	
+	if($err > 0) {
+	  echo("iberr: $err\n");
+	  echo(gpib_error_string($err));
+	  echo("\n");
+	}
+	
+	$ii = ibrd($dev,$xx,1000);
+	$zz = ibcnt();
+	echo("ibrd returns: $ii $zz\n");
+	echo("($xx)\n");
+
+	$err = iberr();
+	if($err > 0) {
+	  echo("iberr: $err\n");
+	  
+	  echo(gpib_error_string($err));
+	  echo("\n");
+	}
+
+	echo("done.\n");
+
+}
+?>

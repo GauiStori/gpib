@@ -1,0 +1,301 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ibdev</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="	Linux-GPIB 4.3.0
+ Documentation"
+HREF="t1.html"><LINK
+REL="UP"
+TITLE="	'Traditional' API Functions"
+HREF="reference.html#AEN899"><LINK
+REL="PREVIOUS"
+TITLE="ibconfig"
+HREF="reference-function-ibconfig.html"><LINK
+REL="NEXT"
+TITLE="ibeos"
+HREF="reference-function-ibeos.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Linux-GPIB 4.3.0
+ Documentation</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="reference-function-ibconfig.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="reference-function-ibeos.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="REFERENCE-FUNCTION-IBDEV"
+></A
+>ibdev</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN1458"
+></A
+><H2
+>Name</H2
+>ibdev&nbsp;--&nbsp;open a device (device)</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN1461"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><A
+NAME="AEN1462"
+></A
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="FUNCSYNOPSISINFO"
+>#include &#60;gpib/ib.h&#62;</PRE
+></TD
+></TR
+></TABLE
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>int <TT
+CLASS="FUNCTION"
+>ibdev</TT
+></CODE
+>(int <TT
+CLASS="PARAMETER"
+><I
+>board_index</I
+></TT
+>, int <TT
+CLASS="PARAMETER"
+><I
+>pad</I
+></TT
+>, int <TT
+CLASS="PARAMETER"
+><I
+>sad</I
+></TT
+>, int <TT
+CLASS="PARAMETER"
+><I
+>timeout</I
+></TT
+>, int <TT
+CLASS="PARAMETER"
+><I
+>send_eoi</I
+></TT
+>, int <TT
+CLASS="PARAMETER"
+><I
+>eos</I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN1479"
+></A
+><H2
+>	Description
+	</H2
+><P
+>	ibdev() is used to obtain a device descriptor, which can then be used by
+	other functions in the library.  The argument <TT
+CLASS="PARAMETER"
+><I
+>board_index</I
+></TT
+>
+	specifies which GPIB interface board the device is connected to.
+	The <TT
+CLASS="PARAMETER"
+><I
+>pad</I
+></TT
+> and <TT
+CLASS="PARAMETER"
+><I
+>sad</I
+></TT
+> arguments specify
+	the GPIB address of the device to be opened (see <A
+HREF="reference-function-ibpad.html"
+>	ibpad()</A
+> and <A
+HREF="reference-function-ibsad.html"
+>ibsad()</A
+>).
+	The timeout for io operations is specified by <TT
+CLASS="PARAMETER"
+><I
+> timeout </I
+></TT
+>
+	(see <A
+HREF="reference-function-ibtmo.html"
+>ibtmo()</A
+>). If
+	<TT
+CLASS="PARAMETER"
+><I
+>send_eoi</I
+></TT
+> is nonzero, then the EOI
+	line will be asserted with the last byte sent during writes (see
+	<A
+HREF="reference-function-ibeot.html"
+>ibeot()</A
+>).
+	Finally, the <TT
+CLASS="PARAMETER"
+><I
+>eos</I
+></TT
+>
+	argument specifies the end-of-string character and whether or not its
+	reception should terminate reads (see <A
+HREF="reference-function-ibeos.html"
+>	ibeos()</A
+>).
+	</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN1493"
+></A
+><H2
+>	Return value
+	</H2
+><P
+>	If sucessful, returns a (non-negative) device descriptor.  On failure, -1 is returned.
+	</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="reference-function-ibconfig.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="t1.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="reference-function-ibeos.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ibconfig</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="reference.html#AEN899"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ibeos</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

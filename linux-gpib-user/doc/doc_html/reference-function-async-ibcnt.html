@@ -1,0 +1,251 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>AsyncIbcnt and AsyncIbcntl</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="	Linux-GPIB 4.3.0
+ Documentation"
+HREF="t1.html"><LINK
+REL="UP"
+TITLE="	Utility Functions"
+HREF="reference.html#AEN3469"><LINK
+REL="PREVIOUS"
+TITLE="	Linux-GPIB Reference"
+HREF="reference.html"><LINK
+REL="NEXT"
+TITLE="AsyncIberr"
+HREF="reference-function-async-iberr.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Linux-GPIB 4.3.0
+ Documentation</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="reference.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="reference-function-async-iberr.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="REFERENCE-FUNCTION-ASYNC-IBCNT"
+></A
+>AsyncIbcnt and AsyncIbcntl</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN3475"
+></A
+><H2
+>Name</H2
+>AsyncIbcnt and AsyncIbcntl&nbsp;--&nbsp;ibcnt and ibcntl values for last asynchronous I/O operation</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN3478"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><A
+NAME="AEN3479"
+></A
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="FUNCSYNOPSISINFO"
+>#include &#60;gpib/ib.h&#62;</PRE
+></TD
+></TR
+></TABLE
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>int <TT
+CLASS="FUNCTION"
+>AsyncIbcnt</TT
+></CODE
+>(void);</CODE
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>long <TT
+CLASS="FUNCTION"
+>AsyncIbcntl</TT
+></CODE
+>(void);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN3489"
+></A
+><H2
+>	Description
+	</H2
+><P
+>	AsyncIbcnt() and AsyncIbcntl() return thread-local counts related to
+	the global
+	variables <A
+HREF="reference-globals-ibcnt.html"
+>ibcnt and ibcntl</A
+>.
+	Their values correspond to the result of the last asynchronous I/O operation
+	resynchronized to the current thread by an <A
+HREF="reference-function-ibwait.html"
+>ibwait</A
+>
+	or <A
+HREF="reference-function-ibstop.html"
+>ibstop</A
+> call.  These
+	functions only reflect the result of the asynchronous I/O operation itself
+	and not, for example, the ibwait which resynchronized the asynchronous result
+	to the current thread.  Thus the result from AsyncIbcnt() is easier
+	to interpret than ThreadIbcnt(), since it is unambiguous whether the value
+	is associated with the asynchronous I/O result, or with the function call used
+	to resynchronize (ibwait or ibstop).
+	</P
+><P
+>These functions are Linux-GPIB extensions.</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN3496"
+></A
+><H2
+>	Return value
+	</H2
+><P
+>	A value related to <A
+HREF="reference-globals-ibcnt.html"
+>ibcnt or ibcntl</A
+>
+	corresponding to the last asynchronous I/O operation
+	resynchronized to the current thread is returned.
+	</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="reference.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="t1.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="reference-function-async-iberr.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Linux-GPIB Reference</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="reference.html#AEN3469"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>AsyncIberr</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

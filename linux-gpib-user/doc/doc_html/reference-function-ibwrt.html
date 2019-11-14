@@ -1,0 +1,287 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ibwrt</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="	Linux-GPIB 4.3.0
+ Documentation"
+HREF="t1.html"><LINK
+REL="UP"
+TITLE="	'Traditional' API Functions"
+HREF="reference.html#AEN899"><LINK
+REL="PREVIOUS"
+TITLE="ibwait"
+HREF="reference-function-ibwait.html"><LINK
+REL="NEXT"
+TITLE="ibwrta"
+HREF="reference-function-ibwrta.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Linux-GPIB 4.3.0
+ Documentation</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="reference-function-ibwait.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="reference-function-ibwrta.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="REFERENCE-FUNCTION-IBWRT"
+></A
+>ibwrt</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN2599"
+></A
+><H2
+>Name</H2
+>ibwrt&nbsp;--&nbsp;write data bytes (board or device)</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN2602"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><A
+NAME="AEN2603"
+></A
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="FUNCSYNOPSISINFO"
+>#include &#60;gpib/ib.h&#62;</PRE
+></TD
+></TR
+></TABLE
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>int <TT
+CLASS="FUNCTION"
+>ibwrt</TT
+></CODE
+>(int <TT
+CLASS="PARAMETER"
+><I
+>ud</I
+></TT
+>, const void *<TT
+CLASS="PARAMETER"
+><I
+>data</I
+></TT
+>, long <TT
+CLASS="PARAMETER"
+><I
+>num_bytes</I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN2614"
+></A
+><H2
+>	Description
+	</H2
+><P
+>	ibwrt() is used to write data bytes to a device or board.  The argument
+	<TT
+CLASS="PARAMETER"
+><I
+>ud</I
+></TT
+> can be either a device or board descriptor.
+	<TT
+CLASS="PARAMETER"
+><I
+>num_bytes</I
+></TT
+> specifies how many bytes
+	are written from the user-supplied array <TT
+CLASS="PARAMETER"
+><I
+>data</I
+></TT
+>.
+	EOI may be asserted with the last byte sent or when the end-of-string
+	character is sent (see <A
+HREF="reference-function-ibeos.html"
+>	ibeos()</A
+> and <A
+HREF="reference-function-ibeot.html"
+>	ibeot()</A
+>).  The write operation
+	may be interrupted by a timeout (see <A
+HREF="reference-function-ibtmo.html"
+>	ibtmo()</A
+>), the board receiving a device clear command, or
+	receiving an interface clear.
+	</P
+><P
+>	If <TT
+CLASS="PARAMETER"
+><I
+>ud</I
+></TT
+> is a device descriptor, then the library
+	automatically handles addressing the device as listener and the interface
+	board as talker, before sending the data bytes onto the bus.
+	</P
+><P
+>	If <TT
+CLASS="PARAMETER"
+><I
+>ud</I
+></TT
+>
+	is a board descriptor, the board simply writes the data onto the bus.  The
+	controller-in-charge must address the board as talker.
+	</P
+><P
+>	After the ibwrt() call, ibcnt and ibcntl are set to the number of bytes
+	written.
+	</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN2628"
+></A
+><H2
+>	Return value
+	</H2
+><P
+>	The value of <A
+HREF="reference-globals-ibsta.html"
+>ibsta</A
+> is returned.
+	</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="reference-function-ibwait.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="t1.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="reference-function-ibwrta.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ibwait</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="reference.html#AEN899"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ibwrta</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

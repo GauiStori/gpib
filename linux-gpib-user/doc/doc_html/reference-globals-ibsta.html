@@ -1,0 +1,461 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ibsta</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="	Linux-GPIB 4.3.0
+ Documentation"
+HREF="t1.html"><LINK
+REL="UP"
+TITLE="Global Variables"
+HREF="reference.html#AEN680"><LINK
+REL="PREVIOUS"
+TITLE="iberr"
+HREF="reference-globals-iberr.html"><LINK
+REL="NEXT"
+TITLE="ibask"
+HREF="reference-function-ibask.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Linux-GPIB 4.3.0
+ Documentation</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="reference-globals-iberr.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="reference-function-ibask.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="REFERENCE-GLOBALS-IBSTA"
+></A
+>ibsta</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN789"
+></A
+><H2
+>Name</H2
+>ibsta&nbsp;--&nbsp;holds status</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN792"
+></A
+><H2
+>Synopsis</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>#include &#60;gpib/ib.h&#62;
+
+volatile int ibsta;</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN794"
+></A
+><H2
+>	Description
+	</H2
+><P
+>	ibsta is set whenever a function from the 'traditional' or 'multidevice'
+	API is called.  Each of the bits in ibsta has a different meaning, summarized
+	in the following table:
+	</P
+><P
+>	<DIV
+CLASS="TABLE"
+><A
+NAME="AEN798"
+></A
+><P
+><B
+>Table 1. ibsta Bits</B
+></P
+><TABLE
+BORDER="1"
+WIDTH="100%"
+BGCOLOR="#E0E0E0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+>bit</TH
+><TH
+>value (hexadecimal)</TH
+><TH
+>meaning</TH
+><TH
+>used for board/device</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>DCAS</TD
+><TD
+>0x1</TD
+><TD
+>DCAS is set when a board receives the device clear command
+	(that is, the
+	SDC or DCL <A
+HREF="gpib-protocol.html#REFERENCE-COMMAND-BYTES"
+>command byte</A
+>).
+	It is cleared on the next 'traditional' or
+	'multidevice' function call following ibwait() (with DCAS set in the
+	wait mask), or following a read
+	or write (ibrd(), ibwrt(), Receive(), etc.).
+	The DCAS and DTAS bits will only be set if the event queue is disabled.
+	The event queue may be disabled with
+	<A
+HREF="reference-function-ibconfig.html"
+>ibconfig()</A
+>.</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>DTAS</TD
+><TD
+>0x2</TD
+><TD
+>DTAS is set when a board has received a device trigger command
+	(that is,
+	the GET <A
+HREF="gpib-protocol.html#REFERENCE-COMMAND-BYTES"
+>command byte</A
+>).
+	It is cleared on the next 'traditional' or
+	'multidevice' function call following ibwait() (with DTAS in the wait
+	mask).
+	The DCAS and DTAS bits will only be set if the event queue is disabled.
+	The event queue may be disabled with
+	<A
+HREF="reference-function-ibconfig.html"
+>ibconfig()</A
+>.</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>LACS</TD
+><TD
+>0x4</TD
+><TD
+>Board is currently addressed as a listener (IEEE listener state machine is in LACS or LADS).</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>TACS</TD
+><TD
+>0x8</TD
+><TD
+>Board is currently addressed as talker (IEEE talker state machine is in TACS or TADS).</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>ATN</TD
+><TD
+>0x10</TD
+><TD
+>The ATN line is asserted.</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>CIC</TD
+><TD
+>0x20</TD
+><TD
+>Board is controller-in-charge, so it is able to set the ATN line.</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>REM</TD
+><TD
+>0x40</TD
+><TD
+>Board is in 'remote' state.</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>LOK</TD
+><TD
+>0x80</TD
+><TD
+>Board is in 'lockout' state.</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>CMPL</TD
+><TD
+>0x100</TD
+><TD
+>I/O operation is complete.  Useful for determining when
+	an asynchronous I/O operation (ibrda(), ibwrta(), etc) has
+	completed.</TD
+><TD
+>board or device</TD
+></TR
+><TR
+><TD
+>EVENT</TD
+><TD
+>0x200</TD
+><TD
+>One or more clear, trigger, or interface clear events have been received,
+	and are available in the event queue
+	(see <A
+HREF="reference-function-ibevent.html"
+>ibevent()</A
+>).
+	The EVENT bit will only be set if the event queue is enabled.  The
+	event queue may be enabled with
+	<A
+HREF="reference-function-ibconfig.html"
+>ibconfig()</A
+>.</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>SPOLL</TD
+><TD
+>0x400</TD
+><TD
+>If this bit is enabled (see ibconfig()), it is set when the board is
+	serial polled.  The SPOLL bit is cleared when the board requests service
+	(see ibrsv()) or you call ibwait() on the board with SPOLL in the wait mask.
+	</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>RQS</TD
+><TD
+>0x800</TD
+><TD
+>RQS indicates that the device has requested service, and one
+	or more status bytes are available for reading with ibrsp().  RQS will
+	only be set if you have automatic serial polling enabled (see
+	<A
+HREF="reference-function-ibconfig.html"
+>ibconfig()</A
+>).</TD
+><TD
+>device</TD
+></TR
+><TR
+><TD
+>SRQI</TD
+><TD
+>0x1000</TD
+><TD
+>SRQI indicates that a device connected to the board is asserting
+	the SRQ line.  It
+	is only set if the board is the controller-in-charge.  If
+	automatic serial polling is enabled (see
+	<A
+HREF="reference-function-ibconfig.html"
+>ibconfig()</A
+>),
+	SRQI will generally be cleared,
+	since when a device requests service it will be automatically
+	polled and then unassert SRQ.</TD
+><TD
+>board</TD
+></TR
+><TR
+><TD
+>END</TD
+><TD
+>0x2000</TD
+><TD
+>END is set if the last io operation ended with the EOI
+	line asserted, and may be set on reception of the end-of-string character.
+	The
+	IbcEndBitIsNormal option of ibconfig() can be used to configure
+	whether or not END should be set on reception of the eos character.
+	</TD
+><TD
+>board or device</TD
+></TR
+><TR
+><TD
+>TIMO</TD
+><TD
+>0x4000</TD
+><TD
+>TIMO indicates that the last io operation or ibwait() timed out.</TD
+><TD
+>board or device</TD
+></TR
+><TR
+><TD
+>ERR</TD
+><TD
+>0x8000</TD
+><TD
+>ERR is set if the last 'traditional' or 'multidevice' function
+	call failed.  The global variable <A
+HREF="reference-globals-iberr.html"
+>iberr</A
+>
+	 will be set indicate the
+	cause of the error.</TD
+><TD
+>board or device</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+>
+	</P
+><P
+>	If you wish to avoid using a global variable, you may instead use
+	<A
+HREF="reference-function-thread-ibsta.html"
+>ThreadIbsta()</A
+>
+	which returns a thread-specific value.
+	</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="reference-globals-iberr.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="t1.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="reference-function-ibask.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>iberr</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="reference.html#AEN680"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ibask</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

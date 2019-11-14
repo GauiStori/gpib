@@ -1,0 +1,276 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>MakeAddr</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="	Linux-GPIB 4.3.0
+ Documentation"
+HREF="t1.html"><LINK
+REL="UP"
+TITLE="	Utility Functions"
+HREF="reference.html#AEN3469"><LINK
+REL="PREVIOUS"
+TITLE="GetSAD"
+HREF="reference-function-get-sad.html"><LINK
+REL="NEXT"
+TITLE="MLA"
+HREF="reference-function-mla.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Linux-GPIB 4.3.0
+ Documentation</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="reference-function-get-sad.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="reference-function-mla.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="REFERENCE-FUNCTION-MAKE-ADDR"
+></A
+>MakeAddr</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN3625"
+></A
+><H2
+>Name</H2
+>MakeAddr&nbsp;--&nbsp;pack primary and secondary address into an Addr4882_t value</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN3628"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><A
+NAME="AEN3629"
+></A
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="FUNCSYNOPSISINFO"
+>#include &#60;gpib/ib.h&#62;</PRE
+></TD
+></TR
+></TABLE
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>static __inline__ Addr4882_t <TT
+CLASS="FUNCTION"
+>MakeAddr</TT
+></CODE
+>(unsigned int <TT
+CLASS="PARAMETER"
+><I
+>pad</I
+></TT
+>, unsigned int <TT
+CLASS="PARAMETER"
+><I
+>sad</I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN3638"
+></A
+><H2
+>	Description
+	</H2
+><P
+>	MakeAddr() generates an Addr4882_t value that corresponds to the
+	specified primary address <TT
+CLASS="PARAMETER"
+><I
+>pad</I
+></TT
+> and secondary
+	address <TT
+CLASS="PARAMETER"
+><I
+>sad</I
+></TT
+>.  It does so by putting
+	<TT
+CLASS="PARAMETER"
+><I
+>pad</I
+></TT
+> into the least significant byte and
+	left shifting <TT
+CLASS="PARAMETER"
+><I
+>sad</I
+></TT
+> up to the next byte.
+	</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN3645"
+></A
+><H2
+>	Examples
+	</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>Addr4882_t addressList[ 5 ];
+
+addressList[ 0 ] = 5 /* primary address 5, no secondary address */
+addressList[ 1 ] = MakeAddr(3, 0); /* primary address 3, no secondary address */
+addressList[ 2 ] = MakeAddr(7, 0x70); /* primary address 3, secondary address 16 */
+addressList[ 3 ] = MakeAddr(20, MSA(9)); /* primary address 20, secondary address 9 */
+addressList[ 4 ] = NOADDR;</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN3648"
+></A
+><H2
+>	Return value
+	</H2
+><P
+>	An Addr4882_t value corresponding to the specified primary and
+	secondary GPIB address.
+	</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="reference-function-get-sad.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="t1.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="reference-function-mla.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>GetSAD</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="reference.html#AEN3469"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>MLA</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

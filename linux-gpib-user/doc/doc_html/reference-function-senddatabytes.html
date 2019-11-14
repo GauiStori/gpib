@@ -1,0 +1,320 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>SendDataBytes</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="	Linux-GPIB 4.3.0
+ Documentation"
+HREF="t1.html"><LINK
+REL="UP"
+TITLE='	"Multidevice" API Functions'
+HREF="reference.html#AEN2693"><LINK
+REL="PREVIOUS"
+TITLE="SendCmds"
+HREF="reference-function-sendcmds.html"><LINK
+REL="NEXT"
+TITLE="SendIFC"
+HREF="reference-function-sendifc.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Linux-GPIB 4.3.0
+ Documentation</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="reference-function-sendcmds.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="reference-function-sendifc.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="REFERENCE-FUNCTION-SENDDATABYTES"
+></A
+>SendDataBytes</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN3184"
+></A
+><H2
+>Name</H2
+>SendDataBytes&nbsp;--&nbsp;write data</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN3187"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><A
+NAME="AEN3188"
+></A
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="FUNCSYNOPSISINFO"
+>#include &#60;gpib/ib.h&#62;</PRE
+></TD
+></TR
+></TABLE
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>void <TT
+CLASS="FUNCTION"
+>SendDataBytes</TT
+></CODE
+>(int <TT
+CLASS="PARAMETER"
+><I
+>board_desc</I
+></TT
+>, const void *<TT
+CLASS="PARAMETER"
+><I
+>data</I
+></TT
+>, long <TT
+CLASS="PARAMETER"
+><I
+>count</I
+></TT
+>, int <TT
+CLASS="PARAMETER"
+><I
+>eot_mode</I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN3201"
+></A
+><H2
+>	Description
+	</H2
+><P
+>	SendDataBytes() writes data to the bus.
+	One or more devices must have already been addressed as listener (and the
+	board as talker) before calling this function.  Addressing may
+	be accomplished with the
+	<A
+HREF="reference-function-sendsetup.html"
+>SendSetup()</A
+>
+	function.
+	</P
+><P
+>	<TT
+CLASS="PARAMETER"
+><I
+>count</I
+></TT
+> bytes are written from the array
+	specified by <TT
+CLASS="PARAMETER"
+><I
+>data</I
+></TT
+>.  The <TT
+CLASS="PARAMETER"
+><I
+>eot_mode</I
+></TT
+>
+	argument specifies how the message should be terminated, and may be any of
+	the following values:
+	</P
+><P
+>	<DIV
+CLASS="TABLE"
+><A
+NAME="AEN3210"
+></A
+><P
+><B
+>Table 1. eot modes</B
+></P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+>constant</TH
+><TH
+>value</TH
+><TH
+>description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>NULLend</TD
+><TD
+>0</TD
+><TD
+>Do not assert EOI or add a newline at the end of the write.</TD
+></TR
+><TR
+><TD
+>DABend</TD
+><TD
+>1</TD
+><TD
+>Assert EOI with the last byte of the write.</TD
+></TR
+><TR
+><TD
+>NLend</TD
+><TD
+>2</TD
+><TD
+>Append a newline, and assert EOI with the newline at the end of the write.</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+>
+	</P
+><P
+>	You may find it simpler to use the slightly higher level functions
+	<A
+HREF="reference-function-send.html"
+>Send()</A
+> or
+	<A
+HREF="reference-function-sendlist.html"
+>SendList()</A
+>, since
+	they does not require
+	addressing and writing of data to be performed separately.
+	</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="reference-function-sendcmds.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="t1.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="reference-function-sendifc.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>SendCmds</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="reference.html#AEN2693"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>SendIFC</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

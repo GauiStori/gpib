@@ -1,0 +1,380 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>iberr</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="	Linux-GPIB 4.3.0
+ Documentation"
+HREF="t1.html"><LINK
+REL="UP"
+TITLE="Global Variables"
+HREF="reference.html#AEN680"><LINK
+REL="PREVIOUS"
+TITLE="ibcnt and ibcntl"
+HREF="reference-globals-ibcnt.html"><LINK
+REL="NEXT"
+TITLE="ibsta"
+HREF="reference-globals-ibsta.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Linux-GPIB 4.3.0
+ Documentation</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="reference-globals-ibcnt.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="reference-globals-ibsta.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="REFERENCE-GLOBALS-IBERR"
+></A
+>iberr</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN700"
+></A
+><H2
+>Name</H2
+>iberr&nbsp;--&nbsp;holds error code</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN703"
+></A
+><H2
+>Synopsis</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>#include &#60;gpib/ib.h&#62;
+
+volatile int iberr;</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN705"
+></A
+><H2
+>	Description
+	</H2
+><P
+>	iberr is set whenever a function from the 'traditional' or 'multidevice'
+	API fails with an error.  The meaning of each possible value of iberr
+	is summarized
+	in the following table:
+	</P
+><P
+>	<DIV
+CLASS="TABLE"
+><A
+NAME="AEN709"
+></A
+><P
+><B
+>Table 1. iberr error codes</B
+></P
+><TABLE
+BORDER="1"
+WIDTH="100%"
+BGCOLOR="#E0E0E0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+>constant</TH
+><TH
+>value</TH
+><TH
+>meaning</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>EDVR</TD
+><TD
+>0</TD
+><TD
+>A system call has failed.  ibcnt/ibcntl will be set to the
+	value of errno.</TD
+></TR
+><TR
+><TD
+>ECIC</TD
+><TD
+>1</TD
+><TD
+>Your interface board needs to be controller-in-charge, but
+	is not.</TD
+></TR
+><TR
+><TD
+>ENOL</TD
+><TD
+>2</TD
+><TD
+>You have attempted to write data or command bytes, but
+	there are no listeners currently addressed.</TD
+></TR
+><TR
+><TD
+>EADR</TD
+><TD
+>3</TD
+><TD
+>The interface board has failed to address itself properly
+	before starting an io operation.</TD
+></TR
+><TR
+><TD
+>EARG</TD
+><TD
+>4</TD
+><TD
+>One or more arguments to the function call were invalid.</TD
+></TR
+><TR
+><TD
+>ESAC</TD
+><TD
+>5</TD
+><TD
+>The interface board needs to be system controller, but is not.
+	</TD
+></TR
+><TR
+><TD
+>EABO</TD
+><TD
+>6</TD
+><TD
+>A read or write of data bytes has been aborted, possibly due
+	to a timeout or reception of a device clear command.</TD
+></TR
+><TR
+><TD
+>ENEB</TD
+><TD
+>7</TD
+><TD
+>The GPIB interface board does not exist, its driver is not
+	loaded, or it is not configured properly.</TD
+></TR
+><TR
+><TD
+>EDMA</TD
+><TD
+>8</TD
+><TD
+>Not used (DMA error), included for compatibility purposes.</TD
+></TR
+><TR
+><TD
+>EOIP</TD
+><TD
+>10</TD
+><TD
+>Function call can not proceed due to an asynchronous IO operation
+	(ibrda(), ibwrta(), or ibcmda()) in progress.</TD
+></TR
+><TR
+><TD
+>ECAP</TD
+><TD
+>11</TD
+><TD
+>Incapable of executing function call, due the GPIB board lacking
+	the capability, or
+	the capability being disabled in software.</TD
+></TR
+><TR
+><TD
+>EFSO</TD
+><TD
+>12</TD
+><TD
+>File system error.  ibcnt/ibcntl will be set to the value of errno.</TD
+></TR
+><TR
+><TD
+>EBUS</TD
+><TD
+>14</TD
+><TD
+>An attempt to write command bytes to the bus has timed out.</TD
+></TR
+><TR
+><TD
+>ESTB</TD
+><TD
+>15</TD
+><TD
+>One or more serial poll status bytes have been lost.  This can
+	occur due to
+	too many status bytes accumulating (through automatic serial polling)
+	without being read.</TD
+></TR
+><TR
+><TD
+>ESRQ</TD
+><TD
+>16</TD
+><TD
+>The serial poll request service line is stuck on.  This can occur
+	if a physical device on the bus requests service, but its GPIB address has
+	not been opened
+	(via ibdev() for example) by any process.  Thus the automatic serial
+	polling routines are unaware of the device's existence and will never
+	serial poll it.
+	</TD
+></TR
+><TR
+><TD
+>ETAB</TD
+><TD
+>20</TD
+><TD
+>This error can be returned by
+	<A
+HREF="reference-function-ibevent.html"
+>ibevent()</A
+>, FindLstn(), or
+	FindRQS().  See their descriptions for more information.</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+>
+	</P
+><P
+>	If you wish to avoid using a global variable, you may instead use
+	<A
+HREF="reference-function-thread-iberr.html"
+>ThreadIberr()</A
+>
+	which returns a thread-specific value.
+	</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="reference-globals-ibcnt.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="t1.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="reference-globals-ibsta.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ibcnt and ibcntl</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="reference.html#AEN680"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ibsta</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

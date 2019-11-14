@@ -1,0 +1,569 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>gpib_config</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="	Linux-GPIB 4.3.0
+ Documentation"
+HREF="t1.html"><LINK
+REL="UP"
+TITLE="	Configuration"
+HREF="configuration.html"><LINK
+REL="PREVIOUS"
+TITLE="gpib.conf"
+HREF="configuration-gpib-conf.html"><LINK
+REL="NEXT"
+TITLE="	Supported Hardware"
+HREF="supported-hardware.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Linux-GPIB 4.3.0
+ Documentation</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="configuration-gpib-conf.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="supported-hardware.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="CONFIGURATION-GPIB-CONFIG"
+></A
+>gpib_config</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN160"
+></A
+><H2
+>Name</H2
+>gpib_config&nbsp;--&nbsp;GPIB administration program</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN163"
+></A
+><H2
+>Synopsis</H2
+><P
+><B
+CLASS="COMMAND"
+>gpib_config</B
+> [--minor <TT
+CLASS="REPLACEABLE"
+><I
+>number</I
+></TT
+>]</P
+><P
+><B
+CLASS="COMMAND"
+>gpib_config</B
+> [--board-type <TT
+CLASS="REPLACEABLE"
+><I
+>board_type</I
+></TT
+>] [--device-file <TT
+CLASS="REPLACEABLE"
+><I
+>file_path</I
+></TT
+>] [--dma <TT
+CLASS="REPLACEABLE"
+><I
+>number</I
+></TT
+>] [--file <TT
+CLASS="REPLACEABLE"
+><I
+>file_path</I
+></TT
+>] [--help] [--iobase <TT
+CLASS="REPLACEABLE"
+><I
+>number</I
+></TT
+>] [--ifc] [--no-ifc] [--init-data <TT
+CLASS="REPLACEABLE"
+><I
+>file_path</I
+></TT
+>] [--irq <TT
+CLASS="REPLACEABLE"
+><I
+>number</I
+></TT
+>] [--minor <TT
+CLASS="REPLACEABLE"
+><I
+>number</I
+></TT
+>] [--offline] [--pad <TT
+CLASS="REPLACEABLE"
+><I
+>number</I
+></TT
+>] [--pci-bus <TT
+CLASS="REPLACEABLE"
+><I
+>number</I
+></TT
+>] [--pci-slot <TT
+CLASS="REPLACEABLE"
+><I
+>number</I
+></TT
+>] [--sad <TT
+CLASS="REPLACEABLE"
+><I
+>number</I
+></TT
+>] [--serial-number <TT
+CLASS="REPLACEABLE"
+><I
+>serial_number</I
+></TT
+>] [--sre] [--no-sre] [--sysfs-device-path <TT
+CLASS="REPLACEABLE"
+><I
+>sysfs_device_path</I
+></TT
+>] [--system-controller] [--no-system-controller] [--version]</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN207"
+></A
+><H2
+>Description</H2
+><P
+>gpib_config must be run after the kernel driver module for
+a GPIB interface board is loaded.  It performs configuration of
+driver settings
+that cannot be performed by libgpib at runtime.  This includes
+configuration which requires root privilege (for example, setting the
+base address or irq of a board), and configuration which should only
+be performed once and not automatically redone every time a program
+using libgpib is run (for example, setting the board's GPIB address).</P
+><P
+>The board to be configured by gpib_config is selected by the
+<CODE
+CLASS="OPTION"
+>--minor</CODE
+> option.  By default, the board settings
+are read from the
+<A
+HREF="configuration-gpib-conf.html"
+>gpib.conf</A
+>
+configuration file.  However, individual settings can be
+overiden by use of command-line options (see below).</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN213"
+></A
+><H2
+>Options</H2
+><P
+><CODE
+CLASS="OPTION"
+>-t, --board-type <TT
+CLASS="REPLACEABLE"
+><I
+>board_type</I
+></TT
+></CODE
+></P
+><P
+>Set board type to <TT
+CLASS="REPLACEABLE"
+><I
+>board_type</I
+></TT
+>.</P
+><P
+><CODE
+CLASS="OPTION"
+>-c, --device-file <TT
+CLASS="REPLACEABLE"
+><I
+>file_path</I
+></TT
+></CODE
+></P
+><P
+>Specify character device file path for the board.
+This can be used as an alternative to the --minor option.</P
+><P
+><CODE
+CLASS="OPTION"
+>-d, --dma <TT
+CLASS="REPLACEABLE"
+><I
+>number</I
+></TT
+></CODE
+></P
+><P
+>Specify isa dma channel <TT
+CLASS="REPLACEABLE"
+><I
+>number</I
+></TT
+> for boards
+without plug-and-play cabability.</P
+><P
+><CODE
+CLASS="OPTION"
+>-f, --file <TT
+CLASS="REPLACEABLE"
+><I
+>file_path</I
+></TT
+></CODE
+></P
+><P
+>Specify file path for configuration file.  The values in the configuration
+file will be used as defaults for unspecified options.  The default configuration
+file is "sysconfdir/gpib.conf".</P
+><P
+><CODE
+CLASS="OPTION"
+>-h, --help</CODE
+></P
+><P
+>Print help on options and exit.</P
+><P
+><CODE
+CLASS="OPTION"
+>-I, --init-data <TT
+CLASS="REPLACEABLE"
+><I
+>file_path</I
+></TT
+></CODE
+></P
+><P
+>Upload binary initialization data (firmware) from <TT
+CLASS="REPLACEABLE"
+><I
+>file_path</I
+></TT
+>
+to board.</P
+><P
+><CODE
+CLASS="OPTION"
+>--[no-]ifc</CODE
+></P
+><P
+> Perform (or not) interface clear after bringing board online.
+Default is <CODE
+CLASS="OPTION"
+>--ifc</CODE
+>.</P
+><P
+><CODE
+CLASS="OPTION"
+>-b, --iobase <TT
+CLASS="REPLACEABLE"
+><I
+>number</I
+></TT
+></CODE
+></P
+><P
+>Set io base address to <TT
+CLASS="REPLACEABLE"
+><I
+>number</I
+></TT
+> for boards
+without plug-and-play cabability.</P
+><P
+><CODE
+CLASS="OPTION"
+>-i, --irq <TT
+CLASS="REPLACEABLE"
+><I
+>number</I
+></TT
+></CODE
+></P
+><P
+>Specify irq line <TT
+CLASS="REPLACEABLE"
+><I
+>number</I
+></TT
+> for boards without
+plug-and-play cabability.</P
+><P
+><CODE
+CLASS="OPTION"
+>-m, --minor <TT
+CLASS="REPLACEABLE"
+><I
+>number</I
+></TT
+></CODE
+></P
+><P
+>Configure gpib device file with minor number <TT
+CLASS="REPLACEABLE"
+><I
+>number</I
+></TT
+>
+(default is 0).</P
+><P
+><CODE
+CLASS="OPTION"
+>-o, --offline</CODE
+></P
+><P
+>Unconfigure an already configured board, don't bring board online.</P
+><P
+><CODE
+CLASS="OPTION"
+>-p, --pad <TT
+CLASS="REPLACEABLE"
+><I
+>number</I
+></TT
+></CODE
+></P
+><P
+>Specify primary gpib address.  <TT
+CLASS="REPLACEABLE"
+><I
+>number</I
+></TT
+> should be in
+the range 0 through 30.</P
+><P
+><CODE
+CLASS="OPTION"
+>-u, --pci-bus <TT
+CLASS="REPLACEABLE"
+><I
+>number</I
+></TT
+></CODE
+></P
+><P
+>Specify pci bus <TT
+CLASS="REPLACEABLE"
+><I
+>number</I
+></TT
+> to select a specific
+pci board.  If used, you must also specify the pci slot with <CODE
+CLASS="OPTION"
+>--pci-slot</CODE
+>.</P
+><P
+><CODE
+CLASS="OPTION"
+>-l, --pci-slot <TT
+CLASS="REPLACEABLE"
+><I
+>number</I
+></TT
+></CODE
+></P
+><P
+>Specify pci slot <TT
+CLASS="REPLACEABLE"
+><I
+>number</I
+></TT
+> to select a specific
+pci board. If used, you must also specify the pci bus with <CODE
+CLASS="OPTION"
+>--pci-bus</CODE
+>.</P
+><P
+><CODE
+CLASS="OPTION"
+>-s, --sad <TT
+CLASS="REPLACEABLE"
+><I
+>number</I
+></TT
+></CODE
+></P
+><P
+>Specify secondary gpib address.  <TT
+CLASS="REPLACEABLE"
+><I
+>number</I
+></TT
+>
+should be 0 (disabled) or in the range 96 through 126 (0x60 through 0x7e hexadecimal).</P
+><P
+><CODE
+CLASS="OPTION"
+>-e, --serial-number <TT
+CLASS="REPLACEABLE"
+><I
+>serial_number</I
+></TT
+></CODE
+></P
+><P
+>Select a specific board to attach by its serial number.</P
+><P
+><CODE
+CLASS="OPTION"
+>--[no-]sre</CODE
+></P
+><P
+>Assert (or not) remote enable line after bringing board online.
+Default is <CODE
+CLASS="OPTION"
+>--sre</CODE
+>.</P
+><P
+><CODE
+CLASS="OPTION"
+>-a, --sysfs-device-path <TT
+CLASS="REPLACEABLE"
+><I
+>dev_path</I
+></TT
+></CODE
+></P
+><P
+>Select a specific board to attach by its sysfs device path.  The sysfs device
+path is the absolute path to the device's directory under /sys/devices, with the leading
+"/sys" stripped off.  The device path is available in udev scripts as the DEVPATH variable.</P
+><P
+><CODE
+CLASS="OPTION"
+>--[no-]system-controller</CODE
+></P
+><P
+>Configure board as system controller (or not).</P
+><P
+><CODE
+CLASS="OPTION"
+>-v, --version </CODE
+></P
+><P
+> Prints the current linux-gpib version and exits.</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="configuration-gpib-conf.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="t1.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="supported-hardware.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>gpib.conf</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="configuration.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Supported Hardware</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

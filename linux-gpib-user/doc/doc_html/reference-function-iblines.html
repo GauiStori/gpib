@@ -1,0 +1,423 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>iblines</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="	Linux-GPIB 4.3.0
+ Documentation"
+HREF="t1.html"><LINK
+REL="UP"
+TITLE="	'Traditional' API Functions"
+HREF="reference.html#AEN899"><LINK
+REL="PREVIOUS"
+TITLE="ibist"
+HREF="reference-function-ibist.html"><LINK
+REL="NEXT"
+TITLE="ibln"
+HREF="reference-function-ibln.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Linux-GPIB 4.3.0
+ Documentation</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="reference-function-ibist.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="reference-function-ibln.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="REFERENCE-FUNCTION-IBLINES"
+></A
+>iblines</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN1708"
+></A
+><H2
+>Name</H2
+>iblines&nbsp;--&nbsp;monitor bus lines (board)</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN1711"
+></A
+><H2
+>Synopsis</H2
+><DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><A
+NAME="AEN1712"
+></A
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="FUNCSYNOPSISINFO"
+>#include &#60;gpib/ib.h&#62;</PRE
+></TD
+></TR
+></TABLE
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>int <TT
+CLASS="FUNCTION"
+>iblines</TT
+></CODE
+>(int <TT
+CLASS="PARAMETER"
+><I
+>ud</I
+></TT
+>, short *<TT
+CLASS="PARAMETER"
+><I
+>line_status</I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN1721"
+></A
+><H2
+>	Description
+	</H2
+><P
+>	iblines() is used to obtain the status of the control and
+	handshaking <A
+HREF="gpib-protocol.html#GPIB-PROTOCOL-BUS-LINES"
+>bus lines</A
+> of the
+	bus.  The board used to monitor the bus
+	is specified by the <TT
+CLASS="PARAMETER"
+><I
+>ud</I
+></TT
+> argument,
+	and the status of the various bus lines are written to
+	the location specified by <TT
+CLASS="PARAMETER"
+><I
+>line_status</I
+></TT
+>.
+	</P
+><P
+>	Some older chips are not capable of reporting the status
+	of the bus lines, so each line has two corresponding bits in
+	<TT
+CLASS="PARAMETER"
+><I
+>line_status</I
+></TT
+>.  One bit indicates if
+	the board can monitor the line, and the other bit indicates
+	the line's state.
+	The meaning of the <TT
+CLASS="PARAMETER"
+><I
+>line_status</I
+></TT
+> bits are
+	as follows:
+	</P
+><DIV
+CLASS="TABLE"
+><A
+NAME="AEN1730"
+></A
+><P
+><B
+>Table 1. line status bits</B
+></P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+>constant</TH
+><TH
+>value</TH
+><TH
+>description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>ValidDAV</TD
+><TD
+>0x1</TD
+><TD
+>The BusDAV bit is valid.</TD
+></TR
+><TR
+><TD
+>ValidNDAC</TD
+><TD
+>0x2</TD
+><TD
+>The BusNDAC bit is valid.</TD
+></TR
+><TR
+><TD
+>ValidNRFD</TD
+><TD
+>0x4</TD
+><TD
+>The BusNRFD bit is valid.</TD
+></TR
+><TR
+><TD
+>ValidIFC</TD
+><TD
+>0x8</TD
+><TD
+>The BusIFC bit is valid.</TD
+></TR
+><TR
+><TD
+>ValidREN</TD
+><TD
+>0x10</TD
+><TD
+>The BusREN bit is valid.</TD
+></TR
+><TR
+><TD
+>ValidSRQ</TD
+><TD
+>0x20</TD
+><TD
+>The BusSRQ bit is valid.</TD
+></TR
+><TR
+><TD
+>ValidATN</TD
+><TD
+>0x40</TD
+><TD
+>The BusATN bit is valid.</TD
+></TR
+><TR
+><TD
+>ValidEOI</TD
+><TD
+>0x80</TD
+><TD
+>The BusEOI bit is valid.</TD
+></TR
+><TR
+><TD
+>BusDAV</TD
+><TD
+>0x100</TD
+><TD
+>Set/cleared if the DAV line is asserted/unasserted.</TD
+></TR
+><TR
+><TD
+>BusNDAC</TD
+><TD
+>0x200</TD
+><TD
+>Set/cleared if the NDAC line is asserted/unasserted.</TD
+></TR
+><TR
+><TD
+>BusNRFD</TD
+><TD
+>0x400</TD
+><TD
+>Set/cleared if the NRFD line is asserted/unasserted.</TD
+></TR
+><TR
+><TD
+>BusIFC</TD
+><TD
+>0x800</TD
+><TD
+>Set/cleared if the IFC line is asserted/unasserted.</TD
+></TR
+><TR
+><TD
+>BusREN</TD
+><TD
+>0x1000</TD
+><TD
+>Set/cleared if the REN line is asserted/unasserted.</TD
+></TR
+><TR
+><TD
+>BusSRQ</TD
+><TD
+>0x2000</TD
+><TD
+>Set/cleared if the SRQ line is asserted/unasserted.</TD
+></TR
+><TR
+><TD
+>BusATN</TD
+><TD
+>0x4000</TD
+><TD
+>Set/cleared if the ATN line is asserted/unasserted.</TD
+></TR
+><TR
+><TD
+>BusEOI</TD
+><TD
+>0x8000</TD
+><TD
+>Set/cleared if the EOI line is asserted/unasserted.</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>	</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN1804"
+></A
+><H2
+>	Return value
+	</H2
+><P
+>	The value of <A
+HREF="reference-globals-ibsta.html"
+>ibsta</A
+> is returned.
+	</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="reference-function-ibist.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="t1.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="reference-function-ibln.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ibist</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="reference.html#AEN899"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ibln</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>
