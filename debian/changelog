@@ -14,6 +14,7 @@ gpib (4.3.0-1) UNRELEASED; urgency=medium
   * Upgraded quile to 2.2
   * Switch to dpkg-source 3.0 (quilt) format
   * Remove pycompat
+  * Add gpp.conf
 
  -- Gudjon I. Gudjonsson <gudjon@gudjon.org>  Mon, 25 Dec 2017 08:46:51 +0100
 
