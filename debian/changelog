@@ -2,7 +2,7 @@ gpib (4.3.0-1) UNRELEASED; urgency=medium
 
   * New upstream release
   * Split user and kernel source, new source name
-  * Bump standards version to 4.2.1
+  * Bump standards version to 4.4.1
   * Disable pcmcia, headers have disappeared from the Debian 3.x kernel
   * Disable tcl libraries, most hopefully temporarily
   * Change from python-support to dh_python2

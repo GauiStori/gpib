@@ -15,7 +15,7 @@ Build-Depends: debhelper (>= 11),
                tcl8.6-dev, 
                perl, 
                python3-all-dev
-Standards-Version: 4.2.1
+Standards-Version: 4.4.1
 
 Package: libgpib-dev
 Section: libdevel
