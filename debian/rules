@@ -197,7 +197,8 @@ binary-modules: prep-deb-files
 	dh_gencontrol -- -v$(VERSION)
 	dh_md5sums
 	dh_builddeb --destdir=$(KPKG_DESTDIR)
-	dh_clean -k
+	#dh_clean -k
+	dh_prep
 
 binary-indep: build install
 

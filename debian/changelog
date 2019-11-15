@@ -15,6 +15,7 @@ gpib (4.3.0-1) UNRELEASED; urgency=medium
   * Switch to dpkg-source 3.0 (quilt) format
   * Remove pycompat
   * Add gpp.conf
+  * Change dh_clean to dh_prep in rules
 
  -- Gudjon I. Gudjonsson <gudjon@gudjon.org>  Mon, 25 Dec 2017 08:46:51 +0100
 
