@@ -1,4 +1,5 @@
 libgpib.so.0 libgpib0 #MINVER#
+* Build-Depends-Package: libgpib-dev
  AllSPoll@GPIB_DUMMY_VERSION 3.2.16
  AllSpoll@GPIB_DUMMY_VERSION 3.2.16
  DevClear@GPIB_DUMMY_VERSION 3.2.16
