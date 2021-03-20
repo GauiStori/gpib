@@ -19,13 +19,19 @@
 #ifndef __COMPAT_LINUX_UACCESS_H
 #define __COMPAT_LINUX_UACCESS_H
 
+#include <linux/version.h>
 #include_next <linux/uaccess.h>
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5, 0, 0)
-#define COMPAT_ACCESS_OK(type, addr, size) \
-	access_ok(type, addr, size)
+/* Some 4.X kernel distros (RHEL 8) patch their access_ok to only take 2 arguments
+ * instead of 3.
+ * It's too much of a pain to figure out if we need 2 or 3 arguments so we will
+ * just skip the check entirely.  Linux-gpib doesn't do anything critical with
+ * access_ok anyways, doing this will just make errors get detected later.
+ */
+#define COMPAT_ACCESS_OK(addr, size) 1
 #else
-#define COMPAT_ACCESS_OK(type, addr, size) \
+#define COMPAT_ACCESS_OK(addr, size) \
 	access_ok(addr, size)
 #endif
 

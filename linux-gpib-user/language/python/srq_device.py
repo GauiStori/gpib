@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/usr/local/lib64/python2.7/site-packages')
+sys.path.append('/usr/local/lib64/python3.9/site-packages')
 import gpib
 
 board  = 1

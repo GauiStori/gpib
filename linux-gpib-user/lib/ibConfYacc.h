@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.4.1.  */
+/* A Bison parser, made by GNU Bison 3.7.4.  */
 
 /* Bison interface for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2019 Free Software Foundation,
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2020 Free Software Foundation,
    Inc.
 
    This program is free software: you can redistribute it and/or modify
@@ -31,8 +31,9 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-/* Undocumented macros, especially those whose name start with YY_,
-   are private implementation details.  Do not rely on them.  */
+/* DO NOT RELY ON FEATURES THAT ARE NOT DOCUMENTED in the manual,
+   especially those whose name start with YY_ or yy_.  They are
+   private implementation details that can be changed or removed.  */
 
 #ifndef YY_GPIB_YY_IBCONFYACC_H_INCLUDED
 # define YY_GPIB_YY_IBCONFYACC_H_INCLUDED
@@ -44,45 +45,54 @@
 extern int gpib_yydebug;
 #endif
 
-/* Token type.  */
+/* Token kinds.  */
 #ifndef YYTOKENTYPE
 # define YYTOKENTYPE
   enum yytokentype
   {
-    T_INTERFACE = 258,
-    T_DEVICE = 259,
-    T_NAME = 260,
-    T_MINOR = 261,
-    T_BASE = 262,
-    T_IRQ = 263,
-    T_DMA = 264,
-    T_PAD = 265,
-    T_SAD = 266,
-    T_TIMO = 267,
-    T_EOSBYTE = 268,
-    T_BOARD_TYPE = 269,
-    T_PCI_BUS = 270,
-    T_PCI_SLOT = 271,
-    T_REOS = 272,
-    T_BIN = 273,
-    T_INIT_S = 274,
-    T_DCL = 275,
-    T_XEOS = 276,
-    T_EOT = 277,
-    T_MASTER = 278,
-    T_LLO = 279,
-    T_EXCL = 280,
-    T_INIT_F = 281,
-    T_AUTOPOLL = 282,
-    T_SYSFS_DEVICE_PATH = 283,
-    T_SERIAL_NUMBER = 284,
-    T_NUMBER = 285,
-    T_STRING = 286,
-    T_BOOL = 287,
-    T_TIVAL = 288
+    YYEMPTY = -2,
+    YYEOF = 0,                     /* "end of file"  */
+    YYerror = 256,                 /* error  */
+    YYUNDEF = 257,                 /* "invalid token"  */
+    T_INTERFACE = 258,             /* T_INTERFACE  */
+    T_DEVICE = 259,                /* T_DEVICE  */
+    T_NAME = 260,                  /* T_NAME  */
+    T_MINOR = 261,                 /* T_MINOR  */
+    T_BASE = 262,                  /* T_BASE  */
+    T_IRQ = 263,                   /* T_IRQ  */
+    T_DMA = 264,                   /* T_DMA  */
+    T_PAD = 265,                   /* T_PAD  */
+    T_SAD = 266,                   /* T_SAD  */
+    T_TIMO = 267,                  /* T_TIMO  */
+    T_EOSBYTE = 268,               /* T_EOSBYTE  */
+    T_BOARD_TYPE = 269,            /* T_BOARD_TYPE  */
+    T_PCI_BUS = 270,               /* T_PCI_BUS  */
+    T_PCI_SLOT = 271,              /* T_PCI_SLOT  */
+    T_REOS = 272,                  /* T_REOS  */
+    T_BIN = 273,                   /* T_BIN  */
+    T_INIT_S = 274,                /* T_INIT_S  */
+    T_DCL = 275,                   /* T_DCL  */
+    T_XEOS = 276,                  /* T_XEOS  */
+    T_EOT = 277,                   /* T_EOT  */
+    T_MASTER = 278,                /* T_MASTER  */
+    T_LLO = 279,                   /* T_LLO  */
+    T_EXCL = 280,                  /* T_EXCL  */
+    T_INIT_F = 281,                /* T_INIT_F  */
+    T_AUTOPOLL = 282,              /* T_AUTOPOLL  */
+    T_SYSFS_DEVICE_PATH = 283,     /* T_SYSFS_DEVICE_PATH  */
+    T_SERIAL_NUMBER = 284,         /* T_SERIAL_NUMBER  */
+    T_NUMBER = 285,                /* T_NUMBER  */
+    T_STRING = 286,                /* T_STRING  */
+    T_BOOL = 287,                  /* T_BOOL  */
+    T_TIVAL = 288                  /* T_TIVAL  */
   };
+  typedef enum yytokentype yytoken_kind_t;
 #endif
-/* Tokens.  */
+/* Token kinds.  */
+#define YYEMPTY -2
+#define YYEOF 0
+#define YYerror 256
+#define YYUNDEF 257
 #define T_INTERFACE 258
 #define T_DEVICE 259
 #define T_NAME 260
@@ -126,7 +136,7 @@ char *sval;
 char bval;
 char cval;
 
-#line 130 "./ibConfYacc.h"
+#line 140 "./ibConfYacc.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

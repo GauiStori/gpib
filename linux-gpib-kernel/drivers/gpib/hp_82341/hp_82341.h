@@ -61,8 +61,8 @@ int hp_82341_enable_eos( gpib_board_t *board, uint8_t eos_byte, int
  compare_8_bits );
 void hp_82341_disable_eos( gpib_board_t *board );
 unsigned int hp_82341_update_status( gpib_board_t *board, unsigned int clear_mask );
-void hp_82341_primary_address( gpib_board_t *board, unsigned int address );
-void hp_82341_secondary_address( gpib_board_t *board, unsigned int address, int
+int hp_82341_primary_address( gpib_board_t *board, unsigned int address );
+int hp_82341_secondary_address( gpib_board_t *board, unsigned int address, int
  enable );
 int hp_82341_parallel_poll( gpib_board_t *board, uint8_t *result );
 void hp_82341_parallel_poll_configure( gpib_board_t *board, uint8_t config );

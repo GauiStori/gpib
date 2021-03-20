@@ -65,7 +65,6 @@ static int query_board_rsv_ioctl( gpib_board_t *board, unsigned long arg );
 static int interface_clear_ioctl( gpib_board_t *board, unsigned long arg );
 static int select_pci_ioctl( gpib_board_config_t *config, unsigned long arg );
 static int select_device_path_ioctl( gpib_board_config_t *config, unsigned long arg );
-static int select_serial_number_ioctl( gpib_board_config_t *config, unsigned long arg );
 static int event_ioctl( gpib_board_t *board, unsigned long arg );
 static int request_system_control_ioctl( gpib_board_t *board, unsigned long arg );
 static int t1_delay_ioctl( gpib_board_t *board, unsigned long arg );
@@ -309,10 +308,6 @@ long ibioctl(struct file *filep, unsigned int cmd, unsigned long arg)
 			break;
 		case IBSELECT_DEVICE_PATH:
 			retval = select_device_path_ioctl( &board->config, arg );
-			goto done;
-			break;
-		case IBSELECT_SERIAL_NUMBER:
-			retval = select_serial_number_ioctl( &board->config, arg );
 			goto done;
 			break;
 		default:
@@ -562,7 +557,7 @@ static int read_ioctl( gpib_file_private_t *file_priv, gpib_board_t *board,
 	remain = read_cmd.requested_transfer_count - read_cmd.completed_transfer_count;
 
 	/* Check write access to buffer */
-	if(!COMPAT_ACCESS_OK(VERIFY_WRITE, userbuf, remain))
+	if(!COMPAT_ACCESS_OK(userbuf, remain))
 		return -EFAULT;
 
 	smp_mb__before_atomic();
@@ -637,7 +632,7 @@ static int command_ioctl( gpib_file_private_t *file_priv,
 	remain = cmd.requested_transfer_count - cmd.completed_transfer_count;
 
 	/* Check read access to buffer */
-	if(!COMPAT_ACCESS_OK(VERIFY_READ, userbuf, remain))
+	if(!COMPAT_ACCESS_OK(userbuf, remain))
 		return -EFAULT;
 
 	/* Write buffer loads till we empty the user supplied buffer.
@@ -716,7 +711,7 @@ static int write_ioctl(gpib_file_private_t *file_priv, gpib_board_t *board,
 	remain = write_cmd.requested_transfer_count - write_cmd.completed_transfer_count;
 
 	/* Check read access to buffer */
-	if(!COMPAT_ACCESS_OK(VERIFY_READ, userbuf, remain))
+	if(!COMPAT_ACCESS_OK(userbuf, remain))
 		return -EFAULT;
 
 	smp_mb__before_atomic();
@@ -1538,36 +1533,6 @@ static int select_device_path_ioctl( gpib_board_config_t *config, unsigned long 
 	if(strlen(selection->device_path) > 0)
 	{
 		config->device_path = kstrdup(selection->device_path, GFP_KERNEL);
-	}
-
-	vfree(selection);
-	return 0;
-}
-
-static int select_serial_number_ioctl( gpib_board_config_t *config, unsigned long arg )
-{
-	select_serial_number_ioctl_t *selection;
-	int retval;
-
-	if(!capable(CAP_SYS_ADMIN))
-		return -EPERM;
-
-	selection = vmalloc(sizeof(select_serial_number_ioctl_t));
-	if(selection == NULL) return -ENOMEM;
-
-	retval = copy_from_user( selection, ( void * ) arg, sizeof(select_serial_number_ioctl_t) );
-	if( retval )
-	{
-		vfree(selection);
-		return -EFAULT;
-	}
-
-	selection->serial_number[sizeof(selection->serial_number) - 1] = '\0';
-	kfree(config->serial_number);
-	config->serial_number = NULL;
-	if(strlen(selection->serial_number) > 0)
-	{
-		config->serial_number = kstrdup(selection->serial_number, GFP_KERNEL);
 	}
 
 	vfree(selection);

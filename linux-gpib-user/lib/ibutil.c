@@ -306,41 +306,6 @@ int close_gpib_handle( ibConf_t *conf )
 	return 0;
 }
 
-int gpibi_change_address( ibConf_t *conf, unsigned int pad, int sad )
-{
-	int retval;
-	ibBoard_t *board;
-	pad_ioctl_t pad_cmd;
-	sad_ioctl_t sad_cmd;
-
-	board = interfaceBoard( conf );
-
-	pad_cmd.handle = conf->handle;
-	pad_cmd.pad = pad;
-	retval = ioctl( board->fileno, IBPAD, &pad_cmd );
-	if( retval < 0 )
-	{
-		setIberr( EDVR );
-		setIbcnt( errno );
-		return retval;
-	}
-
-	sad_cmd.handle = conf->handle;
-	sad_cmd.sad = sad;
-	retval = ioctl( board->fileno, IBSAD, &sad_cmd );
-	if( retval < 0 )
-	{
-		setIberr( EDVR );
-		setIbcnt( errno );
-		return retval;
-	}
-
-	conf->settings.pad = pad;
-	conf->settings.sad = sad;
-
-	return 0;
-}
-
 int lock_board_mutex( ibBoard_t *board )
 {
 	static const int lock = 1;

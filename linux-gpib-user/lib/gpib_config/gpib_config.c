@@ -48,7 +48,6 @@ typedef struct
 	void *init_data;
 	int init_data_length;
 	char *sysfs_device_path;
-	char *serial_number;
 } parsed_options_t;
 
 static void help( void )
@@ -91,8 +90,6 @@ static void help( void )
 	printf("\t-s, --sad NUM\n"
 		"\t\tSpecify secondary gpib address.  NUM should be 0 (disabled) or in the range\n"
 		"\t\t96 through 126 (0x60 through 0x7e hexadecimal).\n");
-	printf("\t-e, --serial-number SERIAL_NUMBER\n"
-		"\t\tSelect a specific board to attach by its serial number.\n");
 	printf("\t--[no-]sre\n"
 		"\t\tAssert (or not) remote enable line after bringing board online.  Default is --sre.\n");
 	printf("\t-a, --sysfs-device-path DEVPATH\n"
@@ -157,7 +154,6 @@ static int parse_options( int argc, char *argv[], parsed_options_t *settings )
 		{ "iobase", required_argument, NULL, 'b' },
 		{ "device-file", required_argument, NULL, 'c' },
 		{ "sysfs-device-path", required_argument, NULL, 'a' },
-		{ "serial-number", required_argument, NULL, 'e' },
 		{ "dma", required_argument, NULL, 'd' },
 		{ "file", required_argument, NULL, 'f' },
 		{ "help", no_argument, NULL, 'h' },
@@ -213,10 +209,6 @@ static int parse_options( int argc, char *argv[], parsed_options_t *settings )
 			break;
 		case 'd':
 			settings->dma = strtol( optarg, NULL, 0 );
-			break;
-		case 'e':
-			free(settings->serial_number);
-			settings->serial_number = strdup(optarg);
 			break;
 		case 'f':
 			free(settings->config_file);
@@ -325,39 +317,6 @@ static int configure_sysfs_device_path(int fileno, const char *sysfs_device_path
 	return 0;
 }
 
-static int configure_serial_number(int fileno, const char *serial_number)
-{
-	select_serial_number_ioctl_t serial_number_selection;
-	int retval;
-	
-	if(serial_number != NULL)
-	{
-		if(strlen(serial_number) >= sizeof(serial_number_selection.serial_number))
-		{
-			fprintf(stderr, "device path too long.\n");
-			return -EINVAL;
-		}
-		strncpy(serial_number_selection.serial_number, serial_number, 
-			sizeof(serial_number_selection.serial_number));
-	}else
-	{
-		memset(serial_number_selection.serial_number, 0, sizeof(serial_number_selection.serial_number));
-	}
-	retval = ioctl( fileno, IBSELECT_SERIAL_NUMBER, &serial_number_selection);
-	if( retval < 0 )
-	{
-		/* If the user didn't request any device path, EINVAL error is probably just
-		 * due to using an older kernel module that doesn't support this ioctl.  So
-		 * only error out if a path was specified. */
-		if(errno != EINVAL || strlen(serial_number_selection.serial_number) > 0)
-		{
-			fprintf(stderr, "failed to configure serial number \"%s\"\n", serial_number_selection.serial_number);
-			return retval;
-		}
-	}
-	return 0;
-}
-
 static int configure_board( int fileno, const parsed_options_t *options )
 {
 	board_type_ioctl_t boardtype;
@@ -429,7 +388,6 @@ static int configure_board( int fileno, const parsed_options_t *options )
 	}
 
 	configure_sysfs_device_path(fileno, options->sysfs_device_path);
-	configure_serial_number(fileno, options->serial_number);
 	 
 	online_cmd.online = 1;
 	assert(sizeof(options->init_data) <= sizeof(online_cmd.init_data_ptr));
@@ -565,17 +523,6 @@ int main( int argc, char *argv[] )
 		{
 			options.sysfs_device_path = strdup(board->sysfs_device_path);
 			if(options.sysfs_device_path == NULL)
-			{
-				return -ENOMEM;
-			}
-		}
-	}
-	if( options.serial_number == NULL )
-	{
-		if(board->serial_number != NULL)
-		{
-			options.serial_number = strdup(board->serial_number);
-			if(options.serial_number == NULL)
 			{
 				return -ENOMEM;
 			}

@@ -1,0 +1,10 @@
+#automatically set the correct --board-type option
+ACTION=="add|change", SUBSYSTEM=="usb", DRIVER=="lpvo_usb_gpib", ATTRS{serial}=="*", ENV{GPIB_CONFIG_OPTIONS}+="--board-type lpvo_usb_gpib", ENV{SERIAL}="$attr{serial}"
+
+ACTION=="add|change", SUBSYSTEM=="usb", DRIVER=="lpvo_usb_gpib", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", RUN+="@UDEV_LIBDIR@/gpib_udev_config"
+
+#this rule generates new "change" udev events for devices supported by the 
+#driver after the module is loaded.
+#it is needed because if the driver is not already loaded when the hardware is plugged in,
+#then the initial hardware "add" event will not be able to accomplish anything.
+SUBSYSTEM=="module", ACTION=="add", DEVPATH=="/module/lpvo_usb_gpib", RUN+="@UDEV_LIBDIR@/gpib_udevadm_wrapper trigger --property-match DRIVER=lpvo_usb_gpib"

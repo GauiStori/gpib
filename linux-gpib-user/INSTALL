@@ -67,14 +67,23 @@ C) Configuring the driver modules
 
 o) PCMCIA cards
 
-	If you are using a PCMCIA board, copy the files in the etc/pcmcia
-	subdirectory to /etc/pcmcia.  You may need to send a SIGHUP signal
-	to the cardmgr daemon to force it to reload the files in 
-	/etc/pcmcia (alternatively you could use your pcmcia init.d script
-	to restart the cardmgr, or you could just reboot).  The driver
-	module will be loaded as needed by the cardmgr.
-	You may wish to edit the options passed to the gpib_config call in the
-	/etc/pcmcia/linux-gpib-pcmcia script.
+        If you have a really old system (kernel_version 2.4.x) that uses
+        cardmgr from pcmcia_cs please see below.
+
+	For all other systems (pcmciautils):
+	Load the appropriate module for your pcmcia card with
+        modprobe.  For example with an NI PCMCIA card:
+	sudo modprobe tnt4882
+	For other cards consult Table 2 Supported Hardware
+        Matrix in the linux-gpib.pdf doc for the name of the module to
+        load that corresponds to your PCMCIA card.  Then run
+        gpib_config, for example: sudo gpib_config --minor 0
+
+	cardmgr based systems:
+	These systems are supported by Linux-GPIB version 3.1.x.  See
+	the "linux-gpib for 2.4.x kernels" folder for the relevant
+	linux-gpib package at:
+	https://sourceforge.net/projects/linux-gpib/files/
 
 o) USB devices
 
@@ -88,7 +97,7 @@ o) USB devices
 	
 	If your device requires external firmware you will need to
 	install firmware files for your device. A tarball is available
-	from https://linux-gpib.sourceforge.io/firmware/.  Make sure
+	from https://github.com/fmhess/linux_gpib_firmware Make sure
 	you have the "fxload" and "udev" packages installed on your
 	computer.  The udev scripts will automatically upload the
 	firmware to your device and load the driver module when the
@@ -116,7 +125,20 @@ o) USB devices
 
 	In order to reload the rules files after editing you can use
 	sudo udevadm control -R
-	
+
+	lpvo self made usb gpib adapter:
+   	The lpvo DIY adapter uses a FTDI USB-Serial chip which by default
+	loads the ftdi_sio driver module.
+ 	The gpib adapter can be enabled after a reboot with the commands:
+
+ 	    sudo rmmod ftdi_sio lpvo_usb_gpib
+	    sudo modprobe lpvo_usb_gpi
+
+	or, enabled automatically for all subsequent boots, by copying
+	linux-gpib-user-x.x.x/usb/lpvo_usb_gpib/lpvo_usb_gpib.conf
+	to
+	/etc/modprobe.d
+
 D) Configuring the GPIB-Library
 -------------------------------
 

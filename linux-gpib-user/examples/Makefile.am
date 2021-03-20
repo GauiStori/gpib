@@ -1,7 +1,8 @@
 
 noinst_PROGRAMS = master_read_to_file master_write_from_file \
 	slave_read_to_file slave_write_from_file
-bin_PROGRAMS = ibtest ibterm
+
+bin_PROGRAMS = ibtest ibterm findlisteners
 
 ibtest_SOURCES = ibtest.c
 ibtest_CFLAGS = $(LIBGPIB_CFLAGS)
@@ -10,6 +11,10 @@ ibtest_LDADD = $(LIBGPIB_LDFLAGS)
 ibterm_SOURCES = ibterm.c
 ibterm_CFLAGS = $(LIBGPIB_CFLAGS) $(LIB_READLINE_CFLAGS)
 ibterm_LDADD = $(LIBGPIB_LDFLAGS) $(LIB_READLINE_LDFLAGS)
+
+findlisteners_SOURCES = findlisteners.c
+findlisteners_CFLAGS = $(LIBGPIB_CFLAGS)
+findlisteners_LDADD = $(LIBGPIB_LDFLAGS) 
 
 master_read_to_file_SOURCES = master_read_to_file.c
 master_read_to_file_CFLAGS = $(LIBGPIB_CFLAGS)

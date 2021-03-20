@@ -20,7 +20,7 @@
 
 #include "tnt4882.h"
 
-#if defined( GPIB_CONFIG_PCMCIA )
+#if (GPIB_CONFIG_PCMCIA==1)
 
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -258,6 +258,7 @@ MODULE_DEVICE_TABLE(pcmcia, ni_pcmcia_ids);
 
 static struct pcmcia_driver ni_gpib_cs_driver =
 {
+	.name           = "ni_gpib_cs",
 	.owner		= THIS_MODULE,
 	.drv = { .name = "ni_gpib_cs", },
 	.id_table	= ni_pcmcia_ids,
@@ -413,4 +414,4 @@ void ni_pcmcia_detach(gpib_board_t *board)
 	tnt4882_free_private(board);
 }
 
-#endif	// GPIB_CONFIG_PCMCIA
+#endif	// GPIB_CONFIG_PCMCIA==1

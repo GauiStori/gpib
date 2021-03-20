@@ -23,7 +23,7 @@
 
 #include "cb7210.h"
 
-#if defined(GPIB_CONFIG_PCMCIA)
+#if (GPIB_CONFIG_PCMCIA==1)
 
 #include <linux/kernel.h>
 #include <linux/sched.h>
@@ -456,4 +456,4 @@ void cb_pcmcia_detach(gpib_board_t *board)
 	cb7210_generic_detach(board);
 }
 
-#endif /* CONFIG_PCMCIA */
+#endif /* CONFIG_PCMCIA==1 */

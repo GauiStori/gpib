@@ -100,13 +100,14 @@ uint8_t tms9914_serial_poll_status( gpib_board_t *board, tms9914_private_t *priv
 	return status;
 }
 
-void tms9914_primary_address(gpib_board_t *board, tms9914_private_t *priv, unsigned int address)
+int tms9914_primary_address(gpib_board_t *board, tms9914_private_t *priv, unsigned int address)
 {
 	// put primary address in address0
 	write_byte(priv, address & ADDRESS_MASK, ADR);
+	return 0;
 }
 
-void tms9914_secondary_address(gpib_board_t *board, tms9914_private_t *priv, unsigned int address, int enable)
+int tms9914_secondary_address(gpib_board_t *board, tms9914_private_t *priv, unsigned int address, int enable)
 {
 	if( enable )
 		priv->imr1_bits |= HR_APTIE;
@@ -114,6 +115,7 @@ void tms9914_secondary_address(gpib_board_t *board, tms9914_private_t *priv, uns
 		priv->imr1_bits &= ~HR_APTIE;
 
 	write_byte( priv, priv->imr1_bits, IMR1 );
+	return 0;
 }
 
 unsigned int tms9914_update_status( gpib_board_t *board, tms9914_private_t *priv,

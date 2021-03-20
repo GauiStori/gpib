@@ -92,8 +92,8 @@ typedef struct
 	struct urb *bulk_urb;
 	struct urb *interrupt_urb;
 	uint8_t interrupt_buffer[0x11];
-        struct mutex addressed_transfer_lock;
-        struct mutex bulk_transfer_lock;
+	struct mutex addressed_transfer_lock;
+	struct mutex bulk_transfer_lock;
 	struct mutex control_transfer_lock;
 	struct mutex interrupt_transfer_lock;
 	struct timer_list bulk_timer;
@@ -157,7 +157,10 @@ enum ni_usb_control_requests
 	NI_USB_STOP_REQUEST = 0x20,
 	NI_USB_WAIT_REQUEST = 0x21,
 	NI_USB_POLL_READY_REQUEST = 0x40,
-	NI_USB_SERIAL_NUMBER_REQUEST = 0x41
+	NI_USB_SERIAL_NUMBER_REQUEST = 0x41,
+	NI_USB_HS_PLUS_0x48_REQUEST = 0x48,
+	NI_USB_HS_PLUS_LED_REQUEST = 0x4b,
+	NI_USB_HS_PLUS_0xf8_REQUEST = 0xf8
 };
 
 static const unsigned int ni_usb_ibsta_monitor_mask = SRQI | LOK | REM | CIC | ATN | TACS | LACS | DTAS | DCAS;

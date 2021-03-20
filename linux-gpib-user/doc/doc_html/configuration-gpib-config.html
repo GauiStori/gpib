@@ -7,7 +7,7 @@
 NAME="GENERATOR"
 CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
 REL="HOME"
-TITLE="	Linux-GPIB 4.3.0
+TITLE="	Linux-GPIB 4.3.4
  Documentation"
 HREF="t1.html"><LINK
 REL="UP"
@@ -38,7 +38,7 @@ CELLSPACING="0"
 ><TH
 COLSPAN="3"
 ALIGN="center"
->Linux-GPIB 4.3.0
+>Linux-GPIB 4.3.4
  Documentation</TH
 ></TR
 ><TR
@@ -78,7 +78,7 @@ NAME="CONFIGURATION-GPIB-CONFIG"
 ><DIV
 CLASS="REFNAMEDIV"
 ><A
-NAME="AEN160"
+NAME="AEN156"
 ></A
 ><H2
 >Name</H2
@@ -86,7 +86,7 @@ NAME="AEN160"
 ><DIV
 CLASS="REFSYNOPSISDIV"
 ><A
-NAME="AEN163"
+NAME="AEN159"
 ></A
 ><H2
 >Synopsis</H2
@@ -179,7 +179,7 @@ CLASS="REPLACEABLE"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN207"
+NAME="AEN203"
 ></A
 ><H2
 >Description</H2
@@ -209,7 +209,7 @@ overiden by use of command-line options (see below).</P
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN213"
+NAME="AEN209"
 ></A
 ><H2
 >Options</H2
@@ -273,8 +273,11 @@ CLASS="REPLACEABLE"
 ></P
 ><P
 >Specify file path for configuration file.  The values in the configuration
-file will be used as defaults for unspecified options.  The default configuration
-file is "sysconfdir/gpib.conf".</P
+file will be used as defaults for unspecified options.  If this option
+is not specified, then the value of the IB_CONFIG environment variable will
+be used if it is set.  Otherwise, the default configuration
+file is "sysconfdir/gpib.conf" where sysconfdir is specified when the library
+is configured before compilation (it is usually /etc or /usr/local/etc).</P
 ><P
 ><CODE
 CLASS="OPTION"
@@ -450,18 +453,6 @@ CLASS="REPLACEABLE"
 ></TT
 >
 should be 0 (disabled) or in the range 96 through 126 (0x60 through 0x7e hexadecimal).</P
-><P
-><CODE
-CLASS="OPTION"
->-e, --serial-number <TT
-CLASS="REPLACEABLE"
-><I
->serial_number</I
-></TT
-></CODE
-></P
-><P
->Select a specific board to attach by its serial number.</P
 ><P
 ><CODE
 CLASS="OPTION"

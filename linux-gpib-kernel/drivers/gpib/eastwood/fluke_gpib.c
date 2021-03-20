@@ -114,15 +114,15 @@ unsigned int fluke_update_status( gpib_board_t *board, unsigned int clear_mask )
 	fluke_private_t *priv = board->private_data;
 	return nec7210_update_status( board, &priv->nec7210_priv, clear_mask );
 }
-void fluke_primary_address(gpib_board_t *board, unsigned int address)
+int fluke_primary_address(gpib_board_t *board, unsigned int address)
 {
 	fluke_private_t *priv = board->private_data;
-	nec7210_primary_address(board, &priv->nec7210_priv, address);
+	return nec7210_primary_address(board, &priv->nec7210_priv, address);
 }
-void fluke_secondary_address(gpib_board_t *board, unsigned int address, int enable)
+int fluke_secondary_address(gpib_board_t *board, unsigned int address, int enable)
 {
 	fluke_private_t *priv = board->private_data;
-	nec7210_secondary_address(board, &priv->nec7210_priv, address, enable);
+	return nec7210_secondary_address(board, &priv->nec7210_priv, address, enable);
 }
 int fluke_parallel_poll(gpib_board_t *board, uint8_t *result)
 {
@@ -364,7 +364,7 @@ static int fluke_dma_write(gpib_board_t *board,
 	writel(0x0, e_priv->write_transfer_counter);
 
 	memcpy(e_priv->dma_buffer, buffer, length);
-	address = dma_map_single(NULL, e_priv->dma_buffer,
+	address = dma_map_single(board->dev, e_priv->dma_buffer,
 		 length, DMA_TO_DEVICE);
 	/* program dma controller */
 	retval = fluke_config_dma(board, 1);
@@ -431,7 +431,7 @@ static int fluke_dma_write(gpib_board_t *board,
 	if(*bytes_written > length) BUG();
 
 cleanup:
-	dma_unmap_single(NULL, address, length, DMA_TO_DEVICE);
+	dma_unmap_single(board->dev, address, length, DMA_TO_DEVICE);
 //	printk("%s: exit, retval=%d\n", __FUNCTION__, retval);
 	return retval;
 }
@@ -545,14 +545,14 @@ static int fluke_dma_read(gpib_board_t *board, uint8_t *buffer,
 	if(length == 0)
 		return 0;
 
-	bus_address = dma_map_single(NULL, e_priv->dma_buffer,
+	bus_address = dma_map_single(board->dev, e_priv->dma_buffer,
 		length, DMA_FROM_DEVICE);
 
 	/* program dma controller */
 	retval = fluke_config_dma(board, 0);
 	if(retval) 
 	{
-		dma_unmap_single(NULL, bus_address, length, DMA_FROM_DEVICE);
+		dma_unmap_single(board->dev, bus_address, length, DMA_FROM_DEVICE);
 		return retval;
 	}
 	tx_desc = dmaengine_prep_slave_single(e_priv->dma_channel, bus_address, length, DMA_DEV_TO_MEM, 
@@ -627,7 +627,7 @@ static int fluke_dma_read(gpib_board_t *board, uint8_t *buffer,
 		fluke_dma_callback(board);
 	}
 
-	dma_unmap_single(NULL, bus_address, length, DMA_FROM_DEVICE);
+	dma_unmap_single(board->dev, bus_address, length, DMA_FROM_DEVICE);
 	memcpy(buffer, e_priv->dma_buffer, *bytes_read);
 
 	/* If we got an end interrupt, figure out if it was
@@ -986,6 +986,7 @@ static int fluke_attach_impl(gpib_board_t *board, const gpib_board_config_t *con
 	e_priv = board->private_data;
 	nec_priv = &e_priv->nec7210_priv;
 	nec_priv->offset = fluke_reg_offset;	
+	board->dev = &fluke_gpib_pdev->dev;
 	
 	res = platform_get_resource(fluke_gpib_pdev, IORESOURCE_MEM, 0);
 	if (!res) {

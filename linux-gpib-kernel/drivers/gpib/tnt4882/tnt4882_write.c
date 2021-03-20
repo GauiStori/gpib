@@ -39,7 +39,7 @@ static int fifo_xfer_done( tnt4882_private_t *tnt_priv )
 
 	return retval;
 }
-	
+
 static unsigned tnt_transfer_count(tnt4882_private_t *tnt_priv)
 {
 	unsigned count = 0;
@@ -52,7 +52,7 @@ static unsigned tnt_transfer_count(tnt4882_private_t *tnt_priv)
 };
 
 static int write_wait( gpib_board_t *board, tnt4882_private_t *tnt_priv,
-	int wait_for_done )
+		int wait_for_done, int send_commands )
 {
 	nec7210_private_t *nec_priv = &tnt_priv->nec7210_priv;
 
@@ -74,7 +74,7 @@ static int write_wait( gpib_board_t *board, tnt4882_private_t *tnt_priv,
 	if( test_and_clear_bit( BUS_ERROR_BN, &nec_priv->state ) )
 	{
 		printk("tnt4882: write bus error\n");
-		return -EIO;
+		return (send_commands) ? -ENOTCONN : -ECOMM;
 	}
 	if( test_bit( DEV_CLEAR_BN, &nec_priv->state ) )
 	{
@@ -144,7 +144,7 @@ static int generic_write( gpib_board_t *board, uint8_t *buffer, size_t length,
 	while( count < length  )
 	{
 		// wait until byte is ready to be sent
-		retval = write_wait( board, tnt_priv, 0 );
+		retval = write_wait( board, tnt_priv, 0, send_commands );
 		if( retval < 0 ) break;
 		if( fifo_xfer_done( tnt_priv ) ) break;
 
@@ -167,7 +167,7 @@ static int generic_write( gpib_board_t *board, uint8_t *buffer, size_t length,
 	}
 	// wait last byte has been sent
 	if(retval == 0)
-		retval = write_wait(board, tnt_priv, 1);
+		retval = write_wait(board, tnt_priv, 1, send_commands);
 
 	tnt_writeb( tnt_priv, STOP, CMDR );
 	udelay(1);

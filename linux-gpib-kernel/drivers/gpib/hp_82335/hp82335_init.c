@@ -90,15 +90,15 @@ unsigned int hp82335_update_status( gpib_board_t *board, unsigned int clear_mask
 	hp82335_private_t *priv = board->private_data;
 	return tms9914_update_status( board, &priv->tms9914_priv, clear_mask );
 }
-void hp82335_primary_address( gpib_board_t *board, unsigned int address )
+int hp82335_primary_address( gpib_board_t *board, unsigned int address )
 {
 	hp82335_private_t *priv = board->private_data;
-	tms9914_primary_address( board, &priv->tms9914_priv, address );
+	return tms9914_primary_address( board, &priv->tms9914_priv, address );
 }
-void hp82335_secondary_address( gpib_board_t *board, unsigned int address, int enable )
+int hp82335_secondary_address( gpib_board_t *board, unsigned int address, int enable )
 {
 	hp82335_private_t *priv = board->private_data;
-	tms9914_secondary_address( board, &priv->tms9914_priv, address, enable );
+	return tms9914_secondary_address( board, &priv->tms9914_priv, address, enable );
 }
 int hp82335_parallel_poll( gpib_board_t *board, uint8_t *result )
 {

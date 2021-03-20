@@ -94,8 +94,14 @@ o)	For custom builds these are the environment variables that can
 	  By default ENABLE_ISA is not set.
 	  To enable ISA support: make ENABLE_ISA="yes"
 
-	  GPIB-DEBUG=<0 | 1>
-	  GPIB-DEBUG is used to control the console output of the drivers.
+	  ENABLE_PCMCIA=<0 | 1>
+	  If you have a PCMCIA based card you need to set the
+	  ENABLE_PCMCIA option to 1.
+	  By default PCMCIA support is disabled (ENABLE_PCMCIA is set to 0).
+	  To enable PCMCIA support: make ENABLE_PCMCIA=1 
+
+	  GPIB_DEBUG=<0 | 1>
+	  GPIB_DEBUG is used to control the console output of the drivers.
 	  By default it is set to 0 which disables debug output.
 	  To enable driver debug output: make GPIB_DEBUG=1
 

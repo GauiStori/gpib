@@ -46,8 +46,8 @@ int hp82335_enable_eos( gpib_board_t *board, uint8_t eos_byte, int
 	compare_8_bits );
 void hp82335_disable_eos( gpib_board_t *board );
 unsigned int hp82335_update_status( gpib_board_t *board, unsigned int clear_mask );
-void hp82335_primary_address( gpib_board_t *board, unsigned int address );
-void hp82335_secondary_address( gpib_board_t *board, unsigned int address, int
+int hp82335_primary_address( gpib_board_t *board, unsigned int address );
+int hp82335_secondary_address( gpib_board_t *board, unsigned int address, int
 	enable );
 int hp82335_parallel_poll( gpib_board_t *board, uint8_t *result );
 void hp82335_parallel_poll_configure( gpib_board_t *board, uint8_t config );

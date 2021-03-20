@@ -103,13 +103,14 @@ uint8_t nec7210_serial_poll_status( gpib_board_t *board, nec7210_private_t *priv
 	return read_byte(priv, SPSR);
 }
 
-void nec7210_primary_address(const gpib_board_t *board, nec7210_private_t *priv, unsigned int address)
+int nec7210_primary_address(const gpib_board_t *board, nec7210_private_t *priv, unsigned int address)
 {
 	// put primary address in address0
 	write_byte(priv, address & ADDRESS_MASK, ADR);
+	return 0;
 }
 
-void nec7210_secondary_address(const gpib_board_t *board, nec7210_private_t *priv, unsigned int address, int enable)
+int nec7210_secondary_address(const gpib_board_t *board, nec7210_private_t *priv, unsigned int address, int enable)
 {
 	if(enable)
 	{
@@ -127,6 +128,7 @@ void nec7210_secondary_address(const gpib_board_t *board, nec7210_private_t *pri
 		priv->reg_bits[ ADMR ] &= ~HR_ADM1;
 	}
 	write_byte( priv, priv->reg_bits[ ADMR ], ADMR );
+	return 0;
 }
 
 static void update_talker_state(nec7210_private_t *priv, unsigned address_status_bits)

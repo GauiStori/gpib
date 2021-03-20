@@ -61,8 +61,6 @@ unsigned int usec_to_ppoll_timeout( unsigned int usec );
 int set_timeout( const ibBoard_t *board, unsigned int usec_timeout );
 int close_gpib_handle( ibConf_t *conf );
 int open_gpib_handle( ibConf_t *conf );
-int gpibi_change_address( ibConf_t *conf,
-	unsigned int pad, int sad );
 int lock_board_mutex( ibBoard_t *board );
 int unlock_board_mutex( ibBoard_t *board );
 int conf_lock_board( ibConf_t *conf );
