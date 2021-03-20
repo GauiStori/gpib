@@ -35,7 +35,7 @@ $(srcdir)/ibConfLex.c $(srcdir)/ibConfLex.h: $(srcdir)/ibConfLex.l
 	$(LEX) $<
 
 $(srcdir)/ibConfYacc.c $(srcdir)/ibConfYacc.h: $(srcdir)/ibConfYacc.y
-	$(YACC) -d -p gpib_yy -o $(srcdir)/ibConfYacc.c $<
+	$(YACC) -Wno-yacc -d -p gpib_yy -o $(srcdir)/ibConfYacc.c $<
 
 $(srcdir)/ibVers.h: 
 	if [ `svn info . 2> /dev/null | wc -l` -ne 0 ] && which svnversion >/dev/null 2>&1 ;  then \

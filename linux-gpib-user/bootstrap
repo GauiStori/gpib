@@ -3,6 +3,10 @@
 if [ ! -f NEWS ] ; then
 	touch NEWS
 fi
+# The common ChangeLog is maintained on the top level of trunk
+if [ ! -f ChangeLog ] ; then
+	touch ChangeLog
+fi
 
 aclocal -I m4 && \
 libtoolize --copy --force && \

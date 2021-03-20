@@ -71,7 +71,7 @@ int send_data(ibConf_t *conf, const void *buffer, size_t count, int send_eoi, si
 			case EINTR:
 				setIberr( EABO );
 				break;
-			case EIO:
+			case ECOMM:
 				setIberr( ENOL );
 				break;
 			case EFAULT:

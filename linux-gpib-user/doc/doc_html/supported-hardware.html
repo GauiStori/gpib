@@ -7,7 +7,7 @@
 NAME="GENERATOR"
 CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
 REL="HOME"
-TITLE="	Linux-GPIB 4.3.0
+TITLE="	Linux-GPIB 4.3.4
  Documentation"
 HREF="t1.html"><LINK
 REL="PREVIOUS"
@@ -35,7 +35,7 @@ CELLSPACING="0"
 ><TH
 COLSPAN="3"
 ALIGN="center"
->Linux-GPIB 4.3.0
+>Linux-GPIB 4.3.4
  Documentation</TH
 ></TR
 ><TR
@@ -87,7 +87,7 @@ NAME="HARDWARE-MATRIX"
 >	<DIV
 CLASS="TABLE"
 ><A
-NAME="AEN308"
+NAME="AEN300"
 ></A
 ><P
 ><B
@@ -720,6 +720,19 @@ TARGET="_top"
 ></TR
 ><TR
 ><TD
+>GPIO bitbang</TD
+><TD
+><A
+HREF="supported-hardware.html#GPIO"
+>GPIO</A
+></TD
+><TD
+>gpib_bitbang.ko</TD
+><TD
+>gpib_bitbang</TD
+></TR
+><TR
+><TD
 >Quancom</TD
 ><TD
 >PCIGPIB-1</TD
@@ -757,12 +770,11 @@ can be used.  This can be accomplished using the "--init-data" option of
 HREF="configuration-gpib-config.html"
 >gpib_config</A
 >.  The
-firmware data can be found in the gpib_firmware
-tarball available from the
+firmware data for the boards can be found at this
 <A
-HREF="https://linux-gpib.sourceforge.io/"
+HREF="https://github.com/fmhess/linux_gpib_firmware"
 TARGET="_top"
->Linux-GPIB home page</A
+>repository</A
 >.
 Note the C and D versions use different firmware data.</P
 ><P
@@ -800,12 +812,11 @@ can be used.  This can be accomplished using the "--init-data" option of
 HREF="configuration-gpib-config.html"
 >gpib_config</A
 >.  The
-firmware data can be found in the gpib_firmware
-tarball available from the
+firmware data for the 82350A can be found at this
 <A
-HREF="https://linux-gpib.sourceforge.io/"
+HREF="https://github.com/fmhess/linux_gpib_firmware"
 TARGET="_top"
->Linux-GPIB home page</A
+>repository</A
 >.
 The 82350B and 82351A do not require a firmware upload.</P
 ></DIV
@@ -820,16 +831,15 @@ NAME="AGILENT-82357A"
 ><P
 >The Agilent 82357A and 82357B require a firmware upload
 (before gpib_config is run) to become functional
-after being plugged in.  The linux-gpib tarball contains hotplug scripts
+after being plugged in.  The linux-gpib tarball contains udev rules
 for automatically running the fxload program to upload the firmware (and
 to run gpib_config after the firmware is uploaded).
-However, the actual firmware
-data itself must be obtained seperately, as part of the gpib_firmware
-tarball available from the
+However, the actual firmware data itself must be obtained
+seperately. It can be found at this
 <A
-HREF="https://linux-gpib.sourceforge.io/"
+HREF="https://github.com/fmhess/linux_gpib_firmware"
 TARGET="_top"
->Linux-GPIB home page</A
+>repository</A
 >.</P
 ><P
 >The 82357A/B have a few limitation due to their firmware code:
@@ -861,7 +871,7 @@ NAME="BEIMING-F82357"
 >Beiming F/S82357</A
 ></H3
 ><P
->Linux_gpib support requires a minimum firmware version of 1.10 for
+>Linux-gpib support requires a minimum firmware version of 1.10 for
 the F82357 and version 1.20 for the S82357. These devices have
 on-board firmware and do not require a firmware upload before becoming
 functional afer plug-in. The on-board firmware can be re-flashed; contact the
@@ -960,38 +970,19 @@ is currently under development.
 It offers basic capabilities like ibrd(),
 ibwrt(), WaitSRQ() and others. Requests for unsupported
 features are flagged by a diagnostic message to syslog.</P
+></DIV
+><DIV
+CLASS="SECTION"
+><H3
+CLASS="SECTION"
+><A
+NAME="GPIO"
+>GPIO bitbang adapter</A
+></H3
 ><P
->The driver assumes by default that the adapter is connected
-to port ttyUSB0.
-It is possible to change the 0 into any value
-<TT
-CLASS="REPLACEABLE"
-><I
->n</I
-></TT
-> in the
-range 0-99 with the gpib_config option
--b <TT
-CLASS="REPLACEABLE"
-><I
->n</I
-></TT
-> (or base = <TT
-CLASS="REPLACEABLE"
-><I
->n</I
-></TT
->
-in the configuration file).
-Currently there is no way for the kernel to know that a gpib
-adapter of this kind is available, hence the following commands
-have to be entered manually (as root), before gpib_config
-(<TT
-CLASS="REPLACEABLE"
-><I
->n</I
-></TT
-> is the port number as before)</P
+>This is a simple GPIO bitbang driver that currently only works on
+Raspberry Pi platforms. For information on the GPIO to GPIB pinouts as
+well as restrictions on fan-out see the source code:</P
 ><TABLE
 BORDER="0"
 BGCOLOR="#E0E0E0"
@@ -1000,26 +991,7 @@ WIDTH="100%"
 ><TD
 ><PRE
 CLASS="PROGRAMLISTING"
->modprobe lpvo_usb_gpib
-stty raw -echo -iexten -F /dev/ttyUSB<TT
-CLASS="REPLACEABLE"
-><I
->n</I
-></TT
->
-gpib_config ...</PRE
-></TD
-></TR
-></TABLE
-><TABLE
-BORDER="0"
-BGCOLOR="#E0E0E0"
-WIDTH="100%"
-><TR
-><TD
-><PRE
-CLASS="PROGRAMLISTING"
-></PRE
+>  linux-gpib-kernel/drivers/gpib/gpio/gpib_bitbang.c</PRE
 ></TD
 ></TR
 ></TABLE
@@ -1035,16 +1007,15 @@ NAME="NI-USB-B"
 ><P
 >The USB-B requires a firmware upload (before gpib_config is
 run) to become functional
-after being plugged in.  The linux-gpib tarball contains hotplug scripts
+after being plugged in.  The linux-gpib tarball contains udev rules
 for automatically running the fxload program to upload the firmware (and
 to run gpib_config after the firmware is uploaded).
-However, the actual firmware
-data itself must be obtained seperately, as part of the gpib_firmware
-tarball available from the
+However, the actual firmware must be obtained separately.
+It can be found at this
 <A
-HREF="https://linux-gpib.sourceforge.io/"
+HREF="https://github.com/fmhess/linux_gpib_firmware"
 TARGET="_top"
->Linux-GPIB home page</A
+>repository</A
 >.</P
 ></DIV
 ><DIV
@@ -1056,9 +1027,23 @@ NAME="NI-USB-HS"
 >National Instruments GPIB-USB-HS and GPIP-USB-HS+</A
 ></H3
 ><P
->Unlike the USB-B, the USB-HS and USB-HS+ do not require a firmware
-upload to become functional after being plugged in.
-The linux-gpib tarball contains hotplug scripts which will
+>Unlike the USB-B, the USB-HS does not require a firmware
+upload to become functional after being plugged in.  Most
+GPIB-USB-HS+ also do not require firmware upload, however some exceptions
+have been identified.  If your GPIB-USB-HS+ initially comes up with
+a USB product id of 0x761e it will require a one-time firmware upload
+which permanently changes the product id to the usual 0x7618 for
+a GPIB-USB-HS+.  Currently this can be done by plugging the
+adapter into a Windows computer which has the NI driver software
+installed.  Alternatively, you may use the 
+<A
+HREF="https://github.com/fmhess/hsplus_load"
+TARGET="_top"
+>hsplus_load</A
+> utility
+to initialize the adapter under Linux.</P
+><P
+>The linux-gpib tarball contains udev rules which will
 automatically run gpib_config after the device is plugged in.</P
 ></DIV
 ></DIV

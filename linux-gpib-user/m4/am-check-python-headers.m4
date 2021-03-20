@@ -15,10 +15,10 @@ AC_SUBST(PYTHON_INCLUDES)
 dnl check if the headers exist:
 save_CPPFLAGS="$CPPFLAGS"
 CPPFLAGS="$CPPFLAGS $PYTHON_INCLUDES"
-AC_TRY_CPP([#include <Python.h>],dnl
-[AC_MSG_RESULT(found)
-$1],dnl
-[AC_MSG_RESULT(not found)
+AC_PREPROC_IFELSE([AC_LANG_SOURCE([[#include <Python.h>]])],[dnl
+AC_MSG_RESULT(found)
+$1],[dnl
+AC_MSG_RESULT(not found)
 $2])
 CPPFLAGS="$save_CPPFLAGS"
 ])

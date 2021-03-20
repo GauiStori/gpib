@@ -111,9 +111,9 @@ int tms9914_enable_eos(gpib_board_t *board, tms9914_private_t *priv,
 void tms9914_disable_eos(gpib_board_t *board, tms9914_private_t *priv);
 unsigned int tms9914_update_status( gpib_board_t *board, tms9914_private_t *priv,
 	unsigned int clear_mask );
-void tms9914_primary_address(gpib_board_t *board,
+int tms9914_primary_address(gpib_board_t *board,
 	tms9914_private_t *priv, unsigned int address);
-void tms9914_secondary_address(gpib_board_t *board, tms9914_private_t *priv,
+int tms9914_secondary_address(gpib_board_t *board, tms9914_private_t *priv,
 	unsigned int address, int enable);
 int tms9914_parallel_poll(gpib_board_t *board, tms9914_private_t *priv, uint8_t *result);
 void tms9914_parallel_poll_configure( gpib_board_t *board,

@@ -12,7 +12,6 @@
 #include <linux/timer.h>
 
 #include <asm/io.h>
-#include <asm/segment.h>
 #include <asm/irq.h>
 #include <asm/dma.h>
 #include <asm/uaccess.h>

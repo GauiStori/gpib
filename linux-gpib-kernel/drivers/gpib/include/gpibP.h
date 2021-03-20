@@ -55,6 +55,10 @@ extern struct list_head registered_drivers;
 
 #include <asm/io.h>
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,6,0)
+#define ioremap_nocache ioremap
+#endif
+
 void writeb_wrapper(unsigned int value, void *address);
 unsigned int readb_wrapper(void *address);
 void outb_wrapper(unsigned int value, void *address);

@@ -7,7 +7,7 @@
 NAME="GENERATOR"
 CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
 REL="HOME"
-TITLE="	Linux-GPIB 4.3.0
+TITLE="	Linux-GPIB 4.3.4
  Documentation"
 HREF="t1.html"><LINK
 REL="UP"
@@ -38,7 +38,7 @@ CELLSPACING="0"
 ><TH
 COLSPAN="3"
 ALIGN="center"
->Linux-GPIB 4.3.0
+>Linux-GPIB 4.3.4
  Documentation</TH
 ></TR
 ><TR
@@ -97,13 +97,17 @@ HREF="configuration-gpib-config.html"
 >gpib_config</A
 >
 read their configuration information from the
-file gpib.conf.  The file is located in the sysconfdir directory configured
+file gpib.conf.  By default, file is located in the sysconfdir directory configured
 when linux-gpib was compiled.  The sysconfdir is typically set to /etc or
 /usr/local/etc.  A template gpib.conf
 file can be found in the util/templates/ subdirectory of the linux-gpib
 package.</P
 ><P
->The configuration file must contain one or more 'interface' entries, and
+>The default config file may be overriden by setting the
+IB_CONFIG environment variable to a custom file path.</P
+><P
+>The configuration file must contain one 'interface' entry for each of
+the board minors that are going to be used, and
 can contain zero or more 'device' entries.  'device' entries are only
 required if you wish to open device descriptors with
 <A
@@ -186,7 +190,7 @@ device {
 >	<DIV
 CLASS="TABLE"
 ><A
-NAME="AEN45"
+NAME="AEN46"
 ></A
 ><P
 ><B
@@ -359,16 +363,6 @@ HREF="reference-function-ibdev.html"
 	</TD
 ><TD
 >interface or device</TD
-><TD
->optional</TD
-></TR
-><TR
-><TD
->serial_number</TD
-><TD
->A string which may be used to select a particular piece of hardware by its serial number.</TD
-><TD
->interface</TD
 ><TD
 >optional</TD
 ></TR

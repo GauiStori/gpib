@@ -19,6 +19,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 
+
 /* Strictly speaking, addressing the controller as talker is
  * not part of the FindListener 488.2 protocol.  However, doing
  * so helps with boards that cannot reliably read the state of
@@ -63,6 +64,7 @@ int unlisten_untalk( ibConf_t *conf)
 
 int listenerFound( ibConf_t *conf, const Addr4882_t addressList[] )
 {
+
 	uint8_t *cmd;
 	int i, j;
 	short line_status;

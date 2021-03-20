@@ -1,7 +1,7 @@
 
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT([linux-gpib-user], [4.3.0])
+AC_INIT([linux-gpib-user],[4.3.4])
 # libtool version: current:revision:age
 #
 # If the library source code has changed at all since the last update, then
@@ -59,9 +59,9 @@ dnl Checks for programs.
 AC_PROG_INSTALL
 AC_PROG_CC
 AM_PROG_CC_C_O
-AM_PROG_LEX
+AC_PROG_LEX([noyywrap])
 AC_PROG_YACC
-AC_PROG_LIBTOOL
+LT_INIT
 AC_PATH_PROG([JW_PATH], [jw], [no])
 if test "$JW_PATH" = "no" ; then
 	AC_MSG_NOTICE([docbook-tools (jw) not found, disabling documentation])
@@ -69,11 +69,9 @@ if test "$JW_PATH" = "no" ; then
 fi
 
 if test "$BIND_PYTHON" = "yes"; then
-	AM_PATH_PYTHON()
-	PYTHON_MAJOR_VERSION=$(echo $PYTHON_VERSION | cut -d. -f1 )
-	PYTHON_MINOR_VERSION=$(echo $PYTHON_VERSION | cut -d. -f2 )
-	if (( $PYTHON_MAJOR_VERSION < 2 )); then
-		AC_MSG_WARN([python version less than 2.0, disabling python binding])
+	AM_PATH_PYTHON([3.0],,[:])
+	if test "$PYTHON" = :; then
+	   	AC_MSG_NOTICE([no usable python found, disabling python binding])
 		BIND_PYTHON="no"
 	fi
 fi
@@ -118,7 +116,6 @@ AC_CHECK_LIB([readline], [readline],
 	     [-lncurses])
 		       
 dnl Checks for header files.
-AC_HEADER_STDC
 AC_CHECK_HEADERS(unistd.h sys/param.h sys/time.h time.h sys/mkdev.h sys/sysmacros.h string.h memory.h fcntl.h dirent.h sys/ndir.h ndir.h alloca.h locale.h )
 
 if test "$BIND_PYTHON" = "yes"; then
@@ -187,7 +184,7 @@ AX_DEFINE_DIR([SYSCONFDIR], [sysconfdir], [System configuration directory])
 AS_ECHO "sysconfdir: [$SYSCONFDIR]"
 AS_ECHO ""
 
-AC_OUTPUT([\
+AC_CONFIG_FILES([\
 	Makefile \
 	drivers/Makefile \
 	lib/Makefile \
@@ -207,6 +204,8 @@ AC_OUTPUT([\
 	usb/Makefile \
 	usb/ni_usb_gpib/Makefile \
 	usb/agilent_82357a/Makefile \
-]
-)
+	usb/lpvo_usb_gpib/Makefile \
+
+])
+AC_OUTPUT
 

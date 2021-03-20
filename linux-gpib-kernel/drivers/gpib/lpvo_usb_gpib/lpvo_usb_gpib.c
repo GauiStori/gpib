@@ -11,6 +11,18 @@
  ***************************************************************************/
 
 /***************************************************************************
+ *  Nov. 2020:  The original lpvo_usb_gpib code has been merged with the   *
+ *              "USB Skeleton driver - 2.2" written by Greg Kroah-Hartman, *
+ *              to get rid of the get_fs()/set_fs() functions that are     *
+ *              going to be removed from kernel.                           *
+ *                                                                         *
+ *  by:         Marcello Carla'                                            *
+ *  at:         Department of Physics - University of Florence, Italy      *
+ *  email:      carla@fi.infn.it                                           *
+ *                                                                         *
+ ***************************************************************************/
+
+/***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -39,6 +51,7 @@
 #include <linux/delay.h>
 #include <linux/sched/signal.h>
 #include <asm/uaccess.h>
+#include <linux/usb.h>
 
 #include "gpibP.h"
 
@@ -46,6 +59,46 @@ MODULE_LICENSE("GPL");
 
 #define NAME "lpvo_usb_gpib"
 #define HERE NAME, (char *) __FUNCTION__
+
+/*
+ *  Table of devices that work with this driver.
+ *
+ *  Currently, only one device is known to be used in the
+ *  lpvo_usb_gpib adapter (FTDI 0403:6001).
+ *  If your adapter uses a different chip, insert a line
+ *  in the following table with proper <Vendor-id>, <Product-id>.
+ *
+ *  To have your chip automatically handled by the driver,
+ *  update files "/usr/local/etc/modprobe.d/lpvo_usb_gpib.conf"
+ *  and /usr/local/etc/udev/rules.d/99-lpvo_usb_gpib.rules.
+ *
+ */
+
+static const struct usb_device_id skel_table[] = {
+        { USB_DEVICE(0x0403, 0x6001) },
+        { }                                        /* Terminating entry */
+};
+MODULE_DEVICE_TABLE(usb, skel_table);
+
+/*
+ *    ***  Diagnostics and Debug  ***
+ *
+ *  The module parameter "debug" controls the sending of debug messages to
+ *  syslog. By default it is set to 0 or 1 according to GPIB_CONFIG_KERNEL_DEBUG.
+ *    debug = 0: only register/deregister messages are generated
+ *            1: every action is logged
+ *            2: extended logging; each single exchanged byte is documented
+ *               (about twice the log volume of [1])
+ *    To switch debug level:
+ *            At module loading:  modprobe lpvo_usb_gpib debug={0,1,2}
+ *            On the fly: echo {0,1,2} > /sys/modules/lpvo_usb_gpib/parameters/debug
+ */
+
+static int debug = GPIB_CONFIG_KERNEL_DEBUG ? 1 : 0;
+module_param (debug, int, S_IRUGO | S_IWUSR);
+
+#define DIA_LOG(level,format,...) if (debug>=level) \
+        (printk (KERN_ALERT "%s:%s - "format, HERE, __VA_ARGS__))
 
 /* standard and extended command sets of the usb-gpib adapter */
 
@@ -101,56 +154,37 @@ MODULE_LICENSE("GPL");
 #define INBUF_SIZE 128
 
 struct char_buf {               /* used by one_char() routine */
-	char * inbuf;
-	int last;
-	int nchar;
+        char * inbuf;
+        int last;
+        int nchar;
 };
 
 typedef struct {                /* private data to the device */
-	struct file * f;        /* the 'file' structure for the tty-usb line */
-	uint8_t eos;            /* eos character */
-	short eos_flags;        /* eos mode */
-	struct timespec before  ;  /* time value for timings */
+        uint8_t eos;            /* eos character */
+        short eos_flags;        /* eos mode */
         int timeout;            /* current value for timeout */
+        void * dev;             /* the usb device private data structure */
 } usb_gpib_private_t;
 
-/*
- *    ***  The following code is for diagnostics and debug  ***
- */
+#define GPIB_DEV ((usb_gpib_private_t *) board->private_data)->dev
 
-/*
- * DIA_LOG - if ENABLE_DIA_LOG is set to 1  *** a lot of ***  diagnostic
- *           messages are generated to syslog, describing whatever is
- *           going on.
- *
- */
-
-#define ENABLE_DIA_LOG 0
-
-#if ENABLE_DIA_LOG
-#define DIA_LOG(format,...) \
-	(printk (KERN_ALERT "%s:%s - "format, HERE, __VA_ARGS__))
-#else
-#define DIA_LOG(format,...)
-#endif
-
-#define SHOW_STATUS(board) {				\
-		DIA_LOG("# - board %p\n", board);			\
-		DIA_LOG("# - buffer_length %d\n", board->buffer_length); \
-		DIA_LOG("# - status %lx\n", board->status);		\
-		DIA_LOG("# - use_count %d\n", board->use_count);	\
-		DIA_LOG("# - pad %x\n", board->pad);			\
-		DIA_LOG("# - sad %x\n", board->sad);			\
-		DIA_LOG("# - timeout %d\n", board->usec_timeout);	\
-		DIA_LOG("# - ppc %d\n", board->parallel_poll_configuration); \
-		DIA_LOG("# - t1delay %d\n", board->t1_nano_sec);	\
-		DIA_LOG("# - online %d\n", board->online);		\
-		DIA_LOG("# - autopoll %d\n", board->autospollers);	\
-		DIA_LOG("# - autopoll task %p\n", board->autospoll_task); \
-		DIA_LOG("# - minor %d\n", board->minor);		\
-		DIA_LOG("# - master %d\n", board->master);		\
-		DIA_LOG("# - list %d\n", board->ist);			\
-	}
+#define SHOW_STATUS(board) {                                            \
+                DIA_LOG (2,"# - board %p\n", board);                       \
+                DIA_LOG (2,"# - buffer_length %d\n", board->buffer_length); \
+                DIA_LOG (2,"# - status %lx\n", board->status);             \
+                DIA_LOG (2,"# - use_count %d\n", board->use_count);        \
+                DIA_LOG (2,"# - pad %x\n", board->pad);                    \
+                DIA_LOG (2,"# - sad %x\n", board->sad);                    \
+                DIA_LOG (2,"# - timeout %d\n", board->usec_timeout);       \
+                DIA_LOG (2,"# - ppc %d\n", board->parallel_poll_configuration); \
+                DIA_LOG (2,"# - t1delay %d\n", board->t1_nano_sec);        \
+                DIA_LOG (2,"# - online %d\n", board->online);              \
+                DIA_LOG (2,"# - autopoll %d\n", board->autospollers);      \
+                DIA_LOG (2,"# - autopoll task %p\n", board->autospoll_task); \
+                DIA_LOG (2,"# - minor %d\n", board->minor);                \
+                DIA_LOG (2,"# - master %d\n", board->master);              \
+                DIA_LOG (2,"# - list %d\n", board->ist);                   \
+        }
 /*
   n = 0;
   list_for_each (l, &board->device_list) n++;
@@ -162,35 +196,58 @@ typedef struct {                /* private data to the device */
  */
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,26)
-#define TTY_LOG(format,...) {						\
-		char buf[128];	                                        \
-                struct tty_struct *tty=get_current_tty();		\
-		if (tty) {						\
-		  snprintf (buf, 128, format, __VA_ARGS__);		\
-		  tty->driver->write (tty, buf, strlen(buf));	\
-		  tty->driver->write (tty, "\r", 1);		\
-		}							\
-	}
+#define TTY_LOG(format,...) {                                           \
+                char buf[128];                                          \
+                struct tty_struct *tty=get_current_tty();               \
+                if (tty) {                                              \
+                        snprintf (buf, 128, format, __VA_ARGS__);       \
+                        tty->driver->write (tty, buf, strlen(buf));     \
+                        tty->driver->write (tty, "\r", 1);              \
+                }                                                       \
+        }
 #else
-#define TTY_LOG(format,...) {						\
-		char buf[128];	                                        \
-                struct tty_struct *tty=get_current_tty();		\
-		if (tty) {						\
-		  snprintf (buf, 128, format, __VA_ARGS__);		\
-		  tty->driver->ops->write (tty, buf, strlen(buf));	\
-		  tty->driver->ops->write (tty, "\r", 1);		\
-		}							\
-	}
+#define TTY_LOG(format,...) {                                           \
+                char buf[128];                                          \
+                struct tty_struct *tty=get_current_tty();               \
+                if (tty) {                                              \
+                        snprintf (buf, 128, format, __VA_ARGS__);       \
+                        tty->driver->ops->write (tty, buf, strlen(buf)); \
+                        tty->driver->ops->write (tty, "\r", 1);         \
+                }                                                       \
+        }
 #endif
+
+/*
+ *  GLOBAL VARIABLES: required for
+ *  pairing among gpib minor and usb minor.
+ *  MAX_DEV is the max number of usb-gpib adapters; free
+ *  to change as you like, but no more than 32
+ */
+
+#define MAX_DEV 8
+static struct usb_interface * lpvo_usb_interfaces[MAX_DEV];   /* registered interfaces */
+static int usb_minors[MAX_DEV];                    /* usb minors */
+static int assigned_usb_minors = 0;                /* mask of filled slots */
+static struct mutex minors_lock;     /* operations on usb_minors are to be protected */
+
+/*
+ *  usb-skeleton prototypes
+ */
+
+struct usb_skel;
+static ssize_t skel_do_write(struct usb_skel *, const char *, size_t);
+static ssize_t skel_do_read(struct usb_skel *, char *, size_t);
+static int skel_do_open(gpib_board_t *, int);
+static int skel_do_release(gpib_board_t *);
 
 /*
  *   usec_diff : take difference in MICROsec between two 'timespec'
  *               (unix time in sec and NANOsec)
  */
 
-inline int usec_diff (struct timespec * a, struct timespec * b) {
-	return ((a->tv_sec - b->tv_sec)*1000000 +
-		(a->tv_nsec - b->tv_nsec)/1000);
+inline int usec_diff (struct timespec64 * a, struct timespec64 * b) {
+        return ((a->tv_sec - b->tv_sec)*1000000 +
+                (a->tv_nsec - b->tv_nsec)/1000);
 }
 
 /*
@@ -200,25 +257,32 @@ inline int usec_diff (struct timespec * a, struct timespec * b) {
 /**
  * write_loop() - Send a byte sequence to the adapter
  *
- * @f:        the 'file' structure for the port
+ * @dev:      the private device structure
  * @msg:      the byte sequence.
  * @leng:     the byte sequence length.
  *
  */
 
-int write_loop (struct file *f, char * msg, int leng) {
-	int nchar = 0, val;
+int write_loop (void * dev, char * msg, int leng) {
+//        int nchar = 0, val;
 
-	do {
-		val = f->f_op->write (f, msg+nchar, leng-nchar, &f->f_pos);
-		if (val < 1) {
-                        printk (KERN_ALERT "%s:%s - write error: %d %d/%d\n",
-                                HERE, val, nchar, leng);
-			return -EIO;
-		}
-                nchar +=val;
-	} while (nchar < leng);
-	return leng;
+//        do {
+
+        return skel_do_write (dev, msg, leng);
+
+//                if (val < 1) {
+//                        printk (KERN_ALERT "%s:%s - write error: %d %d/%d\n",
+//                                HERE, val, nchar, leng);
+//                        return -EIO;
+//                }
+//                nchar +=val;
+//        } while (nchar < leng);
+//        return leng;
+}
+
+char printable (char x) {
+        if (x < 32 || x > 126) return ' ';
+        return x;
 }
 
 /**
@@ -233,31 +297,38 @@ int write_loop (struct file *f, char * msg, int leng) {
 
 int send_command (gpib_board_t *board, char * msg, int leng) {
 
-	mm_segment_t oldfs;
-	char buffer[1]={0};
-	int nchar=0;
-	struct file *f = ((usb_gpib_private_t *)board->private_data)->f;
+        char buffer[64];
+        int nchar, j;
+        int retval;
+        struct timespec64 before, after;
 
-	if (!leng) leng = strlen(msg);
+        ktime_get_real_ts64 (&before);
 
-	oldfs = get_fs();
-	set_fs (KERNEL_DS);
+        if (!leng) leng = strlen(msg);
+        retval = write_loop (GPIB_DEV, msg, leng);
+        if (retval < 0) return retval;
 
-	if (write_loop (f, msg, leng) == -EIO) {
-		set_fs (oldfs);
-		return -EIO;
-	};
+        nchar = skel_do_read (GPIB_DEV, buffer, 64);
 
-	nchar = f->f_op->read (f, buffer, 1, &f->f_pos);
-	set_fs (oldfs);
+        if (nchar < 0) {
+                printk (KERN_ALERT "%s:%s - return from read: %d\n", HERE, nchar);
+                return nchar;
+        } else if (nchar != 1) {
+                for ( j=0 ; j<leng ; j++) {
+                        printk (KERN_ALERT "%s:%s - Irregolar reply to command: %d  %x %c\n",
+                                HERE, j, msg[j], printable(msg[j]));
+                }
+                for ( j=0 ; j<nchar ; j++) {
+                        printk (KERN_ALERT "%s:%s - Irregolar command reply: %d  %x %c\n",
+                                HERE, j, buffer[j] & 0xff, printable(buffer[j]));
+                }
+                return -EIO;
+        }
+        ktime_get_real_ts64 (&after);
 
-	if (nchar != 1) {
-		printk (KERN_ALERT "%s:%s - read error: %x %x\n",
-			HERE, nchar, buffer[0]);
-		return -EIO;
-	}
+        DIA_LOG (1,"Sent %d - done %d us.\n", leng, usec_diff(&after, &before));
 
-	return buffer[0] & 0xff;
+        return buffer[0] & 0xff;
 }
 
 /**
@@ -272,25 +343,25 @@ int send_command (gpib_board_t *board, char * msg, int leng) {
 
 int set_control_line (gpib_board_t *board, int line, int value) {
 
-	char msg[]=USB_GPIB_SET_LINES;
-	int retval;
-	int leng=strlen(msg);
+        char msg[]=USB_GPIB_SET_LINES;
+        int retval;
+        int leng=strlen(msg);
 
-	DIA_LOG ("setting line %x to %x\n", line, value);
+        DIA_LOG (1,"setting line %x to %x\n", line, value);
 
-	retval = send_command (board, USB_GPIB_READ_LINES, 0);
+        retval = send_command (board, USB_GPIB_READ_LINES, 0);
 
-	DIA_LOG ("old line values: %x\n", retval);
+        DIA_LOG (1,"old line values: %x\n", retval);
 
-	if (retval == -EIO) return retval;
+        if (retval == -EIO) return retval;
 
-	msg[leng-2] = value ? (retval & ~line): retval | line;
+        msg[leng-2] = value ? (retval & ~line): retval | line;
 
-	retval = send_command (board, msg, 0);
+        retval = send_command (board, msg, 0);
 
-	DIA_LOG ("operation result: %x\n", retval);
+        DIA_LOG (1,"operation result: %x\n", retval);
 
-	return retval;
+        return retval;
 }
 
 /**
@@ -302,31 +373,30 @@ int set_control_line (gpib_board_t *board, int line, int value) {
 
 static int one_char(gpib_board_t *board, struct char_buf * b) {
 
-	struct timespec before, after;
-	struct file *f = ((usb_gpib_private_t *)board->private_data)->f;
+        struct timespec64 before, after;
 
-	if (b->nchar) {
-		DIA_LOG ("-> %x\n", b->inbuf[b->last - b->nchar]);
-		return b->inbuf[b->last - b->nchar--];
-	}
-	getnstimeofday (&before);
-	b->last = b->nchar =
-		f->f_op->read (f, b->inbuf, INBUF_SIZE, &f->f_pos);
-	getnstimeofday (&after);
+        if (b->nchar) {
+                DIA_LOG (2,"-> %x\n", b->inbuf[b->last - b->nchar]);
+                return b->inbuf[b->last - b->nchar--];
+        }
+        ktime_get_real_ts64 (&before);
+        b->last = b->nchar =
+                skel_do_read (GPIB_DEV, b->inbuf, INBUF_SIZE);
+        ktime_get_real_ts64 (&after);
 
-	DIA_LOG ("read %d bytes in %d usec\n",
-		b->nchar, usec_diff(&after, &before));
+        DIA_LOG (2,"read %d bytes in %d usec\n",
+                 b->nchar, usec_diff(&after, &before));
 
-	if (b->nchar > 0) {
-		DIA_LOG ("-> %x\n", b->inbuf[b->last - b->nchar]);
-		return b->inbuf[b->last - b->nchar--];
-	} else if (b->nchar == 0) {
-		printk (KERN_ALERT "%s:%s - read returned EOF\n", HERE);
+        if (b->nchar > 0) {
+                DIA_LOG (2,"--> %x\n", b->inbuf[b->last - b->nchar]);
+                return b->inbuf[b->last - b->nchar--];
+        } else if (b->nchar == 0) {
+                printk (KERN_ALERT "%s:%s - read returned EOF\n", HERE);
                 return -EIO;
-	} else {
-		printk (KERN_ALERT "%s:%s - read error %d\n", HERE, b->nchar);
-		TTY_LOG ("\n *** %s *** Read Error - %s\n", NAME,
-			 "Reset the adapter with 'gpib_config'\n");
+        } else {
+                printk (KERN_ALERT "%s:%s - read error %d\n", HERE, b->nchar);
+                TTY_LOG ("\n *** %s *** Read Error - %s\n", NAME,
+                         "Reset the adapter with 'gpib_config'\n");
                 return -EIO;
         }
 }
@@ -345,27 +415,27 @@ static int one_char(gpib_board_t *board, struct char_buf * b) {
 void set_timeout (gpib_board_t *board) {
 
         int n, val;
-	char command[sizeof(USB_GPIB_TTMO)+6];
+        char command[sizeof(USB_GPIB_TTMO)+6];
         usb_gpib_private_t * data = board->private_data;
 
         if (data->timeout == board->usec_timeout) return;
 
-	n = (board->usec_timeout + 32767) / 32768;
-	if (n < 2) n = 2;
+        n = (board->usec_timeout + 32767) / 32768;
+        if (n < 2) n = 2;
 
-	DIA_LOG ("Set timeout to %d us -> %d\n", board->usec_timeout, n);
+        DIA_LOG (1,"Set timeout to %d us -> %d\n", board->usec_timeout, n);
 
         sprintf (command, "%s%d\n", USB_GPIB_tTMO, n > 255 ? 255 : n);
         val = send_command (board, command, 0);
 
         if (val == ACK) {
-                        if (n > 65535) n = 65535;
-                        sprintf (command, "%s%d\n", USB_GPIB_TTMO, n);
-                        val = send_command (board, command, 0);
+                if (n > 65535) n = 65535;
+                sprintf (command, "%s%d\n", USB_GPIB_TTMO, n);
+                val = send_command (board, command, 0);
         }
 
         if (val != ACK)
-		printk (KERN_ALERT "%s:%s - error in timeout set: <%s>\n",
+                printk (KERN_ALERT "%s:%s - error in timeout set: <%s>\n",
                         HERE, command);
         else {
                 data->timeout = board->usec_timeout;
@@ -391,72 +461,99 @@ void set_timeout (gpib_board_t *board) {
 
 int usb_gpib_attach(gpib_board_t *board, const gpib_board_config_t *config) {
 
-	int retval;
-	char device[]="/dev/ttyUSBxx";
-	int base = (long int) config->ibbase;
-	struct file *f;
-	mm_segment_t oldfs;
+        int retval, j;
+        int base = (long int) config->ibbase;
+        char *device_path;
+        int match;
+        struct usb_device *udev;
 
-	printk (KERN_ALERT "%s:%s configuring %s#%d as ttyUSB%d\n", HERE,
-		board->interface->name, board->minor, base);
+        DIA_LOG (0, "Board %p -t %s -m %d -a %p -u %d -l %d -b %d\n",
+                board, board->interface->name, board->minor, config->device_path,
+                config->pci_bus, config->pci_slot, base);
 
-	board->private_data = kzalloc(sizeof(usb_gpib_private_t), GFP_KERNEL);
-	if (board->private_data == NULL) return -ENOMEM;
+        board->private_data = NULL;  /* to be sure - we can detach before setting */
 
-	if (base > 99) return -EIO;
-	snprintf (device, sizeof(device), "/dev/ttyUSB%d", base<0 ? 0 : base);
+        /* identify device to be attached */
 
-	oldfs = get_fs();
-	set_fs (KERNEL_DS);
+        mutex_lock(&minors_lock);
 
-	f = filp_open (device, O_RDWR | O_SYNC, 0777);
-	((usb_gpib_private_t *)board->private_data)->f = f;
+        if (config->device_path) {                 /* if config->device_path given, try that first */
+                printk (KERN_ALERT "%s:%s - Looking for device_path: %s\n", HERE, config->device_path);
+                for ( j=0 ; j<MAX_DEV ; j++ ) {
+                        if ((assigned_usb_minors & 1<<j) == 0) continue;
+                        udev =  usb_get_dev(interface_to_usbdev(lpvo_usb_interfaces[j]));
+                        device_path = kobject_get_path(&udev->dev.kobj, GFP_KERNEL);
+                        match = gpib_match_device_path(&lpvo_usb_interfaces[j]->dev, config->device_path);
+                        DIA_LOG (1,"dev. %d: minor %d  path: %s --> %d\n", j,
+                                lpvo_usb_interfaces[j]->minor, device_path, match);
+                        kfree(device_path);
+                        if (match) break;
+                }
+        } else if (config->pci_bus != -1 && config->pci_slot != -1) {  /* second: look for bus and slot */
+                for ( j=0 ; j<MAX_DEV ; j++ ) {
+                        if ((assigned_usb_minors & 1<<j) == 0) continue;
+                        udev =  usb_get_dev(interface_to_usbdev(lpvo_usb_interfaces[j]));
+                        DIA_LOG (1,"dev. %d: bus %d -> %d  dev: %d -> %d\n", j,
+                               udev->bus->busnum, config->pci_bus, udev->devnum, config->pci_slot);
+                        if (config->pci_bus == udev->bus->busnum &&
+                                config->pci_slot == udev->devnum) break;
+                }
+        } else {                                        /* last chance: usb_minor, given as ibbase */
+                for ( j=0 ; j<MAX_DEV ; j++ ) {
+                        if (usb_minors[j] == base && assigned_usb_minors & 1<<j) break;
+                }
+        }
+        mutex_unlock (&minors_lock);
 
-	set_fs (oldfs);
+        if (j == MAX_DEV) {
+                printk (KERN_ALERT "%s:%s - Requested device is not registered.\n", HERE);
+                return -EIO;
+        }
 
-	DIA_LOG ("found %p %ld\n", f, IS_ERR(f));
+        board->private_data = kzalloc(sizeof(usb_gpib_private_t), GFP_KERNEL);
+        if (board->private_data == NULL) return -ENOMEM;
 
-	if (IS_ERR(f)) {
-		TTY_LOG ("%s:%s - %s is not a valid usb->gpib adapter.\n",
-			HERE, device);
-		printk (KERN_ALERT "%s:%s - no device found\n", HERE);
-		kfree (board->private_data);
-		board->private_data = NULL;
-		return -ENODEV;
-	}
+        retval = skel_do_open(board, usb_minors[j]);
 
-	f->f_pos = 0;
+        DIA_LOG (1,"Skel open: %d\n", retval);
 
-	SHOW_STATUS (board);
+        if (retval) {
+                TTY_LOG ("%s:%s - skel open failed.\n", HERE);
+                kfree (board->private_data);
+                board->private_data = NULL;
+                return -ENODEV;
+        }
 
-	retval = send_command (board, USB_GPIB_ON, 0);
-	DIA_LOG ("USB_GPIB_ON returns %x\n", retval);
-	if (retval != ACK) return -EIO;
+        SHOW_STATUS (board);
 
-	/* We must setup debug mode because we need the extended instruction
-	set to cope with the Core (gpib_common) point of view */
+        retval = send_command (board, USB_GPIB_ON, 0);
+        DIA_LOG (1,"USB_GPIB_ON returns %x\n", retval);
+        if (retval != ACK) return -EIO;
 
-	retval = send_command (board, USB_GPIB_DEBUG_ON, 0);
-	DIA_LOG ("USB_GPIB_DEBUG_ON returns %x\n", retval);
-	if (retval != ACK) return -EIO;
+        /* We must setup debug mode because we need the extended instruction
+        set to cope with the Core (gpib_common) point of view */
 
-	/* We must keep REN off after an IFC because so it is
-	assumed by the Core */
+        retval = send_command (board, USB_GPIB_DEBUG_ON, 0);
+        DIA_LOG (1,"USB_GPIB_DEBUG_ON returns %x\n", retval);
+        if (retval != ACK) return -EIO;
 
-	retval = send_command (board, USB_GPIB_IBm0, 0);
-	DIA_LOG ("USB_GPIB_IBm0 returns %x\n", retval);
-	if (retval != ACK) return -EIO;
+        /* We must keep REN off after an IFC because so it is
+        assumed by the Core */
 
-	retval = set_control_line (board, IB_BUS_REN, 0);
-	if (retval != ACK) return -EIO;
+        retval = send_command (board, USB_GPIB_IBm0, 0);
+        DIA_LOG (1,"USB_GPIB_IBm0 returns %x\n", retval);
+        if (retval != ACK) return -EIO;
+
+        retval = set_control_line (board, IB_BUS_REN, 0);
+        if (retval != ACK) return -EIO;
 
         retval = send_command (board, USB_GPIB_FTMO, 0);
-	DIA_LOG ("USB_GPIB_FTMO returns %x\n", retval);
-	if (retval != ACK) return -EIO;
+        DIA_LOG (1,"USB_GPIB_FTMO returns %x\n", retval);
+        if (retval != ACK) return -EIO;
 
-	SHOW_STATUS(board);
-	TTY_LOG ("Module '%s' has been succesfully configured\n", NAME);
-	return 0;
+        SHOW_STATUS(board);
+        TTY_LOG ("Module '%s' has been succesfully configured\n", NAME);
+        return 0;
 }
 
 /**
@@ -468,33 +565,26 @@ int usb_gpib_attach(gpib_board_t *board, const gpib_board_config_t *config) {
 
 void usb_gpib_detach(gpib_board_t *board) {
 
-	mm_segment_t oldfs;
-	struct file *f;
+        int retval;
 
-	SHOW_STATUS(board);
+        SHOW_STATUS(board);
 
-	if (board->private_data) {
-		f = ((usb_gpib_private_t *)board->private_data)->f;
-		if (f) {
-			oldfs = get_fs();
-			set_fs (KERNEL_DS);
+        DIA_LOG (0, "detaching %p\n", board);
 
-			write_loop (f, USB_GPIB_OFF, strlen(USB_GPIB_OFF));
-			msleep(100);
-			printk (KERN_NOTICE "%s:%s - GPIB off\n", HERE);
-			filp_close(f, 0);
+        if (board->private_data) {
+                if (GPIB_DEV) {
+                        write_loop (GPIB_DEV, USB_GPIB_OFF, strlen(USB_GPIB_OFF));
+                        msleep(100);
+                        DIA_LOG (1, "%s", "GPIB off\n");
+                        retval = skel_do_release (board);
+                        DIA_LOG (1, "skel release -> %d\n", retval);
+                }
+                kfree (board->private_data);
+                board->private_data = NULL;
+        }
 
-			set_fs (oldfs);
-
-			printk (KERN_NOTICE "%s:%s - ttyUSB off\n",
-				HERE);
-		}
-
-		if (board->private_data) kfree (board->private_data);
-	}
-
-	DIA_LOG ("done %p\n", board);
-	TTY_LOG ("Module '%s' has been detached\n", NAME);
+        DIA_LOG (0,"done %p\n", board);
+        TTY_LOG ("Module '%s' has been detached\n", NAME);
 }
 
 
@@ -505,25 +595,25 @@ void usb_gpib_detach(gpib_board_t *board) {
 /* command */
 
 int usb_gpib_command(gpib_board_t *board,
-			uint8_t *buffer,
-		size_t length,
-		size_t *bytes_written) {
+                     uint8_t *buffer,
+                     size_t length,
+                     size_t *bytes_written) {
 
-	int i, retval;
-	char command[6]="IBc \n";
+        int i, retval;
+        char command[6]="IBc \n";
 
-	DIA_LOG ("enter %p\n", board);
+        DIA_LOG (1,"enter %p\n", board);
 
         set_timeout (board);
 
-	for ( i=0 ; i<length ; i++ ) {
-		command[3] = buffer[i];
-		retval = send_command (board, command, 5);
-		DIA_LOG ("%d %x %x\n", i, buffer[i], retval);
-		if (retval != 0x06) return -EIO;
-		++(*bytes_written);
-	}
-	return 0;
+        for ( i=0 ; i<length ; i++ ) {
+                command[3] = buffer[i];
+                retval = send_command (board, command, 5);
+                DIA_LOG (2,"%d ==> %x %x\n", i, buffer[i], retval);
+                if (retval != 0x06) return retval;
+                ++(*bytes_written);
+        }
+        return 0;
 }
 
 /**
@@ -537,9 +627,9 @@ int usb_gpib_command(gpib_board_t *board,
 
 void usb_gpib_disable_eos(gpib_board_t *board) {
 
-	((usb_gpib_private_t *)board->private_data)->eos_flags &= ~REOS;
-	DIA_LOG ("done: %x\n",
-		((usb_gpib_private_t *)board->private_data)->eos_flags);
+        ((usb_gpib_private_t *)board->private_data)->eos_flags &= ~REOS;
+        DIA_LOG (1,"done: %x\n",
+                 ((usb_gpib_private_t *)board->private_data)->eos_flags);
 }
 
 /**
@@ -552,16 +642,16 @@ void usb_gpib_disable_eos(gpib_board_t *board) {
  */
 
 int usb_gpib_enable_eos(gpib_board_t *board,
-			uint8_t eos_byte,
-			int compare_8_bits) {
+                        uint8_t eos_byte,
+                        int compare_8_bits) {
 
-	usb_gpib_private_t * pd = (usb_gpib_private_t *)board->private_data;
+        usb_gpib_private_t * pd = (usb_gpib_private_t *)board->private_data;
 
-	DIA_LOG ("enter with %x\n", eos_byte);
-	pd->eos = eos_byte;
-	pd->eos_flags = REOS;
-	if( compare_8_bits ) pd->eos_flags |= BIN;
-	return 0;
+        DIA_LOG (1,"enter with %x\n", eos_byte);
+        pd->eos = eos_byte;
+        pd->eos_flags = REOS;
+        if( compare_8_bits ) pd->eos_flags |= BIN;
+        return 0;
 }
 
 /**
@@ -572,12 +662,12 @@ int usb_gpib_enable_eos(gpib_board_t *board,
 
 int usb_gpib_go_to_standby(gpib_board_t *board) {
 
-	int retval = set_control_line (board, IB_BUS_ATN, 0);
+        int retval = set_control_line (board, IB_BUS_ATN, 0);
 
-	DIA_LOG ("done with %x\n", retval);
+        DIA_LOG (1,"done with %x\n", retval);
 
-	if (retval == ACK) return 0;
-	return -EIO;
+        if (retval == ACK) return 0;
+        return -EIO;
 }
 
 /**
@@ -593,20 +683,20 @@ int usb_gpib_go_to_standby(gpib_board_t *board) {
 
 void usb_gpib_interface_clear(gpib_board_t *board, int assert) {
 
-	int retval=0;
+        int retval=0;
 
-	DIA_LOG ("enter with %d\n", assert);
+        DIA_LOG (1,"enter with %d\n", assert);
 
-	if (assert) {
-		retval = send_command (board, USB_GPIB_IBCL, 0);
+        if (assert) {
+                retval = send_command (board, USB_GPIB_IBCL, 0);
 
-		smp_mb__before_atomic();
-		set_bit(CIC_NUM, &board->status);
-		smp_mb__after_atomic();
-	}
+                smp_mb__before_atomic();
+                set_bit(CIC_NUM, &board->status);
+                smp_mb__after_atomic();
+        }
 
-	DIA_LOG ("done with %d %d\n", assert, retval);
-	return;
+        DIA_LOG (1,"done with %d %d\n", assert, retval);
+        return;
 }
 
 /**
@@ -621,7 +711,7 @@ void usb_gpib_interface_clear(gpib_board_t *board, int assert) {
 #define WQT wait_queue_t
 #define WQH task_list
 #define WQE task_list
-#else       
+#else
 #define WQT wait_queue_entry_t
 #define WQH head
 #define WQE entry
@@ -629,291 +719,274 @@ void usb_gpib_interface_clear(gpib_board_t *board, int assert) {
 
 int usb_gpib_line_status (const gpib_board_t *board ) {
 
-	int buffer;
-	int line_status = ValidALL;   /* all lines will be read */
-	struct list_head *p, *q;
-	WQT * item;
+        int buffer;
+        int line_status = ValidALL;   /* all lines will be read */
+        struct list_head *p, *q;
+        WQT * item;
         unsigned long flags;
         int sleep=0;
+
+        DIA_LOG (1,"%s\n", "request");
 
         /* if we are on the wait queue (board->wait), do not hurry
            reading status line; instead, pause a little */
 
         spin_lock_irqsave ((spinlock_t *) &(board->wait.lock), flags);
-	q = (struct list_head *) &(board->wait.WQH);
+        q = (struct list_head *) &(board->wait.WQH);
         list_for_each(p, q) {
-		item = container_of(p, WQT, WQE);
+                item = container_of(p, WQT, WQE);
                 if (item->private == current) {
                         sleep = 20;
                         break;
                 }
                 /* pid is: ((struct task_struct *) item->private)->pid); */
-	}
+        }
         spin_unlock_irqrestore ((spinlock_t *) &(board->wait.lock), flags);
         if (sleep) {
-                DIA_LOG ("we are on the wait queue - sleep %d ms\n", sleep);
+                DIA_LOG (1,"we are on the wait queue - sleep %d ms\n", sleep);
                 msleep(sleep);
         }
 
-	buffer = send_command ((gpib_board_t *)board, USB_GPIB_STATUS, 0);
+        buffer = send_command ((gpib_board_t *)board, USB_GPIB_STATUS, 0);
 
-	if (buffer == -EIO) {
-		printk (KERN_ALERT "%s:%s - line status read failed\n", HERE);
-		return 0;
-	}
+        if (buffer < 0) {
+                printk (KERN_ALERT "%s:%s - line status read failed with %d\n", HERE, buffer);
+                return -1;
+        }
 
-	if((buffer & 0x01) == 0) line_status |= BusREN;
-	if((buffer & 0x02) == 0) line_status |= BusIFC;
-	if((buffer & 0x04) == 0) line_status |= BusNDAC;
-	if((buffer & 0x08) == 0) line_status |= BusNRFD;
-	if((buffer & 0x10) == 0) line_status |= BusDAV;
-	if((buffer & 0x20) == 0) line_status |= BusEOI;
-	if((buffer & 0x40) == 0) line_status |= BusATN;
-	if((buffer & 0x80) == 0) line_status |= BusSRQ;
+        if((buffer & 0x01) == 0) line_status |= BusREN;
+        if((buffer & 0x02) == 0) line_status |= BusIFC;
+        if((buffer & 0x04) == 0) line_status |= BusNDAC;
+        if((buffer & 0x08) == 0) line_status |= BusNRFD;
+        if((buffer & 0x10) == 0) line_status |= BusDAV;
+        if((buffer & 0x20) == 0) line_status |= BusEOI;
+        if((buffer & 0x40) == 0) line_status |= BusATN;
+        if((buffer & 0x80) == 0) line_status |= BusSRQ;
 
-	DIA_LOG ("done with %x %x\n", buffer, line_status);
+        DIA_LOG (1,"done with %x %x\n", buffer, line_status);
 
-	return line_status;
+        return line_status;
 }
 
 /* parallel_poll */
 
 int usb_gpib_parallel_poll(gpib_board_t *board, uint8_t *result) {
 
-	/* request parallel poll asserting ATN | EOI;
-	we suppose ATN already asserted */
+        /* request parallel poll asserting ATN | EOI;
+        we suppose ATN already asserted */
 
-	int retval;
+        int retval;
 
-	DIA_LOG ("enter %p\n", board);
+        DIA_LOG (1,"enter %p\n", board);
 
-	retval = set_control_line (board, IB_BUS_EOI, 1);
-	if (retval != ACK) {
-		printk (KERN_ALERT "%s:%s - assert EOI failed\n", HERE);
-		return -EIO;
-	}
+        retval = set_control_line (board, IB_BUS_EOI, 1);
+        if (retval != ACK) {
+                printk (KERN_ALERT "%s:%s - assert EOI failed\n", HERE);
+                return -EIO;
+        }
 
-	*result = send_command (board, USB_GPIB_READ_DATA, 0);
+        *result = send_command (board, USB_GPIB_READ_DATA, 0);
 
-	DIA_LOG ("done with %x\n", *result);
+        DIA_LOG (1,"done with %x\n", *result);
 
-	retval = set_control_line (board, IB_BUS_EOI, 0);
-	if (retval != 0x06) {
-		printk (KERN_ALERT "%s:%s - unassert EOI failed\n", HERE);
-		return -EIO;
-	}
+        retval = set_control_line (board, IB_BUS_EOI, 0);
+        if (retval != 0x06) {
+                printk (KERN_ALERT "%s:%s - unassert EOI failed\n", HERE);
+                return -EIO;
+        }
 
-	return 0;
+        return 0;
 }
 
 /* read */
 
 static int usb_gpib_read (gpib_board_t *board,
-			uint8_t *buffer,
-			size_t length,
-			int *end,
-			size_t *bytes_read) {
+                          uint8_t *buffer,
+                          size_t length,
+                          int *end,
+                          size_t *bytes_read) {
 
 #define MAX_READ_EXCESS 16384
 
-	struct char_buf b={NULL,0};
+        struct char_buf b={NULL,0};
 
-	int retval;
-	mm_segment_t oldfs;
-	char c;
-	struct timespec before, after;
-	int read_count = MAX_READ_EXCESS;
-	usb_gpib_private_t * pd = (usb_gpib_private_t *)board->private_data;
+        int retval;
+        char c;
+        int ic;
+        struct timespec64 before, after;
+        int read_count = MAX_READ_EXCESS;
+        usb_gpib_private_t * pd = (usb_gpib_private_t *)board->private_data;
 
-	DIA_LOG ("enter %p\n", board);
+        DIA_LOG (1,"enter %p -> %zu\n", board, length);
 
-	*bytes_read = 0;      /* by default, things go wrong */
-	*end = 0;
+        *bytes_read = 0;      /* by default, things go wrong */
+        *end = 0;
 
-	set_timeout (board);
+        set_timeout (board);
 
-	/* single byte read has a special handling */
+        /* single byte read has a special handling */
 
-	if (length == 1) {
+        if (length == 1) {
+                char inbuf[2]={0,0};
 
-		char inbuf[2]={0,0};
+                /* read a single character */
 
-		/* read a single character */
+                ktime_get_real_ts64 (&before);
 
-		oldfs = get_fs();
-		set_fs (KERNEL_DS);
+                retval = write_loop (GPIB_DEV, USB_GPIB_READ_1, strlen(USB_GPIB_READ_1));
+                if (retval < 0) return retval;
 
-		getnstimeofday (&before);
+                retval = skel_do_read (GPIB_DEV, inbuf, 1);
+                retval += skel_do_read (GPIB_DEV, inbuf+1, 1);
 
-		if (write_loop (pd->f, USB_GPIB_READ_1,
-				strlen(USB_GPIB_READ_1)) == -EIO) {
-			set_fs (oldfs);
-			return -EIO;
-		}
+                ktime_get_real_ts64 (&after);
 
-		retval = pd->f->f_op->read (pd->f, inbuf, 1,
-					&pd->f->f_pos);
-		retval += pd->f->f_op->read (pd->f, inbuf+1, 1,
-					&pd->f->f_pos);
-		getnstimeofday (&after);
+                DIA_LOG (1,"single read: %x %x %x in %d\n", retval,
+                         inbuf[0], inbuf[1],
+                         usec_diff (&after, &before));
 
-		set_fs (oldfs);
+                /* good char / last char? */
 
-		DIA_LOG ("single read: %x %x %x in %d\n", retval,
-			inbuf[0], inbuf[1],
-			usec_diff (&after, &before));
+                if (retval == 2 && inbuf[1] == ACK) {
+                        buffer[0] = inbuf[0];
+                        *bytes_read = 1;
+                        return 0;
+                }
+                if (retval < 2) return -EIO;
+                else return -ETIME;
+                return 0;
+        }
 
-		/* good char / last char? */
+        /* allocate buffer for multibyte read */
 
-		if (retval == 2 && inbuf[1] == ACK) {
-			buffer[0] = inbuf[0];
-			*bytes_read = 1;
-			return 0;
-		}
-		if (retval < 2) return -EIO;
-		else return -ETIME;
-		return 0;
-	}
+        b.inbuf = kmalloc(INBUF_SIZE, GFP_KERNEL);
+        if (!b.inbuf) return -ENOMEM;
 
-	/* allocate buffer for multibyte read */
+        /* send read command and check <DLE><STX> sequence */
 
-	b.inbuf = kmalloc(INBUF_SIZE, GFP_KERNEL);
-	if (!b.inbuf) return -ENOMEM;
+        retval = write_loop (GPIB_DEV, USB_GPIB_READ, strlen(USB_GPIB_READ));
+        if (retval < 0) goto read_return;
 
-	/* send read command and check <DLE><STX> sequence */
+        if (one_char(board, &b) != DLE || one_char(board, &b) != STX) {
+                printk (KERN_ALERT "%s:%s - wrong <DLE><STX> sequence\n",
+                        HERE);
+                retval = -EIO;
+                goto read_return;
+        }
 
-	oldfs = get_fs();
-	set_fs (KERNEL_DS);
+        /* get data flow */
 
-	if (write_loop (pd->f, USB_GPIB_READ, strlen(USB_GPIB_READ)) == -EIO) {
-		retval = -EIO;
-		goto read_return;
-	}
+        while (1) {
+                if ((ic = one_char(board, &b)) == -EIO) {
+                        retval = -EIO;
+                        goto read_return;
+                }
+                c = ic;
 
-	if (one_char(board, &b) != DLE || one_char(board, &b) != STX) {
+                if (c != DLE || (c = one_char(board, &b)) == DLE) {
 
-		printk (KERN_ALERT "%s:%s - wrong <DLE><STX> sequence\n",
-			HERE);
-		retval = -EIO;
-		goto read_return;
-	}
+                        /* data byte - store into buffer */
 
-	/* get data flow */
+                        if (*bytes_read == length) break; /* data overflow */
+                        buffer[(*bytes_read)++] = c;
+                        if (c == pd->eos) {
+                                *end = 1;
+                                break;
+                        }
 
-	while (1) {
-		if ((c = one_char(board, &b)) == -EIO) {
-			retval = -EIO;
-			goto read_return;
-		}
+                } else {
 
+                        /* we are in the closing <DLE><ETX> sequence */
 
-		if (c != DLE || (c = one_char(board, &b)) == DLE) {
+                        if (c == ETX) {
+                                c = one_char(board, &b);
+                                if (c == ACK) {
+                                        *end = 1;
+                                        retval = 0;
+                                        goto read_return;
+                                } else {
+                                        printk (KERN_ALERT "%s:%s - %s %x\n",
+                                                HERE,
+                                                "Wrong end of message", c);
+                                        retval = -ETIME;
+                                        goto read_return;
+                                }
+                        } else {
+                                printk (KERN_ALERT "%s:%s - %s\n", HERE,
+                                        "lone <DLE> in stream");
+                                retval = -EIO;
+                                goto read_return;
+                        }
+                }
+        }
 
-			/* data byte - store into buffer */
+        /* we had a data overflow - flush excess data */
 
-			if (*bytes_read == length) break; /* data overflow */
-			buffer[(*bytes_read)++] = c;
-			if (c == pd->eos) {
-				*end = 1;
-				break;
-			}
-
-		} else {
-
-			/* we are in the closing <DLE><ETX> sequence */
-
-			if (c == ETX) {
-				c = one_char(board, &b);
-				if (c == ACK) {
-					*end = 1;
-					retval = 0;
-					goto read_return;
-				} else {
-					printk (KERN_ALERT "%s:%s - %s %x\n",
-						HERE,
-						"Wrong end of message", c);
-					retval = -ETIME;
-					goto read_return;
-				}
-			} else {
-				printk (KERN_ALERT "%s:%s - %s\n", HERE,
-					"lone <DLE> in stream");
-				retval = -EIO;
-				goto read_return;
-			}
-		}
-	}
-
-	/* we had a data overflow - flush excess data */
-
-	while (read_count--) {
-		if (one_char(board, &b) != DLE) continue;
-		c = one_char(board, &b);
-		if (c == DLE) continue;
-		if (c == ETX) {
-			c = one_char(board, &b);
-			if (c == ACK) {
-				if (MAX_READ_EXCESS - read_count > 1)
-					printk (KERN_ALERT "%s:%s - %s\n", HERE,
-                                        	"small buffer - maybe some data lost");
+        while (read_count--) {
+                if (one_char(board, &b) != DLE) continue;
+                c = one_char(board, &b);
+                if (c == DLE) continue;
+                if (c == ETX) {
+                        c = one_char(board, &b);
+                        if (c == ACK) {
+                                if (MAX_READ_EXCESS - read_count > 1)
+                                        printk (KERN_ALERT "%s:%s - %s\n", HERE,
+                                                "small buffer - maybe some data lost");
                                 retval = 0;
-				goto read_return;
-			}
-			break;
-		}
-	}
+                                goto read_return;
+                        }
+                        break;
+                }
+        }
 
-	printk (KERN_ALERT "%s:%s - no input end - GPIB board in odd state\n",
-		HERE);
-	retval = -EIO;
+        printk (KERN_ALERT "%s:%s - no input end - GPIB board in odd state\n",
+                HERE);
+        retval = -EIO;
 
 read_return:
-	set_fs (oldfs);
-	kfree (b.inbuf);
+        kfree (b.inbuf);
 
-	DIA_LOG("done with byte/status: %d %x %d\n",
+        DIA_LOG (1,"done with byte/status: %d %x %d\n",
                 (int) *bytes_read, retval, *end);
 
         if (retval == 0 || retval == -ETIME) {
-                if (send_command(board,
-                                 USB_GPIB_UNTALK, sizeof(USB_GPIB_UNTALK)
-                                 == 0x06)) return retval;
+                if (send_command(board, USB_GPIB_UNTALK, sizeof(USB_GPIB_UNTALK)) == 0x06) return retval;
                 return  -EIO;
         }
 
-	return retval;
+        return retval;
 }
 
 /* remote_enable */
 
 void usb_gpib_remote_enable(gpib_board_t *board, int enable) {
 
-	int retval;
+        int retval;
 
-	retval = set_control_line (board, IB_BUS_REN, enable ? 1 : 0);
-	if (retval != ACK)
-		printk (KERN_ALERT "%s:%s - could not set REN line: %x\n",
-			HERE, retval);
+        retval = set_control_line (board, IB_BUS_REN, enable ? 1 : 0);
+        if (retval != ACK)
+                printk (KERN_ALERT "%s:%s - could not set REN line: %x\n",
+                        HERE, retval);
 
-	DIA_LOG ("done with %x\n", retval);
+        DIA_LOG (1,"done with %x\n", retval);
 }
 
 /* request_system_control */
 
 void usb_gpib_request_system_control(gpib_board_t *board,
-				int request_control ) {
+                                int request_control ) {
 
-	smp_mb__before_atomic();
-	if (request_control) {
-		set_bit(CIC_NUM, &board->status);
-	} else {
-		clear_bit(CIC_NUM, &board->status);
-	}
-	smp_mb__after_atomic();
+        smp_mb__before_atomic();
+        if (request_control) {
+                set_bit(CIC_NUM, &board->status);
+        } else {
+                clear_bit(CIC_NUM, &board->status);
+        }
+        smp_mb__after_atomic();
 
-	DIA_LOG ("done with %d -> %lx\n", request_control, board->status);
+        DIA_LOG (1,"done with %d -> %lx\n", request_control, board->status);
 
-	return;
+        return;
 }
 
 /* take_control */
@@ -921,66 +994,66 @@ void usb_gpib_request_system_control(gpib_board_t *board,
 
 int usb_gpib_take_control(gpib_board_t *board, int sync) {
 
-	int retval;
+        int retval;
 
-	retval = set_control_line (board, IB_BUS_ATN, 1);
+        retval = set_control_line (board, IB_BUS_ATN, 1);
 
-	DIA_LOG ("done with %d %x\n", sync, retval);
+        DIA_LOG (1,"done with %d %x\n", sync, retval);
 
-	if (retval == ACK) return 0;
-	return -EIO;
+        if (retval == ACK) return 0;
+        return -EIO;
 }
 
 /* update_status */
 
 unsigned int usb_gpib_update_status( gpib_board_t *board,
-				unsigned int clear_mask ) {
+                                unsigned int clear_mask ) {
 
-	/* There is nothing we can do here, I guess */
+        /* There is nothing we can do here, I guess */
 
-	board->status &= ~clear_mask;
+        board->status &= ~clear_mask;
 
-	DIA_LOG ("done with %x %lx\n", clear_mask, board->status);
+        DIA_LOG (1,"done with %x %lx\n", clear_mask, board->status);
 
-	return board->status;
+        return board->status;
 }
 
 /* write */
 /* beware: DLE characters are not escaped - can only send ASCII data */
 
 static int usb_gpib_write(gpib_board_t *board,
-			uint8_t *buffer,
-			size_t length,
-			int send_eoi,
-			size_t *bytes_written) {
+                          uint8_t *buffer,
+                          size_t length,
+                          int send_eoi,
+                          size_t *bytes_written) {
 
-	int retval;
-	char * msg;
+        int retval;
+        char * msg;
 
-	DIA_LOG ("enter %p\n", board);
+        DIA_LOG (1,"enter %p -> %zu\n", board, length);
 
-	set_timeout (board);
+        set_timeout (board);
 
-	msg = kmalloc(length+8, GFP_KERNEL);
-	if (!msg) return -ENOMEM;
+        msg = kmalloc(length+8, GFP_KERNEL);
+        if (!msg) return -ENOMEM;
 
-	memcpy (msg, "\nIB\020\002",5);
-	memcpy (msg+5, buffer, length);
-	memcpy (msg+5+length, "\020\003\n",3);
+        memcpy (msg, "\nIB\020\002",5);
+        memcpy (msg+5, buffer, length);
+        memcpy (msg+5+length, "\020\003\n",3);
 
-	retval = send_command (board, msg, length+8);
-	kfree (msg);
+        retval = send_command (board, msg, length+8);
+        kfree (msg);
 
-	DIA_LOG ("<%.*s> -> %x\n", (int) length, buffer, retval);
+        DIA_LOG (1,"<%.*s> -> %x\n", (int) length, buffer, retval);
 
-	if (retval != ACK) return -EPIPE;
+        if (retval != ACK) return -EPIPE;
 
-	*bytes_written = length;
+        *bytes_written = length;
 
         if (send_command(board, USB_GPIB_UNLISTEN, sizeof(USB_GPIB_UNLISTEN))
             != 0x06) return  -EPIPE;
 
-	return length;
+        return length;
 }
 
 /*
@@ -990,62 +1063,64 @@ static int usb_gpib_write(gpib_board_t *board,
 /* parallel_poll configure */
 
 void usb_gpib_parallel_poll_configure( gpib_board_t *board,
-					uint8_t configuration ) {
+                                       uint8_t configuration ) {
 
-	printk (KERN_ALERT "%s:%s - currently a NOP\n", HERE);
+        printk (KERN_ALERT "%s:%s - currently a NOP\n", HERE);
 }
 
 /* parallel_poll_response */
 
 void usb_gpib_parallel_poll_response( gpib_board_t *board, int ist ) {
 
-	printk (KERN_ALERT "%s:%s - currently a NOP\n", HERE);
+        printk (KERN_ALERT "%s:%s - currently a NOP\n", HERE);
 }
 
 /* primary_address */
 
-void usb_gpib_primary_address(gpib_board_t *board, unsigned int address) {
+int  usb_gpib_primary_address(gpib_board_t *board, unsigned int address) {
 
-	printk (KERN_ALERT "%s:%s - currently a NOP\n", HERE);
+        printk (KERN_ALERT "%s:%s - currently a NOP\n", HERE);
+        return 0;
 }
 
 /* return_to_local */
 
 void usb_gpib_return_to_local( gpib_board_t *board ) {
 
-	printk (KERN_ALERT "%s:%s - currently a NOP\n", HERE);
+        printk (KERN_ALERT "%s:%s - currently a NOP\n", HERE);
 }
 
 /* secondary_address */
 
-void usb_gpib_secondary_address(gpib_board_t *board,
-				unsigned int address,
-				int enable) {
+int usb_gpib_secondary_address(gpib_board_t *board,
+                                unsigned int address,
+                                int enable) {
 
-	printk (KERN_ALERT "%s:%s - currently a NOP\n", HERE);
+        printk (KERN_ALERT "%s:%s - currently a NOP\n", HERE);
+        return 0;
 }
 
 /* serial_poll_response */
 
 void usb_gpib_serial_poll_response(gpib_board_t *board, uint8_t status) {
 
-	printk (KERN_ALERT "%s:%s - currently a NOP\n", HERE);
+        printk (KERN_ALERT "%s:%s - currently a NOP\n", HERE);
 }
 
 /* serial_poll_status */
 
 uint8_t usb_gpib_serial_poll_status( gpib_board_t *board ) {
 
-	printk (KERN_ALERT "%s:%s - currently a NOP\n", HERE);
-	return 0;
+        printk (KERN_ALERT "%s:%s - currently a NOP\n", HERE);
+        return 0;
 }
 
 /* t1_delay */
 
 unsigned int usb_gpib_t1_delay( gpib_board_t *board, unsigned int nano_sec ) {
 
-	printk (KERN_ALERT "%s:%s - currently a NOP\n", HERE);
-	return 0;
+        printk (KERN_ALERT "%s:%s - currently a NOP\n", HERE);
+        return 0;
 }
 
 /*
@@ -1054,45 +1129,996 @@ unsigned int usb_gpib_t1_delay( gpib_board_t *board, unsigned int nano_sec ) {
 
 gpib_interface_t usb_gpib_interface =
 {
-	name: NAME,
-	attach: usb_gpib_attach,
-	detach: usb_gpib_detach,
-	read: usb_gpib_read,
-	write: usb_gpib_write,
-	command: usb_gpib_command,
-	take_control: usb_gpib_take_control,
-	go_to_standby: usb_gpib_go_to_standby,
-	request_system_control: usb_gpib_request_system_control,
-	interface_clear: usb_gpib_interface_clear,
-	remote_enable: usb_gpib_remote_enable,
-	enable_eos: usb_gpib_enable_eos,
-	disable_eos: usb_gpib_disable_eos,
-	parallel_poll: usb_gpib_parallel_poll,
-	parallel_poll_configure: usb_gpib_parallel_poll_configure,
-	parallel_poll_response: usb_gpib_parallel_poll_response,
-	local_parallel_poll_mode: NULL, // XXX
-	line_status: usb_gpib_line_status,
-	update_status: usb_gpib_update_status,
-	primary_address: usb_gpib_primary_address,
-	secondary_address: usb_gpib_secondary_address,
-	serial_poll_response: usb_gpib_serial_poll_response,
-	serial_poll_status: usb_gpib_serial_poll_status,
-	t1_delay: usb_gpib_t1_delay,
-	return_to_local: usb_gpib_return_to_local,
+        name: NAME,
+        attach: usb_gpib_attach,
+        detach: usb_gpib_detach,
+        read: usb_gpib_read,
+        write: usb_gpib_write,
+        command: usb_gpib_command,
+        take_control: usb_gpib_take_control,
+        go_to_standby: usb_gpib_go_to_standby,
+        request_system_control: usb_gpib_request_system_control,
+        interface_clear: usb_gpib_interface_clear,
+        remote_enable: usb_gpib_remote_enable,
+        enable_eos: usb_gpib_enable_eos,
+        disable_eos: usb_gpib_disable_eos,
+        parallel_poll: usb_gpib_parallel_poll,
+        parallel_poll_configure: usb_gpib_parallel_poll_configure,
+        parallel_poll_response: usb_gpib_parallel_poll_response,
+        local_parallel_poll_mode: NULL, // XXX
+        line_status: usb_gpib_line_status,
+        update_status: usb_gpib_update_status,
+        primary_address: usb_gpib_primary_address,
+        secondary_address: usb_gpib_secondary_address,
+        serial_poll_response: usb_gpib_serial_poll_response,
+        serial_poll_status: usb_gpib_serial_poll_status,
+        t1_delay: usb_gpib_t1_delay,
+        return_to_local: usb_gpib_return_to_local,
+        skip_check_for_command_acceptors: 1
 };
 
-static int __init usb_gpib_init_module( void ) {
+/*
+ *   usb_gpib_init_module(), usb_gpib_exit_module()
+ *
+ *   This functions are called every time a new device is detected
+ *   and registered or is removed and unregistered.
+ *   We must take note of created and destroyed usb minors to be used
+ *   when usb_gpib_attach() and usb_gpib_detach() will be called on
+ *   request by gpib_config.
+ */
 
-	gpib_register_driver(&usb_gpib_interface, THIS_MODULE);
+static int usb_gpib_init_module(struct usb_interface *interface) {
+        int j, mask, rv;
 
-	printk (KERN_ALERT "%s:%s - done\n", HERE);
-	return 0;
+        rv = mutex_lock_interruptible (&minors_lock);
+        if (rv < 0) return rv;
+
+        if (assigned_usb_minors == 0) {
+                gpib_register_driver(&usb_gpib_interface, THIS_MODULE);
+        } else {
+
+                /* check if minor is already registered - maybe useless, but if
+                   it happens the code is inconsistent somewhere */
+
+                for ( j=0 ; j<MAX_DEV ; j++ ) {
+                        if (usb_minors[j] == interface->minor && assigned_usb_minors & 1<<j) {
+                                printk (KERN_ALERT "%s:%s - CODE BUG: "
+                                        "USB minor %d registered at %d.\n", HERE, interface->minor, j);
+                                rv = -1;
+                                goto exit;
+                        }
+                }
+        }
+
+        /* find a free slot */
+
+        for ( j=0 ; j<MAX_DEV ; j++ ) {
+                mask = 1 << j;
+                if ((assigned_usb_minors & mask) == 0) {
+                        usb_minors[j] = interface->minor;
+                        lpvo_usb_interfaces[j] = interface;
+                        assigned_usb_minors |= mask;
+                        DIA_LOG (0, "usb minor %d registered at %d\n", interface->minor, j);
+                        rv = 0;
+                        goto exit;;
+                }
+        }
+        printk (KERN_ALERT "%s:%s - No slot available for interface %p minor %d\n", HERE, interface, interface->minor);
+        rv = -1;
+
+exit:
+        mutex_unlock (&minors_lock);
+        return rv;
 }
 
-static void __exit usb_gpib_exit_module( void ) {
-	gpib_unregister_driver(&usb_gpib_interface);
+static void usb_gpib_exit_module( int minor ) {
+        int j;
+
+        mutex_lock (&minors_lock);
+        for ( j=0 ; j<MAX_DEV ; j++ ) {
+                if (usb_minors[j] == minor && assigned_usb_minors & 1<<j) {
+                        assigned_usb_minors &= ~(1<<j);
+                        usb_minors[j] = -1;
+                        if (assigned_usb_minors == 0) gpib_unregister_driver(&usb_gpib_interface);
+                        goto exit;
+                }
+        }
+        printk (KERN_ALERT "%s:%s - CODE BUG: USB minor %d not found.\n", HERE, minor);
+
+exit:
+        mutex_unlock (&minors_lock);
+        return;
 }
 
-module_init( usb_gpib_init_module );
-module_exit( usb_gpib_exit_module );
+/*
+ *     Default latency time (16 msec) is too long.
+ *     We must use 1 msec (best); anyhow, no more than 5 msec.
+ *
+ *     Defines and function taken and modified from the kernel tree
+ *     (see ftdi_sio.h and ftdi_sio.c).
+ *
+ */
 
+#define FTDI_SIO_SET_LATENCY_TIMER      9 /* Set the latency timer */
+#define FTDI_SIO_SET_LATENCY_TIMER_REQUEST FTDI_SIO_SET_LATENCY_TIMER
+#define FTDI_SIO_SET_LATENCY_TIMER_REQUEST_TYPE 0x40
+#define WDR_TIMEOUT 5000 /* default urb timeout */
+#define WDR_SHORT_TIMEOUT 1000	/* shorter urb timeout */
+
+#define LATENCY_TIMER 1            /* use a small latency timer: 1 ... 5 msec */
+#define LATENCY_CHANNEL 0          /* channel selection in multichannel devices */
+static int write_latency_timer(struct usb_device * udev)
+{
+	int rv = usb_control_msg(udev,
+			     usb_sndctrlpipe(udev, 0),
+			     FTDI_SIO_SET_LATENCY_TIMER_REQUEST,
+			     FTDI_SIO_SET_LATENCY_TIMER_REQUEST_TYPE,
+                             LATENCY_TIMER, LATENCY_CHANNEL,
+			     NULL, 0, WDR_TIMEOUT);
+	if (rv < 0)
+                printk (KERN_ALERT "Unable to write latency timer: %i\n", rv);
+	return rv;
+}
+
+
+/*****************************************************************************
+ *                                                                           *
+ *  The following code is a modified version of the USB Skeleton driver      *
+ *  written by Greg Kroah-Hartman and available in the kernel tree.          *
+ *                                                                           *
+ *  Functions skel_open() and skel_release() have been rewritten and named   *
+ *  skel_do_open() and skel_do_release() to process the attach and detach    *
+ *  requests coming from gpib_config.                                        *
+ *                                                                           *
+ *  Functions skel_read() and skel_write() have been splitted into a         *
+ *  skel_do_read() and skel_do_write(), that cover the kernel stuff of read  *
+ *  and write operations, and the original skel_read() and skel_write(),     *
+ *  that handle communication with user space and call their _do_ companion. *
+ *                                                                           *
+ *  Only the _do_ versions are used by the lpvo_usb_gpib driver; other ones  *
+ *  can be (optionally) maintained in the compilation to have direct access  *
+ *  to a gpib controller for debug and diagnostics.                          *
+ *                                                                           *
+ *  To avoid collisions in names, devices in user space have been renamed    *
+ *  lpvo_raw1, lpvo_raw2 ....  and the usb driver has been renamed with the  *
+ *  gpib module name.                                                        *
+ *                                                                           *
+ *****************************************************************************/
+
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * USB Skeleton driver - 2.2
+ *
+ * Copyright (C) 2001-2004 Greg Kroah-Hartman (greg@kroah.com)
+ *
+ * This driver is based on the 2.6.3 version of drivers/usb/usb-skeleton.c
+ * but has been rewritten to be easier to read and use.
+ */
+
+#include <linux/errno.h>
+#include <linux/kref.h>
+#include <linux/uaccess.h>
+#include <linux/mutex.h>
+
+/* Get a minor range for your devices from the usb maintainer */
+#define USB_SKEL_MINOR_BASE        192
+
+/*   private defines   */
+
+#define MAX_TRANSFER                (PAGE_SIZE - 512)
+/* MAX_TRANSFER is chosen so that the VM is not stressed by
+   allocations > PAGE_SIZE and the number of packets in a page
+   is an integer 512 is the largest possible packet on EHCI */
+
+#define WRITES_IN_FLIGHT        1     /* we do not want more than one pending write */
+#define USER_DEVICE 1                 /* compile for device(s) in user space */
+
+/* Structure to hold all of our device specific stuff */
+struct usb_skel {
+        struct usb_device     *udev;                 /* the usb device for this device */
+        struct usb_interface  *interface;            /* the interface for this device */
+        struct semaphore      limit_sem;             /* limiting the number of writes in progress */
+        struct usb_anchor     submitted;             /* in case we need to retract our submissions */
+        struct urb            *bulk_in_urb;          /* the urb to read data with */
+        unsigned char         *bulk_in_buffer;       /* the buffer to receive data */
+        size_t                bulk_in_size;          /* the size of the receive buffer */
+        size_t                bulk_in_filled;        /* number of bytes in the buffer */
+        size_t                bulk_in_copied;        /* already copied to user space */
+        __u8                  bulk_in_endpointAddr;  /* the address of the bulk in endpoint */
+        __u8                  bulk_out_endpointAddr; /* the address of the bulk out endpoint */
+        int                   errors;                /* the last request tanked */
+        bool                  ongoing_read;          /* a read is going on */
+        spinlock_t            err_lock;              /* lock for errors */
+        struct kref           kref;
+        struct mutex          io_mutex;              /* synchronize I/O with disconnect */
+        wait_queue_head_t     bulk_in_wait;          /* to wait for an ongoing read */
+};
+#define to_skel_dev(d) container_of(d, struct usb_skel, kref)
+
+static struct usb_driver skel_driver;
+static void skel_draw_down(struct usb_skel *dev);
+
+static void skel_delete(struct kref *kref)
+{
+        struct usb_skel *dev = to_skel_dev(kref);
+
+        usb_free_urb(dev->bulk_in_urb);
+        usb_put_dev(dev->udev);
+        kfree(dev->bulk_in_buffer);
+        kfree(dev);
+}
+
+/*
+ *   skel_do_open() - to be called by usb_gpib_attach
+ */
+
+static int skel_do_open(gpib_board_t *board, int subminor)
+{
+        struct usb_skel *dev;
+        struct usb_interface *interface;
+        int retval = 0;
+
+        DIA_LOG (0,"Required minor: %d\n", subminor);
+
+        interface = usb_find_interface(&skel_driver, subminor);
+        if (!interface) {
+                pr_err("%s - error, can't find device for minor %d\n",
+                       __func__, subminor);
+                retval = -ENODEV;
+                goto exit;
+        }
+
+        dev = usb_get_intfdata(interface);
+        if (!dev) {
+                retval = -ENODEV;
+                goto exit;
+        }
+
+        retval = usb_autopm_get_interface(interface);
+        if (retval)
+                goto exit;
+
+        /* increment our usage count for the device */
+        kref_get(&dev->kref);
+
+        /* save our object in the file's private structure */
+        GPIB_DEV = dev;
+
+exit:
+        return retval;
+}
+
+/*
+ *   skel_do_release() - to be called by usb_gpib_detach
+ */
+
+static int skel_do_release(gpib_board_t *board)
+{
+        struct usb_skel *dev;
+
+        dev = GPIB_DEV;
+        if (dev == NULL)
+                return -ENODEV;
+
+        /* allow the device to be autosuspended */
+        mutex_lock(&dev->io_mutex);
+        if (dev->interface)
+                usb_autopm_put_interface(dev->interface);
+        mutex_unlock(&dev->io_mutex);
+
+        /* decrement the count on our device */
+        kref_put(&dev->kref, skel_delete);
+        return 0;
+}
+
+/*
+ *   read functions
+ */
+
+static void skel_read_bulk_callback(struct urb *urb)
+{
+        struct usb_skel *dev;
+        unsigned long flags;
+
+        dev = urb->context;
+
+        spin_lock_irqsave(&dev->err_lock, flags);
+        /* sync/async unlink faults aren't errors */
+        if (urb->status) {
+                if (!(urb->status == -ENOENT ||
+                      urb->status == -ECONNRESET ||
+                      urb->status == -ESHUTDOWN))
+                        dev_err(&dev->interface->dev,
+                                "%s - nonzero read bulk status received: %d\n",
+                                __func__, urb->status);
+
+                dev->errors = urb->status;
+        } else {
+                dev->bulk_in_filled = urb->actual_length;
+        }
+        dev->ongoing_read = 0;
+        spin_unlock_irqrestore(&dev->err_lock, flags);
+
+        wake_up_interruptible(&dev->bulk_in_wait);
+}
+
+static int skel_do_read_io(struct usb_skel *dev, size_t count)
+{
+        int rv;
+
+        /* prepare a read */
+        usb_fill_bulk_urb(dev->bulk_in_urb,
+                          dev->udev,
+                          usb_rcvbulkpipe(dev->udev,
+                                          dev->bulk_in_endpointAddr),
+                          dev->bulk_in_buffer,
+                          min(dev->bulk_in_size, count),
+                          skel_read_bulk_callback,
+                          dev);
+        /* tell everybody to leave the URB alone */
+        spin_lock_irq(&dev->err_lock);
+        dev->ongoing_read = 1;
+        spin_unlock_irq(&dev->err_lock);
+
+        /* submit bulk in urb, which means no data to deliver */
+        dev->bulk_in_filled = 0;
+        dev->bulk_in_copied = 0;
+
+        /* do it */
+        rv = usb_submit_urb(dev->bulk_in_urb, GFP_KERNEL);
+        if (rv < 0) {
+                dev_err(&dev->interface->dev,
+                        "%s - failed submitting read urb, error %d\n",
+                        __func__, rv);
+                rv = (rv == -ENOMEM) ? rv : -EIO;
+                spin_lock_irq(&dev->err_lock);
+                dev->ongoing_read = 0;
+                spin_unlock_irq(&dev->err_lock);
+        }
+
+        return rv;
+}
+
+/*
+ *   skel_do_read() - read operations from lpvo_usb_gpib
+ */
+
+static ssize_t skel_do_read(struct usb_skel *dev, char *buffer, size_t count)
+{
+        int rv;
+        bool ongoing_io;
+
+        /* if we cannot read at all, return EOF */
+
+        if (!dev->bulk_in_urb || !count)
+                return 0;
+
+        DIA_LOG (1,"enter for %zu.\n", count);
+
+restart:  /* added to comply with ftdi timeout technique */
+
+        /* no concurrent readers */
+
+        DIA_LOG (2,"restart with %zd %zd.\n", dev->bulk_in_filled, dev->bulk_in_copied);
+
+        rv = mutex_lock_interruptible(&dev->io_mutex);
+        if (rv < 0)
+                return rv;
+
+        if (!dev->interface) {                /* disconnect() was called */
+                rv = -ENODEV;
+                goto exit;
+        }
+
+retry:
+        /* if IO is under way, we must not touch things */
+        spin_lock_irq(&dev->err_lock);
+        ongoing_io = dev->ongoing_read;
+        spin_unlock_irq(&dev->err_lock);
+
+        DIA_LOG (2,"retry with %d.\n", ongoing_io);
+
+        if (ongoing_io) {
+
+//                /* nonblocking IO shall not wait */
+//                /* no file, no O_NONBLOCK; maybe provide when from user space */
+//                if (file->f_flags & O_NONBLOCK) {
+//                        rv = -EAGAIN;
+//                        goto exit;
+//                }
+
+                /*
+                 * IO may take forever
+                 * hence wait in an interruptible state
+                 */
+                rv = wait_event_interruptible(dev->bulk_in_wait, (!dev->ongoing_read));
+                if (rv < 0) goto exit;
+        }
+
+        /* errors must be reported */
+        rv = dev->errors;
+        if (rv < 0) {
+                /* any error is reported once */
+                dev->errors = 0;
+                /* to preserve notifications about reset */
+                rv = (rv == -EPIPE) ? rv : -EIO;
+                /* report it */
+                goto exit;
+        }
+
+        /*
+         * if the buffer is filled we may satisfy the read
+         * else we need to start IO
+         */
+
+        if (dev->bulk_in_filled) {
+
+                /* we had read data */
+
+                size_t available = dev->bulk_in_filled - dev->bulk_in_copied;
+//                size_t chunk = min(available, count);  /* compute chunk later */
+                size_t chunk;
+
+                DIA_LOG (2,"we have data: %zu %zu.\n", dev->bulk_in_filled, dev->bulk_in_copied);
+
+                if (!available) {
+                        /*
+                         * all data has been used
+                         * actual IO needs to be done
+                         */
+                        /* it seems that requests for less than dev->bulk_in_size
+                           are not accepted */
+                        rv = skel_do_read_io(dev, dev->bulk_in_size);
+                        if (rv < 0)
+                                goto exit;
+                        else
+                                goto retry;
+                }
+
+                /*
+                 * data is available - chunk tells us how much shall be copied
+                 */
+
+                /* Condition dev->bulk_in_copied > 0 maybe will never happen. In case,
+                   signal the event and copy using the original procedure, i.e., copy
+                   first two bytes also */
+
+                if (dev->bulk_in_copied) {
+                        int j;
+                        for ( j=0 ; j<dev->bulk_in_filled ; j++ ) {
+                                printk (KERN_ALERT "copy -> %x %zu %x\n",
+                                        j, dev->bulk_in_copied, dev->bulk_in_buffer[j]);
+                        }
+                        chunk = min(available, count);
+                        memcpy (buffer, dev->bulk_in_buffer + dev->bulk_in_copied, chunk);
+                        rv = chunk;
+                        dev->bulk_in_copied += chunk;
+
+                /* copy discarding first two bytes that contain ftdi chip status */
+
+                } else {
+                        chunk = min(available, count + 2); /* account for two bytes to be discarded */
+                        if (chunk < 2) {
+                                printk (KERN_ALERT "BAD READ - chunk: %zu\n", chunk);
+                                rv = -EIO;
+                                goto exit;
+                        }
+
+                        memcpy (buffer, dev->bulk_in_buffer + 2, chunk - 2);
+                        rv = chunk;
+                        dev->bulk_in_copied += chunk;
+                }
+
+                /*
+                 * if we are asked for more than we have,
+                 * we start IO but don't wait
+                 *
+                 * No, no read ahead allowed; if the case, more data will be
+                 * asked for by the lpvo_usb_gpib layer.
+                 */
+//                if (available < count)
+//                        skel_do_read_io(dev, dev->bulk_in_size);
+        } else {
+
+                DIA_LOG (1, "no data - start read - copied: %zd.\n", dev->bulk_in_copied);
+
+                /* no data in the buffer */
+                rv = skel_do_read_io(dev, dev->bulk_in_size);
+                if (rv < 0)
+                        goto exit;
+                else
+                        goto retry;
+        }
+exit:
+        mutex_unlock(&dev->io_mutex);
+        if (rv == 2) goto restart;   /* ftdi chip returns two status bytes after a latency anyhow */
+        DIA_LOG (1,"exit with %d.\n", rv);
+        if (rv > 0) return rv - 2;  /* account for 2 discarded bytes in a valid buffer */
+        return rv;
+}
+
+/*
+ *   write functions
+ */
+
+static void skel_write_bulk_callback(struct urb *urb)
+{
+        struct usb_skel *dev;
+        unsigned long flags;
+
+        dev = urb->context;
+
+        /* sync/async unlink faults aren't errors */
+        if (urb->status) {
+                if (!(urb->status == -ENOENT ||
+                      urb->status == -ECONNRESET ||
+                      urb->status == -ESHUTDOWN))
+                        dev_err(&dev->interface->dev,
+                                "%s - nonzero write bulk status received: %d\n",
+                                __func__, urb->status);
+
+                spin_lock_irqsave(&dev->err_lock, flags);
+                dev->errors = urb->status;
+                spin_unlock_irqrestore(&dev->err_lock, flags);
+        }
+
+        /* free up our allocated buffer */
+        usb_free_coherent(urb->dev, urb->transfer_buffer_length,
+                          urb->transfer_buffer, urb->transfer_dma);
+        up(&dev->limit_sem);
+}
+
+/*
+ *   skel_do_write() - write operations from lpvo_usb_gpib
+ */
+
+static ssize_t skel_do_write(struct usb_skel * dev, const char *buffer, size_t count)
+{
+        int retval = 0;
+        struct urb *urb = NULL;
+        char *buf = NULL;
+        size_t writesize = min(count, (size_t)MAX_TRANSFER);
+
+        /* verify that we actually have some data to write */
+        if (count == 0)
+                goto exit;
+
+        /*
+         * limit the number of URBs in flight to stop a user from using up all
+         * RAM
+         */
+        /* Only one URB is used, because we can't have a pending write() and go on */
+
+//        if (!(file->f_flags & O_NONBLOCK)) {  /* no NONBLOCK provided */
+        if (down_interruptible(&dev->limit_sem)) {
+                retval = -ERESTARTSYS;
+                goto exit;
+        }
+//        } else {
+//                if (down_trylock(&dev->limit_sem)) {
+//                        retval = -EAGAIN;
+//                        goto exit;
+//                }
+//        }
+
+        spin_lock_irq(&dev->err_lock);
+        retval = dev->errors;
+        if (retval < 0) {
+                /* any error is reported once */
+                dev->errors = 0;
+                /* to preserve notifications about reset */
+                retval = (retval == -EPIPE) ? retval : -EIO;
+        }
+        spin_unlock_irq(&dev->err_lock);
+        if (retval < 0)
+                goto error;
+
+        /* create a urb, and a buffer for it, and copy the data to the urb */
+        urb = usb_alloc_urb(0, GFP_KERNEL);
+        if (!urb) {
+                retval = -ENOMEM;
+                goto error;
+        }
+
+        buf = usb_alloc_coherent(dev->udev, writesize, GFP_KERNEL,
+                                 &urb->transfer_dma);
+        if (!buf) {
+                retval = -ENOMEM;
+                goto error;
+        }
+
+        memcpy (buf, buffer, count);
+
+        /* this lock makes sure we don't submit URBs to gone devices */
+        mutex_lock(&dev->io_mutex);
+        if (!dev->interface) {                /* disconnect() was called */
+                mutex_unlock(&dev->io_mutex);
+                retval = -ENODEV;
+                goto error;
+        }
+
+        /* initialize the urb properly */
+        usb_fill_bulk_urb(urb, dev->udev,
+                          usb_sndbulkpipe(dev->udev, dev->bulk_out_endpointAddr),
+                          buf, writesize, skel_write_bulk_callback, dev);
+        urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
+        usb_anchor_urb(urb, &dev->submitted);
+
+        /* send the data out the bulk port */
+        retval = usb_submit_urb(urb, GFP_KERNEL);
+        mutex_unlock(&dev->io_mutex);
+        if (retval) {
+                dev_err(&dev->interface->dev,
+                        "%s - failed submitting write urb, error %d\n",
+                        __func__, retval);
+                goto error_unanchor;
+        }
+
+        /*
+         * release our reference to this urb, the USB core will eventually free
+         * it entirely
+         */
+        usb_free_urb(urb);
+
+
+        return writesize;
+
+error_unanchor:
+        usb_unanchor_urb(urb);
+error:
+        if (urb) {
+                usb_free_coherent(dev->udev, writesize, buf, urb->transfer_dma);
+                usb_free_urb(urb);
+        }
+        up(&dev->limit_sem);
+
+exit:
+        return retval;
+}
+
+/*
+ *   services for the user space devices
+ */
+
+#if USER_DEVICE  /* conditional compilation of user space device */
+
+static int skel_flush(struct file *file, fl_owner_t id)
+{
+        struct usb_skel *dev;
+        int res;
+
+        dev = file->private_data;
+        if (dev == NULL)
+                return -ENODEV;
+
+        /* wait for io to stop */
+        mutex_lock(&dev->io_mutex);
+        skel_draw_down(dev);
+
+        /* read out errors, leave subsequent opens a clean slate */
+        spin_lock_irq(&dev->err_lock);
+        res = dev->errors ? (dev->errors == -EPIPE ? -EPIPE : -EIO) : 0;
+        dev->errors = 0;
+        spin_unlock_irq(&dev->err_lock);
+
+        mutex_unlock(&dev->io_mutex);
+
+        return res;
+}
+
+static int skel_open(struct inode *inode, struct file *file)
+{
+        struct usb_skel *dev;
+        struct usb_interface *interface;
+        int subminor;
+        int retval = 0;
+
+        subminor = iminor(inode);
+
+        interface = usb_find_interface(&skel_driver, subminor);
+        if (!interface) {
+                pr_err("%s - error, can't find device for minor %d\n",
+                        __func__, subminor);
+                retval = -ENODEV;
+                goto exit;
+        }
+
+        dev = usb_get_intfdata(interface);
+        if (!dev) {
+                retval = -ENODEV;
+                goto exit;
+        }
+
+        retval = usb_autopm_get_interface(interface);
+        if (retval)
+                goto exit;
+
+        /* increment our usage count for the device */
+        kref_get(&dev->kref);
+
+        /* save our object in the file's private structure */
+        file->private_data = dev;
+
+exit:
+        return retval;
+}
+
+static int skel_release(struct inode *inode, struct file *file)
+{
+        struct usb_skel *dev;
+
+        dev = file->private_data;
+        if (dev == NULL)
+                return -ENODEV;
+
+        /* allow the device to be autosuspended */
+        mutex_lock(&dev->io_mutex);
+        if (dev->interface)
+                usb_autopm_put_interface(dev->interface);
+        mutex_unlock(&dev->io_mutex);
+
+        /* decrement the count on our device */
+        kref_put(&dev->kref, skel_delete);
+        return 0;
+}
+
+/*
+ *  user space access to read function
+ */
+
+static ssize_t skel_read(struct file *file, char *buffer, size_t count,
+                         loff_t *ppos)
+{
+        struct usb_skel *dev;
+        char * buf;
+        ssize_t rv;
+
+        dev = file->private_data;
+
+        buf = kmalloc(count, GFP_KERNEL);
+        if (!buf) return -ENOMEM;
+
+        rv = skel_do_read (dev, buf, count);
+
+        printk (KERN_ALERT "skel_read - return with %zu\n", rv);
+
+        if (rv > 0) {
+                if (copy_to_user (buffer, buf, rv)) {
+                        kfree (buf);
+                        return -EFAULT;
+                }
+        }
+        kfree (buf);
+        return rv;
+}
+
+/*
+ *  user space access to write function
+ */
+
+static ssize_t skel_write(struct file *file, const char *user_buffer,
+                          size_t count, loff_t *ppos)
+{
+        struct usb_skel *dev;
+        char * buf;
+        ssize_t rv;
+
+        dev = file->private_data;
+
+        buf = kmalloc(count, GFP_KERNEL);
+        if (!buf) return -ENOMEM;
+
+        if (copy_from_user(buf, user_buffer, count)) {
+                kfree (buf);
+                return -EFAULT;
+        }
+
+        rv = skel_do_write (dev, buf, count);
+        kfree (buf);
+        return rv;
+}
+#endif
+
+static const struct file_operations skel_fops = {
+        .owner =        THIS_MODULE,
+#if USER_DEVICE
+        .read =    skel_read,
+        .write =   skel_write,
+        .open =    skel_open,
+        .release = skel_release,
+        .flush =   skel_flush,
+        .llseek =  noop_llseek,
+#endif
+};
+
+/*
+ * usb class driver info in order to get a minor number from the usb core,
+ * and to have the device registered with the driver core
+ */
+#if USER_DEVICE
+static struct usb_class_driver skel_class = {
+        .name =                "lpvo_raw%d",
+        .fops =                &skel_fops,
+        .minor_base =        USB_SKEL_MINOR_BASE,
+};
+#endif
+
+static int skel_probe(struct usb_interface *interface,
+                      const struct usb_device_id *id)
+{
+        struct usb_skel *dev;
+        struct usb_endpoint_descriptor *bulk_in, *bulk_out;
+        int retval;
+        char *device_path;
+
+        mutex_init(&minors_lock);   /* required for handling minor numbers table */
+
+        /* allocate memory for our device state and initialize it */
+        dev = kzalloc(sizeof(*dev), GFP_KERNEL);
+        if (!dev)
+                return -ENOMEM;
+
+        kref_init(&dev->kref);
+        sema_init(&dev->limit_sem, WRITES_IN_FLIGHT);
+        mutex_init(&dev->io_mutex);
+        spin_lock_init(&dev->err_lock);
+        init_usb_anchor(&dev->submitted);
+        init_waitqueue_head(&dev->bulk_in_wait);
+
+        dev->udev = usb_get_dev(interface_to_usbdev(interface));
+        dev->interface = interface;
+
+        /* set up the endpoint information */
+        /* use only the first bulk-in and bulk-out endpoints */
+        retval = usb_find_common_endpoints(interface->cur_altsetting,
+                        &bulk_in, &bulk_out, NULL, NULL);
+        if (retval) {
+                dev_err(&interface->dev,
+                        "Could not find both bulk-in and bulk-out endpoints\n");
+                goto error;
+        }
+
+        dev->bulk_in_size = usb_endpoint_maxp(bulk_in);
+        dev->bulk_in_endpointAddr = bulk_in->bEndpointAddress;
+        dev->bulk_in_buffer = kmalloc(dev->bulk_in_size, GFP_KERNEL);
+        if (!dev->bulk_in_buffer) {
+                retval = -ENOMEM;
+                goto error;
+        }
+        dev->bulk_in_urb = usb_alloc_urb(0, GFP_KERNEL);
+        if (!dev->bulk_in_urb) {
+                retval = -ENOMEM;
+                goto error;
+        }
+
+        dev->bulk_out_endpointAddr = bulk_out->bEndpointAddress;
+
+        /* save our data pointer in this interface device */
+        usb_set_intfdata(interface, dev);
+
+        /* let the world know */
+
+        device_path = kobject_get_path(&dev->udev->dev.kobj, GFP_KERNEL);
+        printk (KERN_ALERT "%s:%s - New lpvo_usb_device -> bus: %d  dev: %d  path: %s\n", HERE,
+                dev->udev->bus->busnum, dev->udev->devnum, device_path);
+        kfree(device_path);
+
+#if USER_DEVICE
+        /* we can register the device now, as it is ready */
+        retval = usb_register_dev(interface, &skel_class);
+        if (retval) {
+                /* something prevented us from registering this driver */
+                dev_err(&interface->dev,
+                        "Not able to get a minor for this device.\n");
+                usb_set_intfdata(interface, NULL);
+                goto error;
+        }
+
+        /* let the user know what node this device is now attached to */
+        dev_info(&interface->dev,
+                 "lpvo_usb_gpib device now attached to lpvo_raw%d",
+                 interface->minor);
+#endif
+
+        write_latency_timer (dev->udev);     /* adjust the latency timer */
+
+        usb_gpib_init_module (interface);    /* last, init the lpvo for this minor */
+
+        return 0;
+
+error:
+        /* this frees allocated memory */
+        kref_put(&dev->kref, skel_delete);
+
+        return retval;
+}
+
+static void skel_disconnect(struct usb_interface *interface)
+{
+        struct usb_skel *dev;
+        int minor = interface->minor;
+
+        usb_gpib_exit_module(minor);      /* first, disactivate the lpvo */
+
+        dev = usb_get_intfdata(interface);
+        usb_set_intfdata(interface, NULL);
+
+#if USER_DEVICE
+        /* give back our minor */
+        usb_deregister_dev(interface, &skel_class);
+#endif
+
+        /* prevent more I/O from starting */
+        mutex_lock(&dev->io_mutex);
+        dev->interface = NULL;
+        mutex_unlock(&dev->io_mutex);
+
+        usb_kill_anchored_urbs(&dev->submitted);
+
+        /* decrement our usage count */
+        kref_put(&dev->kref, skel_delete);
+
+        dev_info(&interface->dev, "USB lpvo_raw #%d now disconnected", minor);
+}
+
+static void skel_draw_down(struct usb_skel *dev)
+{
+        int time;
+
+        time = usb_wait_anchor_empty_timeout(&dev->submitted, 1000);
+        if (!time)
+                usb_kill_anchored_urbs(&dev->submitted);
+        usb_kill_urb(dev->bulk_in_urb);
+}
+
+static int skel_suspend(struct usb_interface *intf, pm_message_t message)
+{
+        struct usb_skel *dev = usb_get_intfdata(intf);
+
+        if (!dev)
+                return 0;
+        skel_draw_down(dev);
+        return 0;
+}
+
+static int skel_resume(struct usb_interface *intf)
+{
+        return 0;
+}
+
+static int skel_pre_reset(struct usb_interface *intf)
+{
+        struct usb_skel *dev = usb_get_intfdata(intf);
+
+        mutex_lock(&dev->io_mutex);
+        skel_draw_down(dev);
+
+        return 0;
+}
+
+static int skel_post_reset(struct usb_interface *intf)
+{
+        struct usb_skel *dev = usb_get_intfdata(intf);
+
+        /* we are sure no URBs are active - no locking needed */
+        dev->errors = -EPIPE;
+        mutex_unlock(&dev->io_mutex);
+
+        return 0;
+}
+
+static struct usb_driver skel_driver = {
+        .name =                 NAME,
+        .probe =                skel_probe,
+        .disconnect =           skel_disconnect,
+        .suspend =              skel_suspend,
+        .resume =               skel_resume,
+        .pre_reset =            skel_pre_reset,
+        .post_reset =           skel_post_reset,
+        .id_table =             skel_table,
+        .supports_autosuspend = 1,
+};
+
+module_usb_driver(skel_driver);
+
+MODULE_LICENSE("GPL v2");

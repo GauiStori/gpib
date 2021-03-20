@@ -102,15 +102,15 @@ unsigned int cb7210_update_status( gpib_board_t *board, unsigned int clear_mask 
 	cb7210_private_t *priv = board->private_data;
 	return nec7210_update_status( board, &priv->nec7210_priv, clear_mask );
 }
-void cb7210_primary_address(gpib_board_t *board, unsigned int address)
+int cb7210_primary_address(gpib_board_t *board, unsigned int address)
 {
 	cb7210_private_t *priv = board->private_data;
-	nec7210_primary_address(board, &priv->nec7210_priv, address);
+	return nec7210_primary_address(board, &priv->nec7210_priv, address);
 }
-void cb7210_secondary_address(gpib_board_t *board, unsigned int address, int enable)
+int cb7210_secondary_address(gpib_board_t *board, unsigned int address, int enable)
 {
 	cb7210_private_t *priv = board->private_data;
-	nec7210_secondary_address(board, &priv->nec7210_priv, address, enable);
+	return nec7210_secondary_address(board, &priv->nec7210_priv, address, enable);
 }
 int cb7210_parallel_poll(gpib_board_t *board, uint8_t *result)
 {
@@ -590,7 +590,7 @@ static int __init cb7210_init_module( void )
 	gpib_register_driver(&cb_isa_accel_interface, THIS_MODULE);
 	gpib_register_driver(&cb_isa_unaccel_interface, THIS_MODULE);
 
-#if defined(GPIB_CONFIG_PCMCIA)
+#if (GPIB_CONFIG_PCMCIA==1)
 	gpib_register_driver(&cb_pcmcia_interface, THIS_MODULE);
 	gpib_register_driver(&cb_pcmcia_accel_interface, THIS_MODULE);
 	gpib_register_driver(&cb_pcmcia_unaccel_interface, THIS_MODULE);
@@ -610,7 +610,7 @@ static void __exit cb7210_exit_module( void )
 	gpib_unregister_driver(&cb_pci_unaccel_interface);
 	gpib_unregister_driver(&cb_isa_accel_interface);
 	gpib_unregister_driver(&cb_isa_unaccel_interface);
-#if defined(GPIB_CONFIG_PCMCIA)
+#if (GPIB_CONFIG_PCMCIA==1)
 	gpib_unregister_driver(&cb_pcmcia_interface);
 	gpib_unregister_driver(&cb_pcmcia_accel_interface);
 	gpib_unregister_driver(&cb_pcmcia_unaccel_interface);

@@ -105,9 +105,9 @@ int nec7210_enable_eos(gpib_board_t *board, nec7210_private_t *priv,
 void nec7210_disable_eos(gpib_board_t *board, nec7210_private_t *priv);
 unsigned int nec7210_update_status( gpib_board_t *board, nec7210_private_t *priv,
 	unsigned int clear_mask );
-void nec7210_primary_address( const gpib_board_t *board,
+int nec7210_primary_address( const gpib_board_t *board,
 	nec7210_private_t *priv, unsigned int address);
-void nec7210_secondary_address( const gpib_board_t *board, nec7210_private_t *priv,
+int nec7210_secondary_address( const gpib_board_t *board, nec7210_private_t *priv,
 	unsigned int address, int enable);
 int nec7210_parallel_poll(gpib_board_t *board, nec7210_private_t *priv, uint8_t *result);
 void nec7210_serial_poll_response(gpib_board_t *board, nec7210_private_t *priv, uint8_t status);

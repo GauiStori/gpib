@@ -144,4 +144,10 @@ exactly which kernel version it was fixed in. */
 
 #endif // LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,3,0)
+#define DRIVER_FIND_DEVICE_DATA_TYPE void *
+#else
+#define DRIVER_FIND_DEVICE_DATA_TYPE const void *
+#endif
+
 #endif // __COMPAT_LINUX_DEVICE_H_

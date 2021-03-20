@@ -141,7 +141,7 @@ int prompt_for_device(int minor)
 		if(fgets(input, sizeof(input), stdin) == NULL)
 		{
 			fprintf(stderr, "Error reading from standard input.\n");
-			continue;
+			return -1;
 		}
 		pad = strtol(input, NULL, 0);
 		if(pad < 0 || pad > 30)
@@ -173,7 +173,7 @@ int prompt_for_board(void)
 		if(fgets( board_name, sizeof( board_name ), stdin) == NULL)
 		{
 			fprintf(stderr, "Error reading from standard input.\n");
-			continue;
+			return -1;
 		}
 		length = strlen( board_name );
 		if( board_name[ length - 1 ] == '\n' )
@@ -251,7 +251,10 @@ int prompt_for_action(void)
 		{
 			if(fgets( input, sizeof( input ), stdin ) == NULL)
 			{
-				fprintf(stderr, "Error reading from standard input.\n");
+				if(feof(stdin))
+					return GPIB_QUIT;
+
+ 				fprintf(stderr, "Error reading from standard input.\n");
 				return -1;
 			}
 		}while (input[0] == '\n');
@@ -737,7 +740,7 @@ int prompt_for_eot(int ud)
 int main(int argc, char **argv)
 {
 	int dev;
-	enum Action act;
+	int act;
 	parsed_options_t parsed_opts;
 
 	parse_options( argc, argv, &parsed_opts );
@@ -747,8 +750,7 @@ int main(int argc, char **argv)
 	do
 	{
 		act = prompt_for_action();
-
-		if( act == GPIB_QUIT ) break;
+		if( act < 0 || act == GPIB_QUIT ) break;
 
 		switch( act )
 		{
@@ -809,7 +811,9 @@ int main(int argc, char **argv)
 	}while( act != GPIB_QUIT );
 
 	ibonl(dev, 0);
-	return 0;
+	
+	if( act < 0 ) return act;
+	else return 0;
 }
 
 /*

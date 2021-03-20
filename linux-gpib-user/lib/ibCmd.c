@@ -41,7 +41,6 @@ int ibcmd(int ud, const void *cmd_buffer, long cnt)
 	count = my_ibcmd( conf, cmd_buffer, cnt);
 	if(count < 0)
 	{
-		// report no listeners error XXX
 		return exit_library( ud, 1);
 	}
 
@@ -115,8 +114,11 @@ ssize_t my_ibcmd( ibConf_t *conf, const uint8_t *buffer, size_t count)
 		switch( errno )
 		{
 			case ETIMEDOUT:
-				setIberr( EBUS );
 				conf->timed_out = 1;
+				setIberr( EBUS );
+				break;
+			case ENOTCONN:
+				setIberr( ENOL );
 				break;
 			case EINTR:
 				setIberr( EABO );

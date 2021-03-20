@@ -123,15 +123,15 @@ unsigned int tnt4882_update_status( gpib_board_t *board, unsigned int clear_mask
 	tnt4882_private_t *priv = board->private_data;
 	return nec7210_update_status( board, &priv->nec7210_priv, clear_mask );
 }
-void tnt4882_primary_address(gpib_board_t *board, unsigned int address)
+int tnt4882_primary_address(gpib_board_t *board, unsigned int address)
 {
 	tnt4882_private_t *priv = board->private_data;
-	nec7210_primary_address(board, &priv->nec7210_priv, address);
+	return nec7210_primary_address(board, &priv->nec7210_priv, address);
 }
-void tnt4882_secondary_address(gpib_board_t *board, unsigned int address, int enable)
+int tnt4882_secondary_address(gpib_board_t *board, unsigned int address, int enable)
 {
 	tnt4882_private_t *priv = board->private_data;
-	nec7210_secondary_address(board, &priv->nec7210_priv, address, enable);
+	return nec7210_secondary_address(board, &priv->nec7210_priv, address, enable);
 }
 int tnt4882_parallel_poll(gpib_board_t *board, uint8_t *result)
 {
@@ -813,7 +813,7 @@ static int __init tnt4882_init_module( void )
 	gpib_register_driver(&ni_nec_isa_accel_interface, THIS_MODULE);
 	gpib_register_driver(&ni_pci_interface, THIS_MODULE);
 	gpib_register_driver(&ni_pci_accel_interface, THIS_MODULE);
-#if defined(GPIB_CONFIG_PCMCIA)
+#if (GPIB_CONFIG_PCMCIA==1)
 	gpib_register_driver(&ni_pcmcia_interface, THIS_MODULE);
 	gpib_register_driver(&ni_pcmcia_accel_interface, THIS_MODULE);
 	if( init_ni_gpib_cs() < 0 )
@@ -836,7 +836,7 @@ static void __exit tnt4882_exit_module( void )
 	gpib_unregister_driver(&ni_nec_isa_accel_interface);
 	gpib_unregister_driver(&ni_pci_interface);
 	gpib_unregister_driver(&ni_pci_accel_interface);
-#if defined(GPIB_CONFIG_PCMCIA)
+#if (GPIB_CONFIG_PCMCIA==1)
 	gpib_unregister_driver(&ni_pcmcia_interface);
 	gpib_unregister_driver(&ni_pcmcia_accel_interface);
 	exit_ni_gpib_cs();

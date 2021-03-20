@@ -20,6 +20,7 @@
 int internal_ibpad( ibConf_t *conf, unsigned int address )
 {
 	ibBoard_t *board;
+	pad_ioctl_t pad_cmd;
 	int retval;
 
 	board = interfaceBoard( conf );
@@ -31,13 +32,18 @@ int internal_ibpad( ibConf_t *conf, unsigned int address )
 		return -1;
 	}
 
-	retval = gpibi_change_address( conf, address, conf->settings.sad );
+	pad_cmd.handle = conf->handle;
+	pad_cmd.pad = address;
+	retval = ioctl( board->fileno, IBPAD, &pad_cmd );
 	if( retval < 0 )
 	{
-		fprintf( stderr, "libgpib: failed to change gpib address\n" );
-		return -1;
+		fprintf( stderr, "libgpib: failed to change gpib primary address\n" );
+		setIberr( EDVR );
+		setIbcnt( errno );
+		return retval;
 	}
 
+	conf->settings.pad = address;
 	return 0;
 }
 

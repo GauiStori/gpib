@@ -84,8 +84,8 @@ int tnt4882_enable_eos(gpib_board_t *board, uint8_t eos_byte, int
  compare_8_bits);
 void tnt4882_disable_eos(gpib_board_t *board);
 unsigned int tnt4882_update_status( gpib_board_t *board, unsigned int clear_mask );
-void tnt4882_primary_address(gpib_board_t *board, unsigned int address);
-void tnt4882_secondary_address(gpib_board_t *board, unsigned int address, int
+int tnt4882_primary_address(gpib_board_t *board, unsigned int address);
+int tnt4882_secondary_address(gpib_board_t *board, unsigned int address, int
  enable);
 int tnt4882_parallel_poll(gpib_board_t *board, uint8_t *result);
 void tnt4882_parallel_poll_configure( gpib_board_t *board, uint8_t config );

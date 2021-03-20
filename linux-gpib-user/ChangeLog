@@ -1,3 +1,529 @@
+2021-01-29 15:25  dpenkler
+
+	* [r1959] Update ChangeLog and README for 4.3.4
+
+2021-01-29 15:16  dpenkler
+
+	* [r1958] Add minor option and drop device range
+
+2021-01-29 15:15  dpenkler
+
+	* [r1957] Update library path for python3.9
+
+2021-01-29 15:14  dpenkler
+
+	* [r1956] Bump versions for 4.3.4 release
+
+2021-01-07 19:18  dpenkler
+
+	* [r1955] Update firmware repo reference in INSTALL
+
+2021-01-06 07:01  dpenkler
+
+	* [r1954] Update ChangeLog and README
+
+2021-01-06 06:54  dpenkler
+
+	* [r1953] Fix typo in lpvo udev rules
+
+2021-01-05 20:45  dpenkler
+
+	* [r1952] Bump versions to 4.3.4-rc2
+
+2021-01-05 17:38  dpenkler
+
+	* [r1951] Update README for 4.3.4-rc2
+
+2021-01-05 17:34  dpenkler
+
+	* [r1950] Update Changelog for 4.3.4-rc2
+
+2021-01-05 17:26  dpenkler
+
+	* [r1949] docs: Clarification for gpib.conf interface entries
+
+2021-01-05 17:12  dpenkler
+
+	* [r1948] INSTALL: Add lpvo DIY adapter installation note
+
+2021-01-05 16:54  dpenkler
+
+	* [r1947] Fixes for lpvo DIY adapter driver
+
+2021-01-05 16:53  dpenkler
+
+	* [r1946] Small fixes for gpio bitbang driver
+
+2020-12-29 10:07  dpenkler
+
+	* [r1945] ChangeLog: Update ChangeLog
+
+2020-12-29 09:38  dpenkler
+
+	* [r1944] Update docs
+
+	  Add info on GPIO adapter
+	  Update notes on lpvo DIY adapter
+
+2020-12-29 09:06  dpenkler
+
+	* [r1943]
+	  linux-gpib-user/usb/lpvo_usb_gpib/99-lpvo_usb_gpib.rules.in: Add
+	  99-lpvo_usb_gpib.rules.in for udev rule generation
+
+2020-12-28 17:01  dpenkler
+
+	* [r1942] linux-gpib-user/usb/lpvo_usb_gpib/lpvo_usb_gpib.conf: Fix
+	  lpvo_usb_gpib.conf
+
+2020-12-28 17:00  dpenkler
+
+	* [r1941]
+	  linux-gpib-kernel/drivers/gpib/lpvo_usb_gpib/lpvo_usb_gpib.c:
+	  Update lpvo_usb_gpib from Marcello Carla'
+
+2020-12-28 12:49  dpenkler
+
+	* [r1940] linux-gpib-kernel/drivers/gpib/Makefile,
+	  linux-gpib-kernel/drivers/gpib/lpvo_usb_gpib/lpvo_usb_gpib.c: Add
+	  lpvo_usb_gpib kernel driver from Marcello Carla'
+
+2020-12-28 11:00  dpenkler
+
+	* [r1939] linux-gpib-user/usb/Makefile.am,
+	  linux-gpib-user/usb/lpvo_usb_gpib,
+	  linux-gpib-user/usb/lpvo_usb_gpib/Makefile.am,
+	  linux-gpib-user/usb/lpvo_usb_gpib/lpvo_usb_gpib.conf: Add new
+	  lpvo_usb_gpib driver from Marcello Carla'
+
+	  This version access the fdti chip directly over usb instead of
+	  using the ftdi_sio driver from kernel space. This avoids the
+	  dependency on get_fs()/set_fs() kernel functions that were
+	  removed in Kernel 5.10
+
+	  Configuration is now also possible with udev as for the other
+	  usb drivers.
+
+2020-12-28 10:55  dpenkler
+
+	* [r1938] Updates to remove autoconf obsolescence complaints
+
+2020-12-26 11:47  dpenkler
+
+	* [r1937] Bump versions to 4.3.4-rc1 and update configure.ac
+
+2020-12-26 10:15  dpenkler
+
+	* [r1936] linux-gpib-user/INSTALL: Fix pcmcia instructions
+
+2020-12-03 14:17  dpenkler
+
+	* [r1935] linux-gpib-kernel/INSTALL: Fix GPIB_DEBUG typos
+
+	  Reported by Mitchell Clement.
+
+2020-12-03 14:14  dpenkler
+
+	* [r1934] tnt4882_cs.c: Add device name for pcmcia device
+
+2020-12-01 17:43  dpenkler
+
+	* [r1933] linux-gpib-kernel/drivers/gpib/tnt4882/tnt4882_write.c:
+	  For NI-PCI cards return ENOTCONN and ECOMM on bus error
+	  for command and data writes respectively.
+
+2020-12-01 17:40  dpenkler
+
+	* [r1932] linux-gpib-user/examples/findlisteners.c: Return no
+	  devices found without error on timeout
+
+	  Also only print system error when iberr is zero.
+
+2020-11-25 17:55  dpenkler
+
+	* [r1931] Update AUTHORS files
+
+2020-11-25 15:46  dpenkler
+
+	* [r1930] linux-gpib-kernel/drivers/gpib/Makefile,
+	  linux-gpib-kernel/drivers/gpib/gpio,
+	  linux-gpib-kernel/drivers/gpib/gpio/Makefile,
+	  linux-gpib-kernel/drivers/gpib/gpio/gpib_bitbang.c: Add new
+	  experimental gpio bitbang driver from Marcello Carla
+
+	  This module will only run on a raspberry pi
+	  It has been tested with up to 4 devices
+
+2020-11-25 12:59  dpenkler
+
+	* [r1929]
+	  linux-gpib-kernel/drivers/gpib/agilent_82350b/agilent_82350b_init.c:
+	  Fix for ibln: remove race check on agilent_82350b_line_status
+
+	  This breaks multi-threaded applications but it is more important
+	  to have the basics work correctly.
+
+2020-11-24 09:56  dpenkler
+
+	* [r1928]
+	  linux-gpib-kernel/drivers/gpib/agilent_82357a/agilent_82357a.c:
+	  agilent_82350b: Remove _FILE_ in printk statements
+
+	  _FILE_ takes up a lot of space on the console log without
+	  adding information
+
+2020-11-23 11:54  dpenkler
+
+	* [r1927] linux-gpib-kernel/drivers/gpib/Makefile: Exclude
+	  compilation of lpvo for KERNEL >= 5.10
+
+2020-11-21 20:01  fmhess
+
+	* [r1926]
+	  linux-gpib-kernel/drivers/gpib/agilent_82357a/agilent_82357a.c,
+	  linux-gpib-kernel/drivers/gpib/include/gpib_types.h,
+	  linux-gpib-kernel/drivers/gpib/ni_usb/ni_usb_gpib.c,
+	  linux-gpib-kernel/drivers/gpib/sys/ibcmd.c: Add check for
+	  existence of command acceptors, to try and
+	  detect early the case of no devices on bus.
+
+2020-11-21 19:50  fmhess
+
+	* [r1925] linux-gpib-user/lib/ibCmd.c: Remove obsolete comment.
+
+2020-11-20 15:22  dpenkler
+
+	* [r1924] linux-gpib-user/examples/Makefile.am,
+	  linux-gpib-user/examples/findlisteners.c: Add example programme
+	  findlisteners
+
+2020-11-20 15:07  dpenkler
+
+	* [r1923]
+	  linux-gpib-kernel/drivers/gpib/agilent_82357a/agilent_82357a.c:
+	  Update agilent usb driver for no listener detection
+	  Return return ECOMM and ENOTCONN errors as appropriate.
+
+2020-11-18 00:18  fmhess
+
+	* [r1922] linux-gpib-kernel/drivers/gpib/ni_usb/ni_usb_gpib.c,
+	  linux-gpib-user/lib/ibCmd.c, linux-gpib-user/lib/ibWrt.c: Make
+	  user space library use ECOMM errno to indicate a
+	  write of data bytes has failed due to no listener (ENOL iberr).
+	  Go back to using
+	  EBUS iberr to indicate timeout on sending command bytes.
+	  Use ENOTCONN errno to indicate send of command bytes has failed
+	  due to no listener (ENOL iberr).
+
+	  Update ni_usb kernel driver to return ECOMM and ENOTCONN errors
+	  as appropriate.
+
+2020-11-17 14:56  dpenkler
+
+	* [r1921] linux-gpib-user/lib/ibCmd.c: Move ENOL test to my_ibcmd()
+
+2020-11-17 14:55  dpenkler
+
+	* [r1920] linux-gpib-user/lib/ibFindLstn.c: Revert 1918/9
+
+2020-11-16 12:20  dpenkler
+
+	* [r1919] linux-gpib-user/lib/ibFindLstn.c: ibnl/FindLstn: EONL
+	  correction
+
+2020-11-16 12:04  dpenkler
+
+	* [r1918] linux-gpib-user/lib/ibFindLstn.c: ibnl/FindLstn: return
+	  ENOL when no devices are on the bus
+
+2020-10-30 01:01  fmhess
+
+	* [r1917] linux-gpib-user/examples/ibtest.c: Fix some potential
+	  infinite loops in ibtest, based on patch from tofurkey.
+
+2020-07-02 22:35  fmhess
+
+	* [r1916] linux-gpib-user/doc/linux-gpib.sgml: Document IB_CONFIG
+	  in gpib_config man page.
+
+2020-07-02 15:58  fmhess
+
+	* [r1915] linux-gpib-user/doc/linux-gpib.sgml: Add mention of
+	  IB_CONFIG environment variable to docs.
+
+2020-06-23 21:12  fmhess
+
+	* [r1914] linux-gpib-user/lib/ibPad.c, linux-gpib-user/lib/ibSad.c,
+	  linux-gpib-user/lib/ib_internal.h, linux-gpib-user/lib/ibutil.c:
+	  Decouple ibpad/ibsad so they don't each cause both
+	  the pad and sad to be rewritten.
+
+2020-05-17 15:57  dpenkler
+
+	* [r1913]
+	  linux-gpib-kernel/drivers/gpib/agilent_82350b/agilent_82350b.h,
+	  linux-gpib-kernel/drivers/gpib/agilent_82350b/agilent_82350b_init.c:
+	  Workaround for hw issue with line_status on agilent_82350 when
+	  talker.
+	  A call to line_status when the board is in talker mode and using
+	  fifos
+	  seems to disable the handshake lines preventing any subseqent
+	  data
+	  transfer. The unaccelerated interface which does not use the
+	  fifos
+	  does not have this issue.
+
+2020-05-17 15:48  dpenkler
+
+	* [r1912] linux-gpib-kernel/drivers/gpib/include/gpibP.h: Add
+	  ioremap define for linux version>=5.6
+
+2020-05-10 08:27  dpenkler
+
+	* [r1910] README.txt: Update README
+
+2020-05-10 08:19  dpenkler
+
+	* [r1909] ChangeLog: Update ChangeLog for 4.3.3
+
+2020-05-09 15:33  dpenkler
+
+	* [r1908] Fix return type for primary/secondary address in
+	          pc2 (ISA) driver
+
+2020-05-09 07:17  dpenkler
+
+	* [r1907] bootstrap: Create a local ChangeLog if it does not exist
+
+2020-05-09 07:15  dpenkler
+
+	* [r1906] Change configure.ac to look for Python version >= 3.0
+
+2020-05-07 20:30  dpenkler
+
+	* [r1905] Fix configure error when no python found
+
+2020-05-07 20:30  dpenkler
+
+	* [r1904] Remove ChangeLogs in svn kernel and user directories
+
+2020-05-07 16:47  dpenkler
+
+	* [r1903] Update ChangeLog
+
+2020-05-07 16:13  dpenkler
+
+	* [r1902] Update README and bump versions to 4.3.3
+
+2020-05-06 21:06  fmhess
+
+	* [r1901] Fix return type for primary/secondary address
+	          functions in OF drivers.
+
+2020-04-30 12:36  dpenkler
+
+	* [r1899] Update README and Changelog for 4.3.2
+
+2020-04-30 11:30  dpenkler
+
+	* [r1898] Bump versions again
+
+2020-04-30 11:25  dpenkler
+
+	* [r1897]  doc: Update refs to firmware repository
+
+2020-04-30 11:22  dpenkler
+
+	* [r1896] Make attach message more useful in
+                  ni_usb_b and agilent_82357a
+
+2020-04-29 10:05  dpenkler
+
+	* [r1895] Tag for 4.3.1 release
+
+2020-04-29 10:05  dpenkler
+
+	* [r1894] Update README
+
+2020-04-29 08:34  dpenkler
+
+	* [r1893] Update Changelog
+
+2020-04-29 07:48  dpenkler
+
+	* [r1892] Add path to usb attach message for ni_usb_b
+
+2020-04-29 07:32  dpenkler
+
+	* [r1891] Add path to usb attach message for agilent_82357a
+
+2020-04-28 15:39  dpenkler
+
+	* [r1890] agilent_82357a.c: Reduce console spam: no error message
+	on -EAGAIN
+
+2020-04-28 15:30  dpenkler
+
+	* [r1889] Clarify agilent_82357a attach message, remove trailing blank
+
+2020-04-28 15:26  dpenkler
+
+	* [r1888] All drivers: change primary_ and secondary_address() to return int
+
+2020-04-28 12:53  dpenkler
+
+	* [r1887] ni_usb_gpib.c: Clarify attach message and remove
+	trailing blanks
+
+2020-04-28 12:32  dpenkler
+
+	* [r1886] Bump user and kernel versions to 4.3.1
+
+2020-04-28 12:21  dpenkler
+
+	* [r1885] Stop bison complaining about yacc compatibility issues
+
+2020-04-24 20:14  fmhess
+
+	* [r1884] ni_usb_gpib.c: It turns out the firmware handles whether
+	the LED should be amber or green on its own. So remove extraneous
+	comment.
+
+2020-04-24 19:25  fmhess
+
+	* [r1883] ni_usb_gpib: At long last, make the NI GPIB-USB-HS+ LED
+	stop blinking green/yellow.
+
+2020-04-20 22:55  fmhess
+
+	* [r1882] doc: Update board-specific notes on gpib-usb-hs+ to
+	mention hsplus_load.
+
+2020-04-20 22:49  fmhess
+
+	* [r1881] ni_usb_gpib.h: Remove unused value
+	USB_DEVICE_ID_NI_USB_HS_PREINIT
+
+2020-04-20 22:47  fmhess
+
+	* [r1880] Don't try to auto-init gpib-usb-hs+, as it is too
+	experimental and risky to do in udev rules.
+
+2020-04-16 15:13  fmhess
+
+	* [r1879] doc: Update gpib-usb-hs+ board specific notes with the
+	latest discovery.
+
+2020-04-12 00:19  fmhess
+
+	* [r1878] doc: Add note about GPIB-USB-HS+ possibly needing
+	firmware upload. Replace "hotplug scripts" with "udev rules".
+
+2020-04-11 01:36  fmhess
+
+	* [r1877] Newer kernels do not allow NULL to be passed as the
+	struct device* argument of the dma allocation functions.  So give
+	them valid device pointers (except pc2 which requires more work to
+	get a struct device* for a ISA device.
+
+2020-04-09 16:36  fmhess
+
+	* [r1876] Update usb udev rules for product id 0x761e
+	(ni gpib-usb-hs+ without firmware) so that it tries to fxload the
+	firmware.
+
+2020-04-09 01:23  fmhess
+
+	* [r1875] ni_usb_gpib.h: Remove unused enum
+	hs_plus_v2_endpoint_addresses
+
+2020-04-08 23:23  fmhess
+
+	* [r1874] ni_usb_gpib: Remove attempts to use adapters with
+	device id 0x761e. I now believe this is a gpib-usb-hs with no
+	firmware.
+
+2020-04-08 14:53  dpenkler
+
+	* [r1873] Re-enable support for PCMCIA boards
+
+2020-04-08 01:14  fmhess
+
+	* [r1872] ni_usb_gpib: Update support for new gpib-usb-hs+ variant
+	based on lsusb -v output. This is almost certainly not enough to
+	make it actually work.
+
+2020-04-02 21:18  fmhess
+
+	* [r1871] 99-ni_usb_gpib.rules.in: Add alternate device id for NI
+	GPIB-USB-HS+
+
+2020-04-02 21:15  fmhess
+
+	* [r1870] ni_usb_gpib: Add alternate device id for NI GPIB-USB-HS+
+	to driver.
+
+2020-03-16 21:58  fmhess
+
+	* [r1869] ibsys.h: Remove useless include of asm/segment.h
+
+2020-03-16 21:52  fmhess
+
+	* [r1868] fmh_gpib.c: Add compatibility macro for change to
+	driver_find_device prototype in kernel 5.3.
+
+2020-03-16 21:32  fmhess
+
+	* [r1867] Use CURDIR instead of PWD in Makefile.
+
+2020-03-15 17:00  fmhess
+
+	* [r1866] ni_usb_gpib.c: Resubmit interrupt urbs that have errors
+	other than those caused by the urb being unlinked. Based on bug
+	report/patch from Matthias Babel.
+
+2020-03-02 13:00  dpenkler
+
+	* [r1865] lpvo_usb_gpib.c: Change timespec to timespec64 for linux 5.6
+
+2020-02-19 23:54  fmhess
+
+	* [r1864] Skip access_ok checks on kernels older than 5.0, due to
+	difficulties caused by RHEL8 backporting changes to 4.X kernels.
+
+2020-02-19 22:58  fmhess
+
+	* [r1863] Add missing include of version.h to uaccess.h
+	compatibility header for correctness (it wasn't actually causing
+	problems at the moment).
+
+2019-10-04 17:00  fmhess
+
+	* [r1862] Explicitly run depmod after install, due to depmod.sh
+	failing on Debian during modules_install.
+
+2019-09-30 03:10  fmhess
+
+	* [r1861] Remove support for gpib_config --serial-number option,
+	since it ultimately was not how we achived support for configuring
+	by serial number. Rather, we use udev and the --sysfs-device-path
+	option of gpib_config.
+
+2019-09-20 16:14  fmhess
+
+	* [r1860] Change ACTION match in example rules to add|change, so
+	they work when the driver module is initially unloaded.
+
+2019-09-05 14:40  dpenkler
+
+	* [r1858] Update README and Changelog
+
+2019-09-03 01:41  fmhess
+
+	* [r1857] Don't generate kernel spam on unrecognized command
+	bytes.  We don't need to clear ppoll_configure_state on PPE/PPD
+	bytes for tms9914.
+
 
 2019-09-03 01:41  fmhess
 

@@ -20,6 +20,7 @@
 int internal_ibsad( ibConf_t *conf, int address )
 {
 	ibBoard_t *board;
+	sad_ioctl_t sad_cmd;
 	int sad = address - sad_offset;
 	int retval;
 
@@ -31,12 +32,19 @@ int internal_ibsad( ibConf_t *conf, int address )
 		return -1;
 	}
 
-	retval = gpibi_change_address( conf, conf->settings.pad, sad );
+	sad_cmd.handle = conf->handle;
+	sad_cmd.sad = sad;
+	retval = ioctl( board->fileno, IBSAD, &sad_cmd );
 	if( retval < 0 )
 	{
-		fprintf( stderr, "libgpib: failed to change gpib address\n" );
-		return -1;
+		fprintf( stderr, "libgpib: failed to change gpib secondary address\n" );
+		setIberr( EDVR );
+		setIbcnt( errno );
+		return retval;
 	}
+
+	conf->settings.sad = sad;
+
 	return 0;
 }
 

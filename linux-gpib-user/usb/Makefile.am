@@ -7,7 +7,7 @@
 #   the Free Software Foundation; either version 2 of the License, or
 #   (at your option) any later version.
 
-SUBDIRS = agilent_82357a ni_usb_gpib
+SUBDIRS = agilent_82357a ni_usb_gpib lpvo_usb_gpib
 EXTRA_DIST = 98-gpib-generic.rules gpib_udev_fxloader.in gpib_udev_config udevadm.sh
 CLEANFILES = gpib_udev_fxloader
 
