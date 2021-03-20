@@ -1,5 +1,6 @@
 gpib (4.3.4-1) UNRELEASED; urgency=medium
   * New upstream release
+  * Bump compat to 10
 
  -- Gudjon I. Gudjonsson <gudjon@gudjon.org>  Sat, 20 Mar 2021 21:00:00 +0100
 
