@@ -1,0 +1,18 @@
+#gpib-usb-b without firmware
+SUBSYSTEM=="usb", ACTION=="add", ATTR{idVendor}=="3923", ATTR{idProduct}=="702b", ENV{DEVICE}="$devnode", RUN+="@UDEV_LIBDIR@/gpib_udev_fxloader"
+#device id 713b is a keithley kusb-488 before we load it with firmware
+SUBSYSTEM=="usb", ACTION=="add", ATTR{idVendor}=="3923", ATTR{idProduct}=="713b", ENV{DEVICE}="$devnode", RUN+="@UDEV_LIBDIR@/gpib_udev_fxloader"
+
+#automatically set the correct --board-type option
+ACTION=="add|change", SUBSYSTEM=="usb", DRIVER=="ni_usb_gpib", ATTRS{serial}=="*", ENV{GPIB_CONFIG_OPTIONS}+="--board-type ni_usb_b", ENV{SERIAL}="$attr{serial}"
+#devices ready to be configured with gpib_config
+SUBSYSTEM=="usb", ACTION=="add|change", DRIVER=="ni_usb_gpib", ATTRS{idVendor}=="3923", ATTRS{idProduct}=="702a", RUN+="@UDEV_LIBDIR@/gpib_udev_config"
+SUBSYSTEM=="usb", ACTION=="add|change", DRIVER=="ni_usb_gpib", ATTRS{idVendor}=="3923", ATTRS{idProduct}=="709b", RUN+="@UDEV_LIBDIR@/gpib_udev_config"
+SUBSYSTEM=="usb", ACTION=="add|change", DRIVER=="ni_usb_gpib", ATTRS{idVendor}=="3923", ATTRS{idProduct}=="7618", RUN+="@UDEV_LIBDIR@/gpib_udev_config"
+SUBSYSTEM=="usb", ACTION=="add|change", DRIVER=="ni_usb_gpib", ATTRS{idVendor}=="3923", ATTRS{idProduct}=="725[cd]", RUN+="@UDEV_LIBDIR@/gpib_udev_config"
+
+#this rule generates new "change" udev events for devices supported by the
+#driver after the module is loaded.
+#it is needed because if the driver is not already loaded when the hardware is plugged in,
+#then the initial hardware "add" event will not be able to accomplish anything.
+SUBSYSTEM=="module", ACTION=="add", DEVPATH=="/module/ni_usb_gpib", RUN+="@UDEV_LIBDIR@/gpib_udevadm_wrapper trigger --property-match DRIVER=ni_usb_gpib"
