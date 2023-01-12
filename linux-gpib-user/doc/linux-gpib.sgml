@@ -947,7 +947,7 @@ Linux-gpib support requires a minimum firmware version of 1.10 for
 the F82357 and version 1.20 for the S82357. These devices have
 on-board firmware and do not require a firmware upload before becoming
 functional afer plug-in. The on-board firmware can be re-flashed; contact the
-manufacturer for firmware and re-flash procedure. 
+manufacturer for firmware and re-flash procedure.
 </para><para>
 Limitations:
 <itemizedlist>
@@ -968,7 +968,7 @@ They can only do 8-bit end-of-string (EOS) compares.
 <title>fmh_gpib_core</title>
 <para>
 fmh_gpib_core is a GPIB chip written in VHDL suitable for programming into a FPGA.  The code
-for the chip may be found at 
+for the chip may be found at
 <ulink URL="https://github.com/fmhess/fmh_gpib_core">https://github.com/fmhess/fmh_gpib_core</ulink>.
 It supports a cb7210.2 style register interface with some extensions.  More specifically, the driver
 is for the hardware layout specified in src/example/fmh_gpib_top.vhd file in the fmh_gpib_core
@@ -980,7 +980,7 @@ It expects to find two i/o memory resources, an interrupt, and a dma channel.  O
 resource is called "gpib_control_status" which contains the 8 bit cb7210.2 registers.  The other
 i/o memory resource is called "dma_fifos" and contains 16 bit registers for the fifos and
 transfer counter.  The dma channel the chip is wired to is specified with the standard
-"dmas" and "dma-names" fields, with a dma-name of "rxtx".  So, the device tree entry for a chip 
+"dmas" and "dma-names" fields, with a dma-name of "rxtx".  So, the device tree entry for a chip
 connected to channel 2 of dma controller "dmac" might look
 something like:
 </para>
@@ -1020,13 +1020,27 @@ features are flagged by a diagnostic message to syslog.
 <section ID="GPIO">
 <title>GPIO bitbang adapter</title>
 <para>
+WARNING: this driver is incomplete and its behavior does not conform to the
+IEEE 488 standards.
+</para>
+<para>
 This is a simple GPIO bitbang driver that currently only works on
 Raspberry Pi platforms. For information on the GPIO to GPIB pinouts as
-well as restrictions on fan-out see the source code:
+well as limitations see the source code at:
 </para>
 <programlisting>
   linux-gpib-kernel/drivers/gpib/gpio/gpib_bitbang.c
 </programlisting>
+<para>
+  For schematics, boards and information on driver IC's
+  see <ulink URL="http://elektronomikon.org">http://elektronomikon.org</ulink>.
+Note, by default support for the SN75160/161 driver IC's is
+  enabled (sn7516x_used=1). To disable support for the IC's
+  when they are not installed sn7516x_used must be set to 0:
+<programlisting>
+  modprobe gpib_bitbang sn7516x_used=0
+</programlisting>
+</para>
 </section>
 <section ID="ni-usb-b">
 <title>National Instruments GPIB-USB-B</title>
@@ -1052,7 +1066,7 @@ a USB product id of 0x761e it will require a one-time firmware upload
 which permanently changes the product id to the usual 0x7618 for
 a GPIB-USB-HS+.  Currently this can be done by plugging the
 adapter into a Windows computer which has the NI driver software
-installed.  Alternatively, you may use the 
+installed.  Alternatively, you may use the
 <ulink URL="https://github.com/fmhess/hsplus_load">
 hsplus_load</ulink> utility
 to initialize the adapter under Linux.
@@ -1715,9 +1729,10 @@ volatile int ibsta;
 	<row>
 	<entry>IbaBNA</entry>
 	<entry>0x200</entry>
-	<entry>Board index (minor number) of interface board which is
-	the controller-in-charge of this device's GPIB bus.</entry>
-	<entry>device</entry>
+	<entry>For a device: the board index (minor number) of interface board through
+	which the device is being accessed.  For a board: the board index of the
+	board itself.</entry>
+	<entry>board or device</entry>
 	</row>
 	<row>
 	<entry>Iba7BitEOS</entry>
@@ -1978,9 +1993,9 @@ volatile int ibsta;
 	call.
 	</para>
 	<para>After the asynchronous I/O has completed and the results resynchronized
-	with the current thread, the Linux-GPIB extensions 
-	<link LINKEND="reference-function-async-ibsta">AsyncIbsta</link>, 
-	<link LINKEND="reference-function-async-iberr">AsyncIberr</link>, 
+	with the current thread, the Linux-GPIB extensions
+	<link LINKEND="reference-function-async-ibsta">AsyncIbsta</link>,
+	<link LINKEND="reference-function-async-iberr">AsyncIberr</link>,
 	<link LINKEND="reference-function-async-ibcnt">AsyncIbcnt and AsyncIbcntl</link>
 	may be useful to more cleanly separate the results of the asynchronous I/O from
 	the results of the ibwait or similar call used to resynchronize.
@@ -2260,7 +2275,7 @@ volatile int ibsta;
 	<entry>0x1f</entry>
 	<entry>Configures the total cable length in meters for your system, by sending the command
 	bytes CFE and CFGn.  This is required to enable high speed noninterlocked
-	handshaking (a.k.a. HS488) and set associated handshake timings.  
+	handshaking (a.k.a. HS488) and set associated handshake timings.
 	Valid <parameter>setting</parameter> values
 	are 0 through 15.  A value of zero disables noninterlocked handshaking,
 	otherwise the value is the total number of meters of cable.</entry>
@@ -2589,9 +2604,14 @@ volatile int ibsta;
 	</title>
 	<para>
 	ibfind() returns a board or device descriptor based on the information
-	found in the <link LINKEND="configuration">configuration file</link>.
-	It is not required to use this function, since device descriptors
-	can be obtained with <link LINKEND="reference-function-ibdev">ibdev()</link>
+	found in the
+	<link LINKEND="configuration">configuration file</link>. To
+	suppress error messages printed to stderr by ibfind() set the
+	evironment variable IB_NO_ERROR before calling the routine.
+	
+	It is not required to use ibfind(), since device descriptors
+	can be obtained with
+	<link LINKEND="reference-function-ibdev">ibdev()</link>
 	and the 'board index' (minor number in the configuration file)
 	can be used directly as a board descriptor.
 	</para>
@@ -2905,7 +2925,7 @@ volatile int ibsta;
 	for the duration of the Find Listeners protocol,
 	which is beyond what IEEE 488.2 specifies.
 	This is done because some boards cannot reliably read the state of
-	the NDAC bus line unless they are the talker.  Being the talker 
+	the NDAC bus line unless they are the talker.  Being the talker
 	causes the board's gpib transceiver to configure NDAC as an input,
 	so its state can be reliably read from the bus through the transceiver.
 	</para>
@@ -3132,9 +3152,9 @@ volatile int ibsta;
 	</para>
 	<para>If <parameter>ud</parameter> is a board descriptor then
 	the board will be locally configured.  Note, in order to do a local
-	parallel poll configuration IbcPP2 must be set using 
+	parallel poll configuration IbcPP2 must be set using
 	<link LINKEND="reference-function-ibconfig">ibconfig()</link>.
-	IEEE 488.2 prohibits local parallel poll configuration (IEEE 488.1 PP2 subset), 
+	IEEE 488.2 prohibits local parallel poll configuration (IEEE 488.1 PP2 subset),
 	requiring support for remote parallel poll configuration (IEEE 488.1 PP1 subset)
 	instead.
 	</para>
@@ -3266,9 +3286,9 @@ volatile int ibsta;
 	if you explicitly set the CMPL bit in the wait mask parameter of ibwait().
 	</para>
 	<para>After the asynchronous I/O has completed and the results resynchronized
-	with the current thread, the Linux-GPIB extensions 
-	<link LINKEND="reference-function-async-ibsta">AsyncIbsta</link>, 
-	<link LINKEND="reference-function-async-iberr">AsyncIberr</link>, 
+	with the current thread, the Linux-GPIB extensions
+	<link LINKEND="reference-function-async-ibsta">AsyncIbsta</link>,
+	<link LINKEND="reference-function-async-iberr">AsyncIberr</link>,
 	<link LINKEND="reference-function-async-ibcnt">AsyncIbcnt and AsyncIbcntl</link>
 	may be useful to more cleanly separate the results of the asynchronous I/O from
 	the results of the ibwait or similar call used to resynchronize.
@@ -3554,9 +3574,9 @@ volatile int ibsta;
 	</para>
 	<para>
 	This function follows the implementation technique described in
-	IEEE 488.2 section 11.3.3.4.3.  It is prone to generating spurious requests 
+	IEEE 488.2 section 11.3.3.4.3.  It is prone to generating spurious requests
 	for service, which are permitted by 488.2 but less than ideal.  In order
-	to avoid spurious requests, use <link LINKEND="reference-function-ibrsv2">ibrsv2()</link> 
+	to avoid spurious requests, use <link LINKEND="reference-function-ibrsv2">ibrsv2()</link>
 	instead.
 	</para>
 </refsect1>
@@ -3598,22 +3618,22 @@ volatile int ibsta;
 	The serial poll response byte of the board specified by the board
 	descriptor <parameter>ud</parameter> is set to <parameter>status_byte</parameter>.
 	A service request may be generated, cleared, or left unaffected depending on the values of
-	MSS (bit 6 in <parameter>status_byte</parameter>) and 
-	<parameter>new_reason_for_request</parameter>.  
+	MSS (bit 6 in <parameter>status_byte</parameter>) and
+	<parameter>new_reason_for_request</parameter>.
 	</para>
 	<para>
 	There are three valid
-	possibilities for MSS and <parameter>new_reason_for_request</parameter>.  
-	If MSS is 1 and <parameter>new_reason_for_request</parameter> is nonzero, then 
+	possibilities for MSS and <parameter>new_reason_for_request</parameter>.
+	If MSS is 1 and <parameter>new_reason_for_request</parameter> is nonzero, then
 	the IEEE 488.2 local message "reqt" will be set true.  reqt sets local
 	message "rsv" true which in turn causes
 	the board to request service by asserting the SRQ line.
-	If the MSS bit is 0 and <parameter>new_reason_for_request</parameter> is also 0, then 
+	If the MSS bit is 0 and <parameter>new_reason_for_request</parameter> is also 0, then
 	the "reqf" message will be set true, causing rsv to clear and
 	the board to stop requesting service.  Finally, if MSS is 1 and
 	<parameter>new_reason_for_request</parameter> is 0, then ibrsv2 will have no effect on
 	the service request state (it will only update the status byte).
-	The fourth possibilty of MSS is 0 (which implies no service request) and 
+	The fourth possibilty of MSS is 0 (which implies no service request) and
 	<parameter>new_reason_for_request</parameter> is nonzero (which implies there is a service request)
 	is contradictory and will be rejected with an EARG error.
 	</para>
@@ -3623,7 +3643,7 @@ volatile int ibsta;
 	</para>
 	<para>
 	This function follows the preferred implementation technique described in
-	IEEE 488.2 section 11.3.3.4.1.  It can be used to avoid the spurious requests 
+	IEEE 488.2 section 11.3.3.4.1.  It can be used to avoid the spurious requests
 	for service that <link LINKEND="reference-function-ibrsv">ibrsv()</link> is
 	prone to.  However, not all drivers/hardware implement support for
 	this function.  In such a case, this function may result in a ECAP error, and
@@ -3912,7 +3932,7 @@ volatile int ibsta;
 	Description
 	</title>
 	<para>
-	ibtmo() sets the timeout for IO operations and 
+	ibtmo() sets the timeout for IO operations and
 	<link LINKEND="reference-function-ibwait">ibwait</link> calls
 	performed using the board
 	or device descriptor
@@ -4154,7 +4174,7 @@ volatile int ibsta;
 	<para>
 	If you wish to resynchronize and obtain the results from an asynchronous I/O operation,
 	you must wait on CMPL by setting its bit in the <parameter>status_mask</parameter> parameter.
-	Then if ibwait returns with CMPL set, it will have updated iberr, ibcnt, and the ERR bit of ibsta 
+	Then if ibwait returns with CMPL set, it will have updated iberr, ibcnt, and the ERR bit of ibsta
 	with the most recent asynchronous I/O results.
 	</para>
 	<para>
@@ -4282,9 +4302,9 @@ volatile int ibsta;
 	call.
 	</para>
 	<para>After the asynchronous I/O has completed and the results resynchronized
-	with the current thread, the Linux-GPIB extensions 
-	<link LINKEND="reference-function-async-ibsta">AsyncIbsta</link>, 
-	<link LINKEND="reference-function-async-iberr">AsyncIberr</link>, 
+	with the current thread, the Linux-GPIB extensions
+	<link LINKEND="reference-function-async-ibsta">AsyncIbsta</link>,
+	<link LINKEND="reference-function-async-iberr">AsyncIberr</link>,
 	<link LINKEND="reference-function-async-ibcnt">AsyncIbcnt and AsyncIbcntl</link>
 	may be useful to more cleanly separate the results of the asynchronous I/O from
 	the results of the ibwait or similar call used to resynchronize.
@@ -4589,7 +4609,7 @@ constant NOADDR.
 	for the duration of the Find Listeners protocol,
 	which is beyond what IEEE 488.2 specifies.
 	This is done because some boards cannot reliably read the state of
-	the NDAC bus line unless they are the talker.  Being the talker 
+	the NDAC bus line unless they are the talker.  Being the talker
 	causes the board's gpib transceiver to configure NDAC as an input,
 	so its state can be reliably read from the bus through the transceiver.
 	</para>
@@ -5608,7 +5628,7 @@ constant NOADDR.
 	AsyncIberr() returns a thread-local error number related to the global
 	variable <link LINKEND="reference-globals-iberr">iberr</link>.
 	Its value corresponds to the result of the last asynchronous I/O operation
-	resynchronized to the current thread 
+	resynchronized to the current thread
 	by an <link LINKEND="reference-function-ibwait">ibwait</link>
 	or <link LINKEND="reference-function-ibstop">ibstop</link> call.
 	This
@@ -5659,7 +5679,7 @@ constant NOADDR.
 	AsyncIbsta() returns a thread-local status value related to the global
 	variable <link LINKEND="reference-globals-ibsta">ibsta</link>.
 	Its value corresponds to the result of the last asynchronous I/O operation
-	resynchronized to the current thread 
+	resynchronized to the current thread
 	by an <link LINKEND="reference-function-ibwait">ibwait</link>
 	or <link LINKEND="reference-function-ibstop">ibstop</link> call.
 	This
@@ -5712,10 +5732,10 @@ constant NOADDR.
 	<para>
 	CFGn() returns a 'configure n meters'
 	<link LINKEND="reference-command-bytes">command byte</link> corresponding
-	to the <parameter>num_meters</parameter> argument.  <parameter>num_meters</parameter> 
+	to the <parameter>num_meters</parameter> argument.  <parameter>num_meters</parameter>
 	(valid values are 1 through 15)
 	specifies how many meters of cable are in your system.  This is necessary in
-	before high speed non-interlocked handshaking (a.k.a. HS488) can be used on the bus.  
+	before high speed non-interlocked handshaking (a.k.a. HS488) can be used on the bus.
 	The CFGn command byte must be preceded by a CFE command byte to take effect.
 	</para>
 </refsect1>

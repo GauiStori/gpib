@@ -7,7 +7,7 @@
 NAME="GENERATOR"
 CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
 REL="HOME"
-TITLE="	Linux-GPIB 4.3.4
+TITLE="	Linux-GPIB 4.3.5
  Documentation"
 HREF="t1.html"><LINK
 REL="PREVIOUS"
@@ -35,7 +35,7 @@ CELLSPACING="0"
 ><TH
 COLSPAN="3"
 ALIGN="center"
->Linux-GPIB 4.3.4
+>Linux-GPIB 4.3.5
  Documentation</TH
 ></TR
 ><TR
@@ -875,7 +875,7 @@ NAME="BEIMING-F82357"
 the F82357 and version 1.20 for the S82357. These devices have
 on-board firmware and do not require a firmware upload before becoming
 functional afer plug-in. The on-board firmware can be re-flashed; contact the
-manufacturer for firmware and re-flash procedure. </P
+manufacturer for firmware and re-flash procedure.</P
 ><P
 >Limitations:
 <P
@@ -902,7 +902,7 @@ NAME="FMH-GPIB-CORE"
 ></H3
 ><P
 >fmh_gpib_core is a GPIB chip written in VHDL suitable for programming into a FPGA.  The code
-for the chip may be found at 
+for the chip may be found at
 <A
 HREF="https://github.com/fmhess/fmh_gpib_core"
 TARGET="_top"
@@ -917,7 +917,7 @@ It expects to find two i/o memory resources, an interrupt, and a dma channel.  O
 resource is called "gpib_control_status" which contains the 8 bit cb7210.2 registers.  The other
 i/o memory resource is called "dma_fifos" and contains 16 bit registers for the fifos and
 transfer counter.  The dma channel the chip is wired to is specified with the standard
-"dmas" and "dma-names" fields, with a dma-name of "rxtx".  So, the device tree entry for a chip 
+"dmas" and "dma-names" fields, with a dma-name of "rxtx".  So, the device tree entry for a chip
 connected to channel 2 of dma controller "dmac" might look
 something like:</P
 ><TABLE
@@ -980,9 +980,12 @@ NAME="GPIO"
 >GPIO bitbang adapter</A
 ></H3
 ><P
+>WARNING: this driver is incomplete and its behavior does not conform to the
+IEEE 488 standards.</P
+><P
 >This is a simple GPIO bitbang driver that currently only works on
 Raspberry Pi platforms. For information on the GPIO to GPIB pinouts as
-well as restrictions on fan-out see the source code:</P
+well as limitations see the source code at:</P
 ><TABLE
 BORDER="0"
 BGCOLOR="#E0E0E0"
@@ -995,6 +998,29 @@ CLASS="PROGRAMLISTING"
 ></TD
 ></TR
 ></TABLE
+><P
+>  For schematics, boards and information on driver IC's
+  see <A
+HREF="http://elektronomikon.org"
+TARGET="_top"
+>http://elektronomikon.org</A
+>.
+Note, by default support for the SN75160/161 driver IC's is
+  enabled (sn7516x_used=1). To disable support for the IC's
+  when they are not installed sn7516x_used must be set to 0:
+<TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>  modprobe gpib_bitbang sn7516x_used=0</PRE
+></TD
+></TR
+></TABLE
+></P
 ></DIV
 ><DIV
 CLASS="SECTION"
@@ -1035,7 +1061,7 @@ a USB product id of 0x761e it will require a one-time firmware upload
 which permanently changes the product id to the usual 0x7618 for
 a GPIB-USB-HS+.  Currently this can be done by plugging the
 adapter into a Windows computer which has the NI driver software
-installed.  Alternatively, you may use the 
+installed.  Alternatively, you may use the
 <A
 HREF="https://github.com/fmhess/hsplus_load"
 TARGET="_top"

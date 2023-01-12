@@ -77,6 +77,7 @@ typedef struct ibConfStruct
 	unsigned board_is_open : 1;
 	unsigned has_lock : 1;
 	unsigned timed_out : 1;		/* io operation timed out */
+	unsigned error_msg_disable : 1; /* flag to disable error messages in ibfind */
 } ibConf_t;
 
 /*---------------------------------------------------------------------- */

@@ -252,6 +252,7 @@ void init_ibconf( ibConf_t *conf )
 	conf->board_is_open = 0;
 	conf->has_lock = 0;
 	conf->timed_out = 0;
+	conf->error_msg_disable = 0;
 }
 
 int open_gpib_handle( ibConf_t *conf )

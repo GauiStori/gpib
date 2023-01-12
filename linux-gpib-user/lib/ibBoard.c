@@ -71,7 +71,7 @@ int configure_autospoll(ibConf_t *conf, int enable)
 	return retval;
 }
 
-int ibBoardOpen( ibBoard_t *board )
+int ibBoardOpen( ibBoard_t *board, int error_msg_disable )
 {
 	int fd;
 	int flags = 0;
@@ -82,8 +82,11 @@ int ibBoardOpen( ibBoard_t *board )
 	{
 		setIberr( EDVR );
 		setIbcnt( errno );
-		fprintf( stderr, "libgpib: ibBoardOpen failed to open device file %s\n", board->device);
-		perror( "libgpib" );
+		if (!error_msg_disable)
+		{
+			fprintf( stderr, "libgpib: ibBoardOpen failed to open device file %s\n", board->device);
+			perror( "libgpib" );
+		}
 		return -1;
 	}
 	board->fileno = fd;

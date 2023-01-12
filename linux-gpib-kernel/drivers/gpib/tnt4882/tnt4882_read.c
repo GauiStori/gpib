@@ -98,7 +98,7 @@ int tnt4882_accel_read( gpib_board_t *board, uint8_t *buffer, size_t length, int
 	ssize_t retval = 0;
 	tnt4882_private_t *tnt_priv = board->private_data;
 	nec7210_private_t *nec_priv = &tnt_priv->nec7210_priv;
-	unsigned int bits, imr0_bits, imr1_bits, imr2_bits;
+	unsigned int bits;
 	int32_t hw_count;
 	unsigned long flags;
 
@@ -108,18 +108,13 @@ int tnt4882_accel_read( gpib_board_t *board, uint8_t *buffer, size_t length, int
 	clear_bit(DEV_CLEAR_BN, &nec_priv->state);	
 	smp_mb__after_atomic();
 
-	imr1_bits = nec_priv->reg_bits[ IMR1 ];
-	imr2_bits = nec_priv->reg_bits[ IMR2 ];
-	nec7210_set_reg_bits( nec_priv, IMR1, 0xff, HR_ENDIE | HR_DECIE );
-	if( nec_priv->type != TNT4882 )
-		nec7210_set_reg_bits( nec_priv, IMR2, 0xff, HR_DMAI );
+	nec7210_set_reg_bits( nec_priv, IMR1, HR_ENDIE, HR_ENDIE );
+	if(( nec_priv->type != TNT4882 ) && ( nec_priv->type != TNT5004 ))
+		nec7210_set_reg_bits( nec_priv, IMR2, HR_DMAI, HR_DMAI );
 	else
-		nec7210_set_reg_bits( nec_priv, IMR2, 0xff, 0 );
-	imr0_bits = tnt_priv->imr0_bits;
-	tnt_priv->imr0_bits &= ~TNT_ATNI_BIT;
-	tnt_writeb(tnt_priv, tnt_priv->imr0_bits, IMR0);
+		nec7210_set_reg_bits( nec_priv, IMR2, HR_DMAI, 0 );
 	tnt_writeb( tnt_priv, nec_priv->auxa_bits | HR_HLDA, CCR );
-	bits = TNT_TLCHE | TNT_B_16BIT | TNT_IN | TNT_CCEN;
+	bits = TNT_B_16BIT | TNT_IN | TNT_CCEN;
 	tnt_writeb( tnt_priv, bits, CFG );
 	tnt_writeb( tnt_priv, RESET_FIFO, CMDR );
 	udelay(1);
@@ -215,10 +210,8 @@ int tnt4882_accel_read( gpib_board_t *board, uint8_t *buffer, size_t length, int
 		tnt_writeb( tnt_priv, STOP, CMDR );
 	udelay(1);
 
-	nec7210_set_reg_bits( nec_priv, IMR1, 0xff, imr1_bits );
-	nec7210_set_reg_bits( nec_priv, IMR2, 0xff, imr2_bits );
-	tnt_priv->imr0_bits = imr0_bits;
-	tnt_writeb(tnt_priv, tnt_priv->imr0_bits, IMR0);
+	nec7210_set_reg_bits( nec_priv, IMR1, HR_ENDIE, 0 );
+	nec7210_set_reg_bits( nec_priv, IMR2, HR_DMAI, 0 );
 	/* force handling of any pending interrupts (seems to be needed
 	 * to keep interrupts from getting hosed, plus for syncing
 	 * with RECEIVED_END below) */

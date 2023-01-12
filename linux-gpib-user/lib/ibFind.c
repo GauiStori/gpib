@@ -44,10 +44,14 @@ int ibfind( const char *dev )
 
 	conf = &ibFindConfigs[ index ];
 
+	if (getenv("IB_NO_ERROR"))
+		conf->error_msg_disable = 1;
+
 	ud = my_ibdev( *conf );
 	if(ud < 0)
 	{
-		fprintf(stderr, "libgpib: ibfind failed to get descriptor\n");
+		if (!conf->error_msg_disable)
+			fprintf(stderr, "libgpib: ibfind failed to get descriptor\n");
 		return -1;
 	}
 	conf = general_enter_library( ud, 1, 0 );

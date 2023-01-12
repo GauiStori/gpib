@@ -24,6 +24,7 @@
 #include <linux/semaphore.h>
 #include <linux/usb.h>
 #include <linux/timer.h>
+#include <linux/compiler_attributes.h>
 #include "gpibP.h"
 #include "tms9914.h"
 

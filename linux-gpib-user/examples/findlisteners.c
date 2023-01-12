@@ -29,7 +29,8 @@ static void myError(int erc, char * mess) {
   int sys_errno = ThreadIbcnt();
   fprintf(stderr,"%s: error: %s", myProg, mess);
   fprintf(stderr," - %s\n", gpib_error_string(erc));
-  if (!erc) fprintf(stderr," system error: %s\n",strerror(sys_errno));
+  if (erc == EDVR)
+    fprintf(stderr," system error: %s\n",strerror(sys_errno));
   exit(0);
 }
 
@@ -39,11 +40,14 @@ int findListeners(int ud, int from, int to) {
   int bpad;  /* board primary address */
   int timeout; /* old timeoout */
  
-  ibask(ud, IbaPAD, &bpad);
-  ibask(ud, IbaTMO, &timeout); /* Remember old timeout */
-  ibtmo(ud, T30ms); /* Set a shortish timeout for now */
+  if (ibask(ud, IbaPAD, &bpad) & ERR)    /* Get board primary address */
+    myError(ThreadIberr(), "ibask IbaPAD failed"); 
+  if (ibask(ud, IbaTMO, &timeout) & ERR) /* Remember old timeout */
+    myError(ThreadIberr(), "ibask IbaTMO failed"); 
+  if (ibtmo(ud, T30ms) & ERR) /* Set a shortish timeout for now */
+    myError(ThreadIberr(), "ibtmo failed"); 
   for (pad=from; pad<=to; pad++) {
-    if ( ibln(ud, pad, NO_SAD, &stat) & ERR  ) {
+    if (ibln(ud, pad, NO_SAD, &stat) & ERR) { /* check for listener at pad */
       ibsta = ThreadIbsta();
       erc = ThreadIberr();
       ibtmo(ud,timeout); /* Restore old timeout */
@@ -53,7 +57,7 @@ int findListeners(int ud, int from, int to) {
 	myError(erc, "unexpected error");
       }
     } else if (stat) {
-      printf("%s: Listener at pad %2d", myProg, pad);
+      printf("Listener at pad %2d", pad);
       if (pad == bpad) printf(" (board) ");
       else n++;
       printf("\n");
@@ -82,7 +86,7 @@ int main(int argc, char ** argv) {
   int gotmin = 0;
   int from = 0;
   int to = 30;
-  char c;
+  int c;
   myProg = argv[0];
   
   while ((c = getopt (argc, argv, "m:d:h")) != -1) {
@@ -90,7 +94,7 @@ int main(int argc, char ** argv) {
     case 'm': minor  = atoi(optarg); gotmin++; break; 
     case 'd': device = atoi(optarg); gotdev++; break; 
     case 'h': usage(0); break;
-    default: usage(1);
+    default: usage(0);
     }
   }
 
@@ -107,7 +111,12 @@ int main(int argc, char ** argv) {
     gotmin = 0; /* ignore minor if one was specified */
     board = argv[optind];
     ud = ibfind(board);
-    if (ud < 0) myError(ThreadIberr(), "Can't find board");
+    if (ud < 0) {
+      fprintf(stderr, "%s: can't find board \"%s\"\n",myProg, board);
+      exit(0);
+    }
+    if (ibask(ud,IbaBNA,&minor) & ERR) /* get minor of board */
+      myError(ThreadIberr(), "ibask ibaBNA failed");
    } else {
     gotmin++;
     ud = minor;
@@ -117,7 +126,7 @@ int main(int argc, char ** argv) {
   else  printf("%s: Scanning pads from %d to %d", myProg, from, to);
   
   if (gotmin) printf(" on minor %d\n", minor);
-  else printf(" on board \"%s\"\n", board);
+  else printf(" on board \"%s\" minor %d\n", board, minor);
     
   n = findListeners(ud, from, to);
 

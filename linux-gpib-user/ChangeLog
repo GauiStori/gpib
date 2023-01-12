@@ -1,26 +1,344 @@
+2022-07-18 13:55  dpenkler
+
+	* [r2028] ChangeLog, README.txt: Update ChangeLog and README for
+	  4.3.5
+
+2022-07-18 10:19  dpenkler
+
+	* [r2027] linux-gpib-user/doc/linux-gpib.sgml: Update docs for
+	  ibfind IB_NO_ERROR
+
+2022-07-18 10:16  dpenkler
+
+	* [r2026] linux-gpib-kernel/drivers/gpib/gpio/gpib_bitbang.c:
+	  Remove end of transfer test in NRFD interrupt
+
+2022-06-27 19:50  dpenkler
+
+	* [r2025] linux-gpib-kernel/drivers/gpib/gpio/gpib_bitbang.c:
+	  Terminate write on NDAC de-asserted as NRFD may never come
+
+2022-06-27 09:49  dpenkler
+
+	* [r2024] linux-gpib-kernel/drivers/gpib/include/version.h: Bump
+	  kernel part version
+
+2022-06-27 09:47  dpenkler
+
+	* [r2023] linux-gpib-kernel/drivers/gpib/gpio/gpib_bitbang.c: Fixes
+	  and cleanup from Marcello Carla'
+
+2022-06-27 08:11  dpenkler
+
+	* [r2022] linux-gpib-user/doc/linux-gpib.sgml: Update docs for RPi
+	  gpio bitbang driver
+
+2022-06-27 06:34  dpenkler
+
+	* [r2021] linux-gpib-user/configure.ac: Bump version
+
+2022-04-04 12:05  dpenkler
+
+	* [r2020]
+	  linux-gpib-kernel/compat/include/linux/compiler_attributes.h,
+	  linux-gpib-kernel/drivers/gpib/agilent_82357a/agilent_82357a.c,
+	  linux-gpib-kernel/drivers/gpib/agilent_82357a/agilent_82357a.h:
+	  Add compat include for fallthrough
+
+2022-04-01 19:30  fmhess
+
+	* [r2019] linux-gpib-kernel/drivers/gpib/fmh_gpib/fmh_gpib.c,
+	  linux-gpib-kernel/drivers/gpib/fmh_gpib/fmh_gpib.h: Fix register
+	  offset for fmh_gpib_core pci prototype
+
+2022-03-31 22:26  fmhess
+
+	* [r2018] linux-gpib-kernel/drivers/gpib/fmh_gpib/fmh_gpib.c,
+	  linux-gpib-kernel/drivers/gpib/fmh_gpib/fmh_gpib.h: Add missing
+	  iounmap calls to fmh_gpib driver. Also try to make it usable with
+	  half-completed prototype
+	  which has no fifo registers.
+
+2022-03-30 02:05  fmhess
+
+	* [r2017] linux-gpib-kernel/drivers/gpib/fmh_gpib/fmh_gpib.c,
+	  linux-gpib-kernel/drivers/gpib/fmh_gpib/fmh_gpib.h: Add first
+	  pass at fifo accelerated fmh_gpib_pci board type..
+
+2022-03-26 01:16  fmhess
+
+	* [r2016]
+	  linux-gpib-kernel/drivers/gpib/agilent_82350b/agilent_82350b_init.c,
+	  linux-gpib-kernel/drivers/gpib/cb7210/cb7210_init.c,
+	  linux-gpib-kernel/drivers/gpib/cec/init.c,
+	  linux-gpib-kernel/drivers/gpib/hp_82335/hp82335_init.c,
+	  linux-gpib-kernel/drivers/gpib/ines/ines_init.c,
+	  linux-gpib-kernel/drivers/gpib/pc2/pc2_init.c,
+	  linux-gpib-kernel/drivers/gpib/tnt4882/tnt4882_init.c: Make pci
+	  drivers all call pci_register_driver with stub drivers
+	  since recent kernels have
+	  reached the point where they have weird bugs with
+	  pci devices that have no driver registered.
+
+2022-03-26 00:47  fmhess
+
+	* [r2015] linux-gpib-kernel/drivers/gpib/Makefile,
+	  linux-gpib-kernel/drivers/gpib/fmh_gpib/Makefile,
+	  linux-gpib-kernel/drivers/gpib/fmh_gpib/fmh_gpib.c,
+	  linux-gpib-kernel/drivers/gpib/fmh_gpib/fmh_gpib.h: Add support
+	  for pci version of fmh_gpib_core
+
+2022-03-18 22:33  fmhess
+
+	* [r2014]
+	  linux-gpib-kernel/drivers/gpib/agilent_82357a/agilent_82357a.c:
+	  Don't use fallthrough keyword, unless a compatibility header is
+	  added so it doesn't
+	  break on older kernels.
+
+2022-03-10 18:27  dpenkler
+
+	* [r2013] linux-gpib-kernel/drivers/gpib/gpio/gpib_bitbang.c: New
+	  version from Marcello Carla' with interrupt driven I/O
+
+2022-03-09 11:42  dpenkler
+
+	* [r2012] linux-gpib-user/lib/ibBoard.c,
+	  linux-gpib-user/lib/ibConf.h, linux-gpib-user/lib/ibFind.c,
+	  linux-gpib-user/lib/ibOnl.c, linux-gpib-user/lib/ib_internal.h,
+	  linux-gpib-user/lib/ibbna.c, linux-gpib-user/lib/ibdev.c,
+	  linux-gpib-user/lib/ibutil.c: ibfind: Optionally suppress
+	  printing error messages
+	  Add environment variable IB_NO_ERROR which when defined
+	  suppresses printing of error messages in the library
+
+2022-03-09 11:36  dpenkler
+
+	* [r2011] linux-gpib-user/language/php/gpib.c: Define TSRMLS_CC for
+	  php version >= 8
+
+2022-03-09 10:30  dpenkler
+
+	* [r2010] linux-gpib-user/configure.ac: Fix AC_PROG_LEX yywrap
+	  warning
+
+2022-02-27 17:45  dpenkler
+
+	* [r2009]
+	  linux-gpib-kernel/drivers/gpib/agilent_82357a/agilent_82357a.c:
+	  Fix line_status error return
+
+2022-02-11 16:20  dpenkler
+
+	* [r2008] linux-gpib-user/configure.ac: Use AM_MISSING_PROG to use
+	  'missing' script for bison
+
+2022-02-11 16:09  dpenkler
+
+	* [r2007] linux-gpib-user/configure.ac: Use AM_PROG_LEX to use
+	  'missing' script
+
+2022-02-11 14:00  dpenkler
+
+	* [r2006] linux-gpib-user/configure.ac: add test for maintainer
+	  mode for flex bison check
+
+2022-02-11 10:33  dpenkler
+
+	* [r2005] linux-gpib-user/configure.ac: Force configure fail if
+	  flex and lex or bison are missing
+
+2022-02-04 08:58  dpenkler
+
+	* [r2004] linux-gpib-kernel/drivers/gpib/gpio/gpib_bitbang.c:
+	  Release gpios on error exit in attach and tidy up a bit.
+
+2022-02-03 16:16  dpenkler
+
+	* [r2003] linux-gpib-kernel/drivers/gpib/gpio/gpib_bitbang.c: Fix
+	  bug overwriting end of buffer on read
+
+2022-02-02 16:24  dpenkler
+
+	* [r2002] linux-gpib-kernel/drivers/gpib/gpio/gpib_bitbang.c:
+	  gpio_bitbang update
+	  make bb_read interrupt driven
+	  add debug printout levels 1=function 2=all
+	  selectively enable/disable irqs
+	  optimisation -
+	  set_data_lines_input/output direction only as necessary
+	  move allocate/release gpio lines to attach/detach
+
+2022-01-30 16:15  dpenkler
+
+	* [r2001] linux-gpib-kernel/drivers/gpib/gpio/gpib_bitbang.c:
+	  gpio_bitbang update
+	  implement t1 delay
+	  make bb_write fully interrupt driven
+	  fix bug with buffer index i in write with debug=1
+	  make udelay(DELAY) a macro
+
+2022-01-27 18:41  dpenkler
+
+	* [r2000] linux-gpib-kernel/drivers/gpib/gpio/gpib_bitbang.c:
+	  Revert device support and optimise
+
+2022-01-27 10:26  dpenkler
+
+	* [r1999] linux-gpib-kernel/drivers/gpib/gpio/gpib_bitbang.c:
+	  Enable device mode
+
+2022-01-27 10:08  dpenkler
+
+	* [r1998] linux-gpib-kernel/drivers/gpib/eastwood/fluke_gpib.c,
+	  linux-gpib-kernel/drivers/gpib/fmh_gpib/fmh_gpib.c: Kernel 5.17:
+	  Remove use of slave_id in dma_slave_config
+
+2022-01-27 10:05  dpenkler
+
+	* [r1997]
+	  linux-gpib-kernel/drivers/gpib/agilent_82357a/agilent_82357a.c:
+	  Avoid fallthrough warning
+
+2022-01-14 16:18  dpenkler
+
+	* [r1996] linux-gpib-kernel/drivers/gpib/gpio/gpib_bitbang.c:
+	  gpio_bitbang fixes
+	  Terminate read on eos
+	  Keep DC at 0 to prevent REN from going high
+	  Fix iblines state for REN and IFC
+
+2022-01-13 09:28  dpenkler
+
+	* [r1995] linux-gpib-kernel/drivers/gpib/gpio/gpib_bitbang.c: Fix
+	  line status by initialising to ValidALL
+
+2022-01-13 09:25  dpenkler
+
+	* [r1994] linux-gpib-user/examples/findlisteners.c: Use int instead
+	  of char in getopt for Arm
+
+2021-10-26 11:18  dpenkler
+
+	* [r1993] linux-gpib-user/language/python/setup.py: Avoid distutils
+	  deprecation warning for python 3.10 and above
+	  adopting fix suggested by mika
+
+2021-10-26 08:49  dpenkler
+
+	* [r1992] linux-gpib-user/examples/findlisteners.c: Add comment for
+	  ibask IbaBNA call
+
+2021-10-26 08:47  dpenkler
+
+	* [r1991] linux-gpib-user/examples/findlisteners.c: Add getting
+	  minor from board and improve error checking
+
+2021-10-26 07:55  dpenkler
+
+	* [r1990] linux-gpib-user/language/python/gpibinter.c: Apply patch
+	  for PY_SSIZE_T_CLEAN deprecation from mika
+
+2021-10-19 19:50  fmhess
+
+	* [r1989] linux-gpib-user/doc/linux-gpib.sgml: Add warning about
+	  bitbang driver.
+
+2021-08-12 20:12  fmhess
+
+	* [r1988] linux-gpib-user/doc/linux-gpib.sgml: Update description
+	  of IbaBNA
+
+2021-08-12 08:21  dpenkler
+
+	* [r1987] linux-gpib-user/doc/linux-gpib.sgml,
+	  linux-gpib-user/lib/ibask.c: Add board support to ibask for
+	  IbaBNA option
+
+2021-05-29 18:17  fmhess
+
+	* [r1986] linux-gpib-kernel/drivers/gpib/tnt4882/tnt4882_read.c,
+	  linux-gpib-kernel/drivers/gpib/tnt4882/tnt4882_write.c: We don't
+	  need to disable various interrupts during read/write
+	  anymore now that TNT_TLCHE is no longer set.
+
+2021-05-25 18:35  fmhess
+
+	* [r1985] linux-gpib-kernel/drivers/gpib/tnt4882/tnt4882_read.c,
+	  linux-gpib-kernel/drivers/gpib/tnt4882/tnt4882_write.c: Don't set
+	  TNT_TLCHE bit in CFG register, as it causes transfers
+	  to stop on imr0/imr1/imr2 interrupts (and we never do anything to
+	  restart the transfer).
+
+2021-05-07 11:12  dpenkler
+
+	* [r1979]
+	  linux-gpib-kernel/drivers/gpib/include/nec7210_registers.h,
+	  linux-gpib-kernel/drivers/gpib/tnt4882/tnt4882.h,
+	  linux-gpib-kernel/drivers/gpib/tnt4882/tnt4882_init.c,
+	  linux-gpib-kernel/drivers/gpib/tnt4882/tnt4882_read.c,
+	  linux-gpib-kernel/drivers/gpib/tnt4882/tnt4882_write.c:
+	  Cherrypick support for new boards from hpdrive patches
+	  NI_GPIB_PLUS2 and MC_PCI488
+	  
+
+2021-05-01 10:51  dpenkler
+
+	* [r1964] linux-gpib-kernel/drivers/gpib/gpio/gpib_bitbang.c:
+	  gpib_bitbang changes proposed by Marcello Carla'
+	  
+	  Change default value of sn7616x_used to 1
+	  as most folks will not need to access to the gpio lines used to
+	  control the line drivers when they are not installed.
+	  
+	  Switch activity led on when dirver module is loaded
+
+2021-04-24 14:46  dpenkler
+
+	* [r1963] linux-gpib-user/doc/linux-gpib.sgml: Update doc for GPIO
+	  bitbang driver
+
+2021-04-24 08:13  dpenkler
+
+	* [r1962] linux-gpib-kernel/drivers/gpib/gpio/gpib_bitbang.c: Apply
+	  patch for gpio bitbang driver from Thomas Klima
+	  Uses new kernel gpio interface
+	  Supports SN75160/161 driver IC's for board from
+	  elektronomikon.org
+
+2021-01-29 15:31  dpenkler
+
+	* [r1960] ChangeLog: Update ChangeLog
+
 2021-01-29 15:25  dpenkler
 
-	* [r1959] Update ChangeLog and README for 4.3.4
+	* [r1959] ChangeLog, README.txt: Update ChangeLog and README for
+	  4.3.4
 
 2021-01-29 15:16  dpenkler
 
-	* [r1958] Add minor option and drop device range
+	* [r1958] linux-gpib-user/examples/findlisteners.c: Add minor
+	  option and drop device range
 
 2021-01-29 15:15  dpenkler
 
-	* [r1957] Update library path for python3.9
+	* [r1957] linux-gpib-user/language/python/srq_board.py,
+	  linux-gpib-user/language/python/srq_device.py: Update library
+	  path for python3.9
 
 2021-01-29 15:14  dpenkler
 
-	* [r1956] Bump versions for 4.3.4 release
+	* [r1956] linux-gpib-kernel/drivers/gpib/include/version.h,
+	  linux-gpib-user/configure.ac: Bump versions for 4.3.4 release
 
 2021-01-07 19:18  dpenkler
 
-	* [r1955] Update firmware repo reference in INSTALL
+	* [r1955] linux-gpib-user/INSTALL: Update firmware repo reference
+	  in INSTALL
 
 2021-01-06 07:01  dpenkler
 
-	* [r1954] Update ChangeLog and README
+	* [r1954] ChangeLog, README.txt: Update ChangeLog and README
 
 2021-01-06 06:54  dpenkler
 

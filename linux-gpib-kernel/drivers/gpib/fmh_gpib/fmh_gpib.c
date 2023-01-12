@@ -36,12 +36,17 @@ Copyright: (C) 2006, 2010, 2015 Fluke Corporation
 
 MODULE_LICENSE("GPL");
 
+irqreturn_t fmh_gpib_interrupt(int irq, void *arg);
 int fmh_gpib_attach_holdoff_all(gpib_board_t *board, const gpib_board_config_t *config);
 int fmh_gpib_attach_holdoff_end(gpib_board_t *board, const gpib_board_config_t *config);
 void fmh_gpib_detach(gpib_board_t *board);
+int fmh_gpib_pci_attach_holdoff_all(gpib_board_t *board, const gpib_board_config_t *config);
+int fmh_gpib_pci_attach_holdoff_end(gpib_board_t *board, const gpib_board_config_t *config);
+void fmh_gpib_pci_detach(gpib_board_t *board);
 static int fmh_gpib_config_dma(gpib_board_t *board, int output);
 irqreturn_t fmh_gpib_internal_interrupt(gpib_board_t *board);
 static struct platform_driver fmh_gpib_platform_driver;
+static struct pci_driver fmh_gpib_pci_driver;
 
 // wrappers for interface functions
 int fmh_gpib_read(gpib_board_t *board, uint8_t *buffer, size_t length, int *end, size_t *bytes_read)
@@ -280,6 +285,27 @@ static int wait_for_read(gpib_board_t *board)
 	return retval;
 }
 
+static int wait_for_rx_fifo_half_full_or_end(gpib_board_t *board)
+{
+	fmh_gpib_private_t *e_priv = board->private_data;
+	nec7210_private_t *nec_priv = &e_priv->nec7210_priv;
+	int retval = 0;
+
+	if(wait_event_interruptible(board->wait,
+		(fifos_read(e_priv, FIFO_CONTROL_STATUS_REG) & RX_FIFO_HALF_FULL) ||
+		test_bit(RECEIVED_END_BN, &nec_priv->state) ||
+		test_bit(DEV_CLEAR_BN, &nec_priv->state) ||
+		test_bit(TIMO_NUM, &board->status)))
+	{
+		retval = -ERESTARTSYS;
+	}
+	if(test_bit(TIMO_NUM, &board->status))
+		retval = -ETIMEDOUT;
+	if(test_and_clear_bit(DEV_CLEAR_BN, &nec_priv->state))
+		retval = -EINTR;
+	return retval;
+}
+
 /* Wait until the gpib chip is ready to accept a data out byte.
  */
 static int wait_for_data_out_ready(gpib_board_t *board)
@@ -327,9 +353,9 @@ static void fmh_gpib_dma_callback(void *arg)
 	spin_unlock_irqrestore(&board->spinlock, flags);
 }
 
-/* returns true when all the bytes of a dma write have been transferred to
+/* returns true when all the bytes of a write have been transferred to
  * the chip and successfully transferred out over the gpib bus. */
-static int fmh_gpib_all_dma_bytes_are_sent(fmh_gpib_private_t *e_priv)
+static int fmh_gpib_all_bytes_are_sent(fmh_gpib_private_t *e_priv)
 {
 	if( fifos_read(e_priv, FIFO_XFER_COUNTER_REG) & fifo_xfer_counter_mask)
 		return 0;
@@ -395,7 +421,7 @@ static int fmh_gpib_dma_write(gpib_board_t *board,
 //	printk("%s: waiting for write.\n", __FUNCTION__);
 	// suspend until message is sent
 	if(wait_event_interruptible(board->wait, 
-	   fmh_gpib_all_dma_bytes_are_sent(e_priv) ||
+	   fmh_gpib_all_bytes_are_sent(e_priv) ||
 		test_bit(BUS_ERROR_BN, &nec_priv->state) || 
 		test_bit(DEV_CLEAR_BN, &nec_priv->state) ||
 		test_bit(TIMO_NUM, &board->status)))
@@ -511,9 +537,154 @@ static unsigned fmh_gpib_get_dma_residue(struct dma_chan *chan, dma_cookie_t coo
 		BUG();
 	}
 	dmaengine_tx_status(chan, cookie, &state);
-	// hardware doesn't support resume, so dont call this
+	// dma330 hardware doesn't support resume, so dont call this
 	// method unless the dma transfer is done.
 	return state.residue;
+}
+
+static int wait_for_tx_fifo_half_empty(gpib_board_t *board)
+{
+	fmh_gpib_private_t *e_priv = board->private_data;
+	nec7210_private_t *nec_priv = &e_priv->nec7210_priv;
+	int retval = 0;
+// 	printk("%s: enter\n", __FUNCTION__);
+
+	if(wait_event_interruptible(board->wait,
+		(test_bit(TACS_NUM, &board->status) && (fifos_read(e_priv, FIFO_CONTROL_STATUS_REG) & TX_FIFO_HALF_EMPTY)) ||
+		test_bit(DEV_CLEAR_BN, &nec_priv->state) ||
+		test_bit(TIMO_NUM, &board->status)))
+	{
+		retval = -ERESTARTSYS;
+	}
+	if(test_bit(TIMO_NUM, &board->status))
+		retval = -ETIMEDOUT;
+	if(test_and_clear_bit(DEV_CLEAR_BN, &nec_priv->state))
+		retval = -EINTR;
+// 	printk("%s: exit, retval=%i\n", __FUNCTION__, retval);
+	return retval;
+}
+
+/* supports writing a chunk of data whose length must fit into the hardware'd xfer counter,
+ * called in a loop by fmh_gpib_fifo_write()
+ */
+static int fmh_gpib_fifo_write_countable(gpib_board_t *board, 
+	uint8_t *buffer, size_t length, int send_eoi, size_t *bytes_written)
+{
+	fmh_gpib_private_t *e_priv = board->private_data;
+	nec7210_private_t *nec_priv = &e_priv->nec7210_priv;
+	int retval = 0;
+	unsigned remainder;
+	
+	*bytes_written = 0;
+// 	printk("%s: enter\n", __FUNCTION__);
+	if(length > fifo_xfer_counter_mask)
+		BUG();
+
+	fifos_write(e_priv, length & fifo_xfer_counter_mask, FIFO_XFER_COUNTER_REG);
+	fifos_write(e_priv, TX_FIFO_CLEAR, FIFO_CONTROL_STATUS_REG); 
+	nec7210_set_reg_bits(nec_priv, IMR1, HR_DOIE, 0);
+	nec7210_set_reg_bits(nec_priv, IMR2, HR_DMAO, HR_DMAO);
+
+	remainder = length;
+	while (remainder > 0)
+	{
+		int i;
+
+		fifos_write(e_priv, TX_FIFO_HALF_EMPTY_INTERRUPT_ENABLE, FIFO_CONTROL_STATUS_REG); 
+		retval = wait_for_tx_fifo_half_empty(board);
+		if (retval < 0)
+		{
+			goto cleanup;
+		}
+			
+		for (i = 0; i < fmh_gpib_half_fifo_size(e_priv) && remainder > 0; ++i)
+		{
+			unsigned data_value = *buffer;
+			if (send_eoi && remainder == 1)
+				data_value |= FIFO_DATA_EOI_FLAG;
+			fifos_write(e_priv, data_value, FIFO_DATA_REG);
+			++buffer;
+			--remainder;
+		}
+	}
+	
+	// suspend until last byte is sent
+	nec7210_set_reg_bits(nec_priv, IMR1, HR_DOIE, HR_DOIE);
+	if(wait_event_interruptible(board->wait, 
+	   fmh_gpib_all_bytes_are_sent(e_priv) ||
+		test_bit(BUS_ERROR_BN, &nec_priv->state) || 
+		test_bit(DEV_CLEAR_BN, &nec_priv->state) ||
+		test_bit(TIMO_NUM, &board->status)))
+	{
+		GPIB_DPRINTK( "gpib write interrupted!\n" );
+		retval = -ERESTARTSYS;
+	}
+	if(test_bit(TIMO_NUM, &board->status))
+		retval = -ETIMEDOUT;
+	if(test_and_clear_bit(DEV_CLEAR_BN, &nec_priv->state))
+		retval = -EINTR;
+	if(test_and_clear_bit(BUS_ERROR_BN, &nec_priv->state))
+		retval = -EIO;
+
+cleanup:
+	nec7210_set_reg_bits(nec_priv, IMR1, HR_DOIE, 0);
+	nec7210_set_reg_bits(nec_priv, IMR2, HR_DMAO, 0);
+	fifos_write(e_priv, 0, FIFO_CONTROL_STATUS_REG); 
+
+	*bytes_written = length - (fifos_read(e_priv, FIFO_XFER_COUNTER_REG) & fifo_xfer_counter_mask);
+	if(*bytes_written > length) BUG();
+	/*	printk("length=%i, *bytes_written=%i, residue=%i, retval=%i\n",
+		length, *bytes_written, get_dma_residue(e_priv->dma_channel), retval);*/
+
+//	printk("%s: exit, retval=%d\n", __FUNCTION__, retval);
+	return retval;
+}
+
+static int fmh_gpib_fifo_write(gpib_board_t *board, 
+	uint8_t *buffer, size_t length, int send_eoi, size_t *bytes_written)
+{
+	fmh_gpib_private_t *e_priv = board->private_data;
+	nec7210_private_t *nec_priv = &e_priv->nec7210_priv;
+	size_t remainder = length;
+	size_t transfer_size;
+	ssize_t retval = 0;
+	
+	*bytes_written = 0;
+	if(length < 1) return 0;
+
+	smp_mb__before_atomic();
+	clear_bit(DEV_CLEAR_BN, &nec_priv->state); // XXX FIXME
+	smp_mb__after_atomic();
+
+// 	printk("%s: entering while loop\n", __FUNCTION__);
+	
+	while(remainder > 0)
+	{
+		size_t num_bytes;
+		int last_pass;
+		
+		retval = wait_for_data_out_ready(board);
+		if(retval < 0) break;
+
+		if (fifo_xfer_counter_mask < remainder)
+		{
+			// round transfer size to a multiple of half fifo size
+			transfer_size = (fifo_xfer_counter_mask / fmh_gpib_half_fifo_size(e_priv)) * fmh_gpib_half_fifo_size(e_priv);
+			last_pass = 0;
+		}else
+		{
+			transfer_size = remainder;
+			last_pass = 1;
+		}
+		retval = fmh_gpib_fifo_write_countable(board, buffer, transfer_size, last_pass && send_eoi, &num_bytes);
+		*bytes_written += num_bytes;
+		if(retval < 0) break;
+		remainder -= num_bytes;
+		buffer += num_bytes;
+		if(need_resched()) schedule();
+	}
+// 	printk("%s: bytes send=%i\n", __FUNCTION__, (int)(length - remainder));
+	return retval;
 }
 
 static int fmh_gpib_dma_read(gpib_board_t *board, uint8_t *buffer,
@@ -734,6 +905,144 @@ static int fmh_gpib_accel_read(gpib_board_t *board, uint8_t *buffer, size_t leng
 	return retval;
 }
 
+/* Read a chunk of data whose length is within the limits of the hardware's 
+ * xfer counter.  Called in a loop from fmh_gpib_fifo_read().
+ */
+static int fmh_gpib_fifo_read_countable(gpib_board_t *board, uint8_t *buffer,
+	size_t length, int *end, size_t *bytes_read)
+{
+	fmh_gpib_private_t *e_priv = board->private_data;
+	nec7210_private_t *nec_priv = &e_priv->nec7210_priv;
+	int retval = 0;
+	unsigned residue;
+	
+	// 	printk("%s: enter, bus_address=0x%x, length=%i\n", __FUNCTION__, (unsigned)bus_address,
+// 		   (int)length);
+
+	*bytes_read = 0;
+	*end = 0;
+	if(length == 0)
+		return 0;
+
+	fifos_write(e_priv, length & fifo_xfer_counter_mask, FIFO_XFER_COUNTER_REG);
+	fifos_write(e_priv, RX_FIFO_CLEAR, FIFO_CONTROL_STATUS_REG); 
+	nec7210_set_reg_bits(nec_priv, IMR1, HR_DIIE, 0);
+	nec7210_set_reg_bits(nec_priv, IMR2, HR_DMAI, HR_DMAI);
+
+	while (*bytes_read < length && *end == 0)
+	{
+		int i;
+
+		fifos_write(e_priv, RX_FIFO_HALF_FULL_INTERRUPT_ENABLE, FIFO_CONTROL_STATUS_REG); 
+		retval = wait_for_rx_fifo_half_full_or_end(board);
+		if (retval < 0)
+		{
+			goto cleanup;
+		}
+			
+		for (i = 0; i < fmh_gpib_half_fifo_size(e_priv) && *end == 0; ++i)
+		{
+			unsigned data_value;
+			
+			data_value = fifos_read(e_priv, FIFO_DATA_REG);
+			buffer[(*bytes_read)++] = data_value & fifo_data_mask;
+			if (data_value & FIFO_DATA_EOI_FLAG)
+				*end = 1;
+		}
+	}
+	
+cleanup:	
+	// stop the transfer
+	nec7210_set_reg_bits(nec_priv, IMR2, HR_DMAI, 0);
+	fifos_write(e_priv, 0, FIFO_CONTROL_STATUS_REG);
+
+	/* Manually read any dregs out of fifo. */
+	while((fifos_read(e_priv, FIFO_CONTROL_STATUS_REG) & RX_FIFO_EMPTY) == 0)
+	{
+		unsigned data_value;
+		
+		if((*bytes_read) >= length)
+		{
+			dev_err(board->dev, "unexpected extra bytes in rx fifo, discarding!  bytes_read=%d length=%d residue=%d\n",
+				(int)(*bytes_read), (int)length, (int)residue);
+			break;
+		}
+		data_value = fifos_read(e_priv, FIFO_DATA_REG);
+		buffer[(*bytes_read)++] = data_value & fifo_data_mask;
+		if (data_value & FIFO_DATA_EOI_FLAG)
+			*end = 1;
+	}
+	
+// 	printk("\tbytes_read=%i, residue=%i, end=%i, retval=%i, wait_retval=%i\n", 
+// 		   *bytes_read, residue, *end, retval, wait_retval);
+
+	return retval;
+}
+
+static int fmh_gpib_fifo_read(gpib_board_t *board, uint8_t *buffer, size_t length,
+	int *end, size_t *bytes_read)
+{
+	fmh_gpib_private_t *e_priv = board->private_data;
+	nec7210_private_t *nec_priv = &e_priv->nec7210_priv;
+	size_t remain = length;
+	size_t transfer_size;
+	int retval = 0;
+	size_t nbytes;
+	unsigned long flags;
+	
+	smp_mb__before_atomic();
+	clear_bit(DEV_CLEAR_BN, &nec_priv->state); // XXX FIXME
+	smp_mb__after_atomic();
+	*end = 0;
+	*bytes_read = 0;
+
+	/* Do a little prep with data in interrupt so that following wait_for_read() 
+	 * will wake up if a data byte is received. */
+	nec7210_set_reg_bits(nec_priv, IMR1, HR_DIIE, HR_DIIE);
+	fmh_gpib_interrupt(0, board);
+	
+	retval = wait_for_read(board);
+	if(retval < 0) return retval;
+	
+	fmh_gpib_release_rfd_holdoff(board, e_priv);
+	while(remain > 0)
+	{
+		if (fifo_xfer_counter_mask < remain)
+		{
+			// round transfer size to a multiple of half fifo size
+			transfer_size = (fifo_xfer_counter_mask / fmh_gpib_half_fifo_size(e_priv)) * fmh_gpib_half_fifo_size(e_priv);
+		}else
+		{
+			transfer_size = remain;
+		}
+		retval = fmh_gpib_fifo_read_countable(board, buffer, transfer_size, end, &nbytes);
+		remain -= nbytes;
+		buffer += nbytes;
+		*bytes_read += nbytes;
+		if(*end) 
+		{
+			break;
+		}
+		if(retval < 0) 
+		{
+			break;
+		}
+		if(need_resched()) schedule();
+	}
+
+	if(*end == 0)
+	{
+		spin_lock_irqsave(&board->spinlock, flags);
+		write_byte(nec_priv, AUX_RFD_HOLDOFF_ASAP, AUXMR);
+		smp_mb__before_atomic();
+		set_bit(RFD_HOLDOFF_BN, &nec_priv->state);
+		smp_mb__after_atomic();
+		spin_unlock_irqrestore(&board->spinlock, flags);
+	}
+
+	return retval;
+}
+
 gpib_interface_t fmh_gpib_unaccel_interface =
 {
 	name: "fmh_gpib_unaccel",
@@ -792,9 +1101,67 @@ gpib_interface_t fmh_gpib_interface =
 	return_to_local: fmh_gpib_return_to_local,
 };
 
+gpib_interface_t fmh_gpib_pci_interface =
+{
+	name: "fmh_gpib_pci",
+	attach: fmh_gpib_pci_attach_holdoff_end,
+	detach: fmh_gpib_pci_detach,
+	read: fmh_gpib_fifo_read,
+	write: fmh_gpib_fifo_write,
+	command: fmh_gpib_command,
+	take_control: fmh_gpib_take_control,
+	go_to_standby: fmh_gpib_go_to_standby,
+	request_system_control: fmh_gpib_request_system_control,
+	interface_clear: fmh_gpib_interface_clear,
+	remote_enable: fmh_gpib_remote_enable,
+	enable_eos: fmh_gpib_enable_eos,
+	disable_eos: fmh_gpib_disable_eos,
+	parallel_poll: fmh_gpib_parallel_poll,
+	parallel_poll_configure: fmh_gpib_parallel_poll_configure,
+	parallel_poll_response: fmh_gpib_parallel_poll_response,
+	local_parallel_poll_mode: fmh_gpib_local_parallel_poll_mode,
+	line_status: fmh_gpib_line_status,
+	update_status: fmh_gpib_update_status,
+	primary_address: fmh_gpib_primary_address,
+	secondary_address: fmh_gpib_secondary_address,
+	serial_poll_response2: fmh_gpib_serial_poll_response2,
+	serial_poll_status: fmh_gpib_serial_poll_status,
+	t1_delay: fmh_gpib_t1_delay,
+	return_to_local: fmh_gpib_return_to_local,
+};
+
+gpib_interface_t fmh_gpib_pci_unaccel_interface =
+{
+	name: "fmh_gpib_pci_unaccel",
+	attach: fmh_gpib_pci_attach_holdoff_all,
+	detach: fmh_gpib_pci_detach,
+	read: fmh_gpib_read,
+	write: fmh_gpib_write,
+	command: fmh_gpib_command,
+	take_control: fmh_gpib_take_control,
+	go_to_standby: fmh_gpib_go_to_standby,
+	request_system_control: fmh_gpib_request_system_control,
+	interface_clear: fmh_gpib_interface_clear,
+	remote_enable: fmh_gpib_remote_enable,
+	enable_eos: fmh_gpib_enable_eos,
+	disable_eos: fmh_gpib_disable_eos,
+	parallel_poll: fmh_gpib_parallel_poll,
+	parallel_poll_configure: fmh_gpib_parallel_poll_configure,
+	parallel_poll_response: fmh_gpib_parallel_poll_response,
+	local_parallel_poll_mode: fmh_gpib_local_parallel_poll_mode,
+	line_status: fmh_gpib_line_status,
+	update_status: fmh_gpib_update_status,
+	primary_address: fmh_gpib_primary_address,
+	secondary_address: fmh_gpib_secondary_address,
+	serial_poll_response2: fmh_gpib_serial_poll_response2,
+	serial_poll_status: fmh_gpib_serial_poll_status,
+	t1_delay: fmh_gpib_t1_delay,
+	return_to_local: fmh_gpib_return_to_local,
+};
+
 irqreturn_t fmh_gpib_internal_interrupt(gpib_board_t *board)
 {
-	int status0, status1, status2, ext_status_1;
+	unsigned status0, status1, status2, ext_status_1, fifo_status;
 	fmh_gpib_private_t *priv = board->private_data;
 	nec7210_private_t *nec_priv = &priv->nec7210_priv;
 	int retval = IRQ_NONE;
@@ -802,6 +1169,7 @@ irqreturn_t fmh_gpib_internal_interrupt(gpib_board_t *board)
 	status0 = read_byte( nec_priv, ISR0_IMR0_REG );
 	status1 = read_byte( nec_priv, ISR1 );
 	status2 = read_byte( nec_priv, ISR2 );
+	fifo_status = fifos_read(priv, FIFO_CONTROL_STATUS_REG);
 	
 	if(status0 & IFC_INTERRUPT_BIT)
 	{
@@ -848,6 +1216,28 @@ irqreturn_t fmh_gpib_internal_interrupt(gpib_board_t *board)
 		clear_bit(RECEIVED_END_BN, &nec_priv->state);
 
 	smp_mb__after_atomic();
+
+	if ((fifo_status & TX_FIFO_HALF_EMPTY_INTERRUPT_IS_ENABLED) && (fifo_status & TX_FIFO_HALF_EMPTY))
+	{
+		/* We really only want to clear the TX_FIFO_HALF_EMPTY_INTERRUPT_ENABLE bit in the FIFO_CONTROL_STATUS_REG.
+		 * Since we are not being careful, this also has a side effect of disabling DMA requests and
+		 * the RX fifo interrupt.  That is fine though, since they should never be in use at the same
+		 * time as the TX fifo interrupt.
+		 */
+		fifos_write(priv, 0x0, FIFO_CONTROL_STATUS_REG);
+		retval = IRQ_HANDLED;
+	}
+
+	if ((fifo_status & RX_FIFO_HALF_FULL_INTERRUPT_IS_ENABLED) && (fifo_status & RX_FIFO_HALF_FULL))
+	{
+		/* We really only want to clear the RX_FIFO_HALF_FULL_INTERRUPT_ENABLE bit in the FIFO_CONTROL_STATUS_REG.
+		 * Since we are not being careful, this also has a side effect of disabling DMA requests and
+		 * the TX fifo interrupt.  That is fine though, since they should never be in use at the same
+		 * time as the RX fifo interrupt.
+		 */
+		fifos_write(priv, 0x0, FIFO_CONTROL_STATUS_REG);
+		retval = IRQ_HANDLED;
+	}
 
 	if( retval == IRQ_HANDLED )
 	{
@@ -916,7 +1306,7 @@ int fmh_gpib_generic_attach(gpib_board_t *board)
 	nec_priv = &e_priv->nec7210_priv;
 	nec_priv->read_byte = gpib_cs_read_byte;
 	nec_priv->write_byte = gpib_cs_write_byte;
-	nec_priv->offset = gpib_cs_reg_offset;
+	nec_priv->offset = 1;
 	nec_priv->type = CB7210;
 	return 0;
 }
@@ -926,8 +1316,7 @@ static int fmh_gpib_config_dma(gpib_board_t *board, int output)
 	fmh_gpib_private_t *e_priv = board->private_data;
 	struct dma_slave_config config;
 	config.device_fc = true;
-	config.slave_id = 0;
-	
+
 	if(e_priv->dma_burst_length < 1)
 	{
 		config.src_maxburst = 1;
@@ -959,13 +1348,19 @@ int fmh_gpib_init(fmh_gpib_private_t *e_priv, gpib_board_t *board, int handshake
 {
 	nec7210_private_t *nec_priv = &e_priv->nec7210_priv;
 	unsigned long flags;
+	unsigned fifo_status_bits;
 	
-	fifos_write(e_priv, 0, FIFO_CONTROL_STATUS_REG); 
+	fifos_write(e_priv, RX_FIFO_CLEAR | TX_FIFO_CLEAR, FIFO_CONTROL_STATUS_REG); 
 
 	nec7210_board_reset(nec_priv, board);
 	write_byte(nec_priv, AUX_LO_SPEED, AUXMR);
 	nec7210_set_handshake_mode(board, nec_priv, handshake_mode);
 
+	/* Hueristically check if hardware supports fifo half full/empty interrupts */
+	fifo_status_bits = fifos_read(e_priv, FIFO_CONTROL_STATUS_REG);
+	e_priv->supports_fifo_interrupts = (fifo_status_bits & TX_FIFO_EMPTY) && (fifo_status_bits & TX_FIFO_HALF_EMPTY);
+
+	
 	nec7210_board_online( nec_priv, board );
 
 	write_byte(nec_priv, IFC_INTERRUPT_ENABLE_BIT | ATN_INTERRUPT_ENABLE_BIT, ISR0_IMR0_REG);
@@ -1007,7 +1402,6 @@ static int fmh_gpib_attach_impl(gpib_board_t *board, const gpib_board_config_t *
 {
 	fmh_gpib_private_t *e_priv;
 	nec7210_private_t *nec_priv;
-	int isr_flags = 0;
 	int retval;
 	int irq;
 	struct resource *res;
@@ -1045,12 +1439,12 @@ static int fmh_gpib_attach_impl(gpib_board_t *board, const gpib_board_config_t *
 
 	nec_priv->iobase = ioremap_nocache(e_priv->gpib_iomem_res->start, 
 			resource_size(e_priv->gpib_iomem_res));
-	dev_info(board->dev, "iobase 0x%lx remapped to %p, length=%ld\n", (unsigned long)e_priv->gpib_iomem_res->start,
-		nec_priv->iobase, (unsigned long)resource_size(e_priv->gpib_iomem_res));
 	if (!nec_priv->iobase) {
-		dev_err(board->dev, "Could not map I/O memory\n");
+		dev_err(board->dev, "Could not map I/O memory for gpib\n");
 		return -ENOMEM;
 	}
+	dev_info(board->dev, "iobase 0x%lx remapped to %p, length=%ld\n", (unsigned long)e_priv->gpib_iomem_res->start,
+		nec_priv->iobase, (unsigned long)resource_size(e_priv->gpib_iomem_res));
 
 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "dma_fifos");
 	if (!res) {
@@ -1066,6 +1460,10 @@ static int fmh_gpib_attach_impl(gpib_board_t *board, const gpib_board_config_t *
 	e_priv->dma_port_res = res;
 	e_priv->fifo_base = ioremap_nocache(e_priv->dma_port_res->start, 
 			resource_size(e_priv->dma_port_res));
+	if (!e_priv->fifo_base) {
+		dev_err(board->dev, "Could not map I/O memory for fifos\n");
+		return -ENOMEM;
+	}
 	dev_info(board->dev, "dma fifos 0x%lx remapped to %p, length=%ld\n",
 		(unsigned long)e_priv->dma_port_res->start, e_priv->fifo_base, 
 		(unsigned long)resource_size(e_priv->dma_port_res));
@@ -1078,7 +1476,7 @@ static int fmh_gpib_attach_impl(gpib_board_t *board, const gpib_board_config_t *
 		dev_err(board->dev, "fmh_gpib_gpib: request for IRQ failed\n");
 		return -EBUSY;
 	}
-	retval = request_irq(irq, fmh_gpib_interrupt, isr_flags, pdev->name, board);
+	retval = request_irq(irq, fmh_gpib_interrupt, IRQF_SHARED, pdev->name, board);
 	if(retval){
 		dev_err(board->dev,
 			"cannot register interrupt handler err=%d\n",
@@ -1095,8 +1493,12 @@ static int fmh_gpib_attach_impl(gpib_board_t *board, const gpib_board_config_t *
 			dev_err(board->dev, "failed to acquire dma channel \"rxtx\".\n");
 			return -EIO;
 		}
-		e_priv->dma_burst_length = fifos_read(e_priv, FIFO_MAX_BURST_LENGTH_REG) & fifo_max_burst_length_mask; 
 	}
+	/* in the future we might want to know the half-fifo size (dma_burst_length) even when not using dma,
+	 * so go ahead an initialize it unconditionally. 
+	 */
+	e_priv->dma_burst_length = fifos_read(e_priv, FIFO_MAX_BURST_LENGTH_REG) & fifo_max_burst_length_mask;
+
 	return fmh_gpib_init(e_priv, board, handshake_mode);
 }
 
@@ -1121,6 +1523,10 @@ void fmh_gpib_detach(gpib_board_t *board)
 			dma_release_channel(e_priv->dma_channel);
 		nec_priv = &e_priv->nec7210_priv;
 
+		if(e_priv->irq)
+		{
+			free_irq(e_priv->irq, board);
+		}
 		if(e_priv->fifo_base != NULL)
 		{
 			fifos_write(e_priv, 0, FIFO_CONTROL_STATUS_REG); 
@@ -1130,9 +1536,13 @@ void fmh_gpib_detach(gpib_board_t *board)
 			write_byte(nec_priv, 0, ISR0_IMR0_REG);
 			nec7210_board_reset(nec_priv, board);
 		}
-		if(e_priv->irq)
+		if(e_priv->fifo_base != NULL)
 		{
-			free_irq(e_priv->irq, board);
+			iounmap(e_priv->fifo_base);
+		}
+		if(nec_priv->iobase)
+		{
+			iounmap(nec_priv->iobase);
 		}
 		if(e_priv->dma_port_res)
 		{
@@ -1148,7 +1558,138 @@ void fmh_gpib_detach(gpib_board_t *board)
 	fmh_gpib_generic_detach(board);
 }
 
-static int fmh_gpib_probe(struct platform_device *pdev) {
+int fmh_gpib_pci_attach_impl(gpib_board_t *board, const gpib_board_config_t *config, unsigned handshake_mode)
+{
+	fmh_gpib_private_t *e_priv;
+	nec7210_private_t *nec_priv;
+	int retval;
+	struct pci_dev *pci_device;
+	
+	retval = fmh_gpib_generic_attach(board);
+	if(retval) return retval;
+
+	e_priv = board->private_data;
+	nec_priv = &e_priv->nec7210_priv;
+	
+	// find board
+	pci_device = gpib_pci_get_device(config, BOGUS_PCI_VENDOR_ID_FLUKE,
+		BOGUS_PCI_DEVICE_ID_FLUKE_BLADERUNNER, NULL);
+	if(pci_device == NULL)
+	{
+		printk("No matching fmh_gpib_core pci device was found, attach failed.");
+		return -ENODEV;
+	}
+	board->dev = &pci_device->dev;
+
+	// bladerunner prototype has offset of 4 between gpib control/status registers
+	nec_priv->offset = 4;
+	
+	if(pci_enable_device(pci_device))
+	{
+		dev_err(board->dev, "error enabling pci device\n");
+		return -EIO;
+	}
+	if(pci_request_regions(pci_device, KBUILD_MODNAME))
+	{
+		dev_err(board->dev, "pci_request_regions failed\n");
+		return -EIO;
+	}
+	e_priv->gpib_iomem_res = &pci_device->resource[gpib_control_status_pci_resource_index];
+	e_priv->dma_port_res =  &pci_device->resource[gpib_fifo_pci_resource_index];
+
+	nec_priv->iobase = ioremap_nocache(pci_resource_start(pci_device, gpib_control_status_pci_resource_index), 
+		pci_resource_len(pci_device, gpib_control_status_pci_resource_index));
+	dev_info(board->dev, "base address for gpib control/status registers remapped to 0x%p\n", nec_priv->iobase);
+
+	if (e_priv->dma_port_res->flags & IORESOURCE_MEM)
+	{
+		e_priv->fifo_base = ioremap_nocache(pci_resource_start(pci_device, gpib_fifo_pci_resource_index), 
+			pci_resource_len(pci_device, gpib_fifo_pci_resource_index));
+		dev_info(board->dev, "base address for gpib fifo registers remapped to 0x%p\n", e_priv->fifo_base);
+	}else
+	{
+		e_priv->fifo_base = NULL;
+		dev_info(board->dev, "hardware has no gpib fifo registers.\n");
+	}
+	
+	if (pci_device->irq)
+	{
+		retval = request_irq(pci_device->irq, fmh_gpib_interrupt, IRQF_SHARED, KBUILD_MODNAME, board);
+		if(retval){
+			dev_err(board->dev,
+				"cannot register interrupt handler err=%d\n",
+					retval);
+			return retval;
+		}
+	}
+	e_priv->irq = pci_device->irq;
+
+	e_priv->dma_burst_length = fifos_read(e_priv, FIFO_MAX_BURST_LENGTH_REG) & fifo_max_burst_length_mask;
+	
+	return fmh_gpib_init(e_priv, board, handshake_mode);
+}
+
+int fmh_gpib_pci_attach_holdoff_all(gpib_board_t *board, const gpib_board_config_t *config)
+{
+	return fmh_gpib_pci_attach_impl(board, config, HR_HLDA);
+}
+
+int fmh_gpib_pci_attach_holdoff_end(gpib_board_t *board, const gpib_board_config_t *config)
+{
+	int retval;
+	fmh_gpib_private_t *e_priv;
+
+	retval = fmh_gpib_pci_attach_impl(board, config, HR_HLDE);
+	e_priv = board->private_data;
+	if (retval == 0 && e_priv && e_priv->supports_fifo_interrupts == 0)
+	{
+		printk("fmh_gpib: your fmh_gpib_core does not appear to support fifo interrupts.  Try the fmh_gpib_pci_unaccel board type instead.");
+		return -EIO;
+	}
+	return retval;
+}
+
+void fmh_gpib_pci_detach(gpib_board_t *board)
+{
+	fmh_gpib_private_t *e_priv = board->private_data;
+	nec7210_private_t *nec_priv;
+
+	if(e_priv)
+	{
+		nec_priv = &e_priv->nec7210_priv;
+
+		if(e_priv->irq)
+		{
+			free_irq(e_priv->irq, board);
+		}
+		if(e_priv->fifo_base != NULL)
+		{
+			fifos_write(e_priv, 0, FIFO_CONTROL_STATUS_REG); 
+		}
+		if(nec_priv->iobase)
+		{
+			write_byte(nec_priv, 0, ISR0_IMR0_REG);
+			nec7210_board_reset(nec_priv, board);
+		}
+		if(e_priv->fifo_base != NULL)
+		{
+			iounmap(e_priv->fifo_base);
+		}
+		if(nec_priv->iobase)
+		{
+			iounmap(nec_priv->iobase);
+		}
+		if(e_priv->dma_port_res || e_priv->gpib_iomem_res)
+		{
+			pci_release_regions(to_pci_dev(board->dev));
+		}
+		if(board->dev)
+			pci_dev_put(to_pci_dev(board->dev));
+	}
+	fmh_gpib_generic_detach(board);
+}
+
+static int fmh_gpib_platform_probe(struct platform_device *pdev) {
 	return 0;
 }
 
@@ -1164,31 +1705,61 @@ static struct platform_driver fmh_gpib_platform_driver = {
 		.owner = THIS_MODULE,
 		.of_match_table = fmh_gpib_of_match,
 	},
-	.probe = &fmh_gpib_probe
+	.probe = &fmh_gpib_platform_probe
+};
+
+static int fmh_gpib_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
+	return 0;
+}
+
+static const struct pci_device_id fmh_gpib_pci_match[] =
+{
+	{ BOGUS_PCI_VENDOR_ID_FLUKE, BOGUS_PCI_DEVICE_ID_FLUKE_BLADERUNNER, 0, 0, 0 },
+	{ 0 }
+};
+MODULE_DEVICE_TABLE(pci, fmh_gpib_pci_match);
+
+static struct pci_driver fmh_gpib_pci_driver = {
+	.name = "fmh_gpib",
+	.id_table = fmh_gpib_pci_match,
+	.probe = &fmh_gpib_pci_probe
 };
 
 static int __init fmh_gpib_init_module( void )
 {
 	int result;
-	
+
 	result = platform_driver_register(&fmh_gpib_platform_driver);
 	if (result) {
-		printk("fmh_gpib_gpib: platform_driver_register failed!\n");
+		printk("fmh_gpib: platform_driver_register failed!\n");
+		return result;
+	}
+	
+	result = pci_register_driver(&fmh_gpib_pci_driver);
+	if (result) {
+		printk("fmh_gpib: pci_driver_register failed!\n");
 		return result;
 	}
 	
 	gpib_register_driver(&fmh_gpib_unaccel_interface, THIS_MODULE);
 	gpib_register_driver(&fmh_gpib_interface, THIS_MODULE);
+	gpib_register_driver(&fmh_gpib_pci_unaccel_interface, THIS_MODULE);
+	gpib_register_driver(&fmh_gpib_pci_interface, THIS_MODULE);
 
-	printk("fmh_gpib_gpib\n");
+	printk("fmh_gpib\n");
 	return 0;
 }
 
 static void __exit fmh_gpib_exit_module( void )
 {
+	gpib_unregister_driver(&fmh_gpib_pci_interface);
+	gpib_unregister_driver(&fmh_gpib_pci_unaccel_interface);
 	gpib_unregister_driver(&fmh_gpib_unaccel_interface);
 	gpib_unregister_driver(&fmh_gpib_interface);
+
+	pci_unregister_driver(&fmh_gpib_pci_driver);
 	platform_driver_unregister(&fmh_gpib_platform_driver);
+	
 }
 
 module_init( fmh_gpib_init_module );

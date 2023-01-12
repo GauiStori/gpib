@@ -232,6 +232,10 @@ int ibask( int ud, int option, int *value )
 			*value = conf->settings.eos;
 			return exit_library( ud, 0 );
 			break;
+		case IbaBNA:
+			*value = conf->settings.board;
+			return exit_library( ud, 0 );
+			break;
 		case IbaReadAdjust:
 			/* XXX I guess I could implement byte swapping stuff,
 			 * it's pretty stupid though */
@@ -373,10 +377,6 @@ int ibask( int ud, int option, int *value )
 				 * not supported yet, I suppose it could be since it
 				 * is harmless. */
 				*value = 0;
-				return exit_library( ud, 0 );
-				break;
-			case IbaBNA:
-				*value = conf->settings.board;
 				return exit_library( ud, 0 );
 				break;
 			default:

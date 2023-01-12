@@ -24,6 +24,7 @@ enum nec7210_chipset
 	CB7210,	// measurement computing
 	IOT7210,	// iotech
 	iGPIB7210,	// Ines
+	TNT5004,	// NI (minor differences to TNT4882)
 };
 
 // nec7210 has 8 registers

@@ -87,7 +87,8 @@ int my_ibdev( ibConf_t new_conf )
 	ud = ibGetDescriptor(new_conf);
 	if( ud < 0 )
 	{
-		fprintf( stderr, "libgpib: ibdev failed to get descriptor\n" );
+		if (!conf->error_msg_disable)
+			fprintf( stderr, "libgpib: ibdev failed to get descriptor\n" );
 		setIbsta( ERR );
 		return -1;
 	}

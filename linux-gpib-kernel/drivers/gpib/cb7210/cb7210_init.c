@@ -570,6 +570,10 @@ void cb_isa_detach(gpib_board_t *board)
 	cb7210_generic_detach(board);
 }
 
+static int cb7210_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
+	return 0;
+}
+
 static const struct pci_device_id cb7210_pci_table[] = 
 {
 	{PCI_VENDOR_ID_CBOARDS, PCI_DEVICE_ID_CBOARDS_PCI_GPIB, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
@@ -579,9 +583,22 @@ static const struct pci_device_id cb7210_pci_table[] =
 };
 MODULE_DEVICE_TABLE(pci, cb7210_pci_table);
 
+static struct pci_driver cb7210_pci_driver = {
+	.name = "cb7210",
+	.id_table = cb7210_pci_table,
+	.probe = &cb7210_pci_probe
+};
+
 static int __init cb7210_init_module( void )
 {
 	int err = 0;
+	int result;
+	
+	result = pci_register_driver(&cb7210_pci_driver);
+	if (result) {
+		printk("cb7210: pci_driver_register failed!\n");
+		return result;
+	}
 
 	gpib_register_driver(&cb_pci_interface, THIS_MODULE);
 	gpib_register_driver(&cb_isa_interface, THIS_MODULE);
@@ -616,6 +633,8 @@ static void __exit cb7210_exit_module( void )
 	gpib_unregister_driver(&cb_pcmcia_unaccel_interface);
 	cb_pcmcia_cleanup_module();
 #endif
+	
+	pci_unregister_driver(&cb7210_pci_driver);
 }
 
 module_init( cb7210_init_module );

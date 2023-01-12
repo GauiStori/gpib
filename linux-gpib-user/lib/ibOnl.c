@@ -18,11 +18,11 @@
 #include "ib_internal.h"
 #include <stdlib.h>
 
-int board_online( ibBoard_t *board, int online )
+int board_online( ibBoard_t *board, int online, ibConf_t *conf)
 {
 	if( online )
 	{
-		if( ibBoardOpen( board ) < 0 )
+		if( ibBoardOpen( board, conf->error_msg_disable ) < 0 )
 			return -1;
 	}else
 	{
@@ -43,7 +43,7 @@ int conf_online( ibConf_t *conf, int online )
 
 	board = interfaceBoard( conf );
 
-	retval = board_online( board, online );
+	retval = board_online( board, online, conf );
 	if( retval < 0 ) return retval;
 	if( retval < 0 ) return retval;
 	if( online )

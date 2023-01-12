@@ -35,7 +35,7 @@ enum internal_gpib_addr
 
 int my_wait( ibConf_t *conf, int wait_mask, int clear_mask, int set_mask, int *status );
 void init_async_op( struct async_operation *async );
-int ibBoardOpen( ibBoard_t *board );
+int ibBoardOpen( ibBoard_t *board, int error_msg_disable );
 int ibBoardClose( ibBoard_t *board );
 int ibGetNrBoards(void);
 int iblcleos( const ibConf_t *conf );

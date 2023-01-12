@@ -23,8 +23,6 @@
 #include <linux/sched.h>
 #include <linux/module.h>
 #include <linux/slab.h>
-#include <linux/pci.h>
-#include <linux/pci_ids.h>
 #include <linux/string.h>
 #include <linux/init.h>
 

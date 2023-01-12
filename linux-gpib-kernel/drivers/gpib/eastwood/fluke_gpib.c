@@ -910,8 +910,7 @@ static int fluke_config_dma(gpib_board_t *board, int output)
 	config.src_maxburst = 1;
 	config.dst_maxburst = 1;
 	config.device_fc = true;
-	config.slave_id = 0;
-	
+
 	if(output)
 	{
 		config.direction = DMA_MEM_TO_DEV;

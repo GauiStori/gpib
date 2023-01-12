@@ -672,9 +672,25 @@ void ines_isa_detach(gpib_board_t *board)
 	ines_free_private(board);
 }
 
+static int ines_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
+	return 0;
+}
+
+static struct pci_driver ines_pci_driver = {
+	.name = "ines_gpib",
+	.id_table = ines_pci_table,
+	.probe = &ines_pci_probe
+};
+
 static int __init ines_init_module( void )
 {
 	int err = 0;
+
+	err = pci_register_driver(&ines_pci_driver);
+	if (err) {
+		printk("ines_gpib: pci_driver_register failed!\n");
+		return err;
+	}
 
 	gpib_register_driver(&ines_pci_interface, THIS_MODULE);
 	gpib_register_driver(&ines_pci_unaccel_interface, THIS_MODULE);
@@ -704,6 +720,8 @@ static void __exit ines_exit_module( void )
 	gpib_unregister_driver(&ines_pcmcia_accel_interface);
 	ines_pcmcia_cleanup_module();
 #endif
+	
+	pci_unregister_driver(&ines_pci_driver);
 }
 
 module_init( ines_init_module );

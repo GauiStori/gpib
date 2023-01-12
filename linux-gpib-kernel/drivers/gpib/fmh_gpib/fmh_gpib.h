@@ -21,11 +21,18 @@
 
 #include <linux/dmaengine.h>
 #include <linux/ioport.h>
+#include <linux/pci.h>
 #include <asm/io.h>
 #include "nec7210.h"
 
-static const int gpib_cs_reg_offset = 1;
 static const int fifo_reg_offset = 2;
+
+static const int gpib_control_status_pci_resource_index = 0;
+static const int gpib_fifo_pci_resource_index = 1;
+
+/* We don't have a real pci vendor/device id, the following will need to be patched to match prototype hardware. */
+#define BOGUS_PCI_VENDOR_ID_FLUKE 0xffff
+#define BOGUS_PCI_DEVICE_ID_FLUKE_BLADERUNNER 0x0
 
 typedef struct
 {
@@ -39,8 +46,13 @@ typedef struct
 	int dma_buffer_size;
 	int dma_burst_length;
 	void *fifo_base;
+	unsigned supports_fifo_interrupts : 1;
 } fmh_gpib_private_t;
 
+static inline int fmh_gpib_half_fifo_size(fmh_gpib_private_t *priv)
+{
+	return priv->dma_burst_length;
+}
 
 // registers beyond the nec7210 register set
 enum fmh_gpib_regs
@@ -102,20 +114,33 @@ enum dma_fifo_regs
 	FIFO_MAX_BURST_LENGTH_REG = 0x3
 };
 
+enum fifo_data_bits
+{
+	FIFO_DATA_EOI_FLAG = 0x100
+};
+
 enum fifo_control_bits
 {
 	TX_FIFO_DMA_REQUEST_ENABLE = 0x0001,
 	TX_FIFO_CLEAR = 0x0002,
+	TX_FIFO_HALF_EMPTY_INTERRUPT_ENABLE = 0x0008,
 	RX_FIFO_DMA_REQUEST_ENABLE = 0x0100,
-	RX_FIFO_CLEAR = 0x0200
+	RX_FIFO_CLEAR = 0x0200,
+	RX_FIFO_HALF_FULL_INTERRUPT_ENABLE = 0x0800
 };
 
 enum fifo_status_bits
 {
 	TX_FIFO_EMPTY = 0x0001,
 	TX_FIFO_FULL = 0x0002,
+	TX_FIFO_HALF_EMPTY = 0x0004,
+	TX_FIFO_HALF_EMPTY_INTERRUPT_IS_ENABLED = 0x0008,
+	TX_FIFO_DMA_REQUEST_IS_ENABLED = 0x0010,
 	RX_FIFO_EMPTY = 0x0100,
-	RX_FIFO_FULL = 0x0200
+	RX_FIFO_FULL = 0x0200,
+	RX_FIFO_HALF_FULL = 0x0400,
+	RX_FIFO_HALF_FULL_INTERRUPT_IS_ENABLED = 0x0800,
+	RX_FIFO_DMA_REQUEST_IS_ENABLED = 0x1000
 };
 
 static const unsigned fifo_data_mask = 0x00ff;
@@ -136,11 +161,13 @@ static inline void gpib_cs_write_byte(nec7210_private_t *nec_priv,
 
 static inline uint16_t fifos_read(fmh_gpib_private_t *fmh_priv, int register_num)
 {
+	if (fmh_priv->fifo_base == NULL) return 0;
 	return readw(fmh_priv->fifo_base + register_num * fifo_reg_offset);
 }
 
 static inline void fifos_write(fmh_gpib_private_t *fmh_priv, uint16_t data, int register_num)
 {
+	if (fmh_priv->fifo_base == NULL) return;
 	writew(data, fmh_priv->fifo_base + register_num * fifo_reg_offset);
 }
 

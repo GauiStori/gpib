@@ -1,6 +1,9 @@
 #!/usr/bin/env python
-
-from distutils.core import setup,Extension
+import sys
+if sys.version_info < (3,10):
+    from distutils.core import setup,Extension
+else:
+    from setuptools import setup, Extension
 setup(name="gpib",
 	version="1.0",
 	description="Linux GPIB Python Bindings",

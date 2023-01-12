@@ -7,12 +7,12 @@
 NAME="GENERATOR"
 CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
 REL="HOME"
-TITLE="	Linux-GPIB 4.3.4
+TITLE="	Linux-GPIB 4.3.5
  Documentation"
 HREF="t1.html"><LINK
 REL="UP"
 TITLE="	'Traditional' API Functions"
-HREF="reference.html#AEN895"><LINK
+HREF="reference.html#AEN899"><LINK
 REL="PREVIOUS"
 TITLE="ibrsv"
 HREF="reference-function-ibrsv.html"><LINK
@@ -38,7 +38,7 @@ CELLSPACING="0"
 ><TH
 COLSPAN="3"
 ALIGN="center"
->Linux-GPIB 4.3.4
+>Linux-GPIB 4.3.5
  Documentation</TH
 ></TR
 ><TR
@@ -78,7 +78,7 @@ NAME="REFERENCE-FUNCTION-IBRSV2"
 ><DIV
 CLASS="REFNAMEDIV"
 ><A
-NAME="AEN2224"
+NAME="AEN2228"
 ></A
 ><H2
 >Name</H2
@@ -86,7 +86,7 @@ NAME="AEN2224"
 ><DIV
 CLASS="REFSYNOPSISDIV"
 ><A
-NAME="AEN2227"
+NAME="AEN2231"
 ></A
 ><H2
 >Synopsis</H2
@@ -95,7 +95,7 @@ CLASS="FUNCSYNOPSIS"
 ><P
 ></P
 ><A
-NAME="AEN2228"
+NAME="AEN2232"
 ></A
 ><TABLE
 BORDER="0"
@@ -141,7 +141,7 @@ CLASS="PARAMETER"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN2239"
+NAME="AEN2243"
 ></A
 ><H2
 >	Description
@@ -165,13 +165,13 @@ CLASS="PARAMETER"
 ><I
 >status_byte</I
 ></TT
->) and 
+>) and
 	<TT
 CLASS="PARAMETER"
 ><I
 >new_reason_for_request</I
 ></TT
->.  
+>.
 	</P
 ><P
 >	There are three valid
@@ -180,13 +180,13 @@ CLASS="PARAMETER"
 ><I
 >new_reason_for_request</I
 ></TT
->.  
+>.
 	If MSS is 1 and <TT
 CLASS="PARAMETER"
 ><I
 >new_reason_for_request</I
 ></TT
-> is nonzero, then 
+> is nonzero, then
 	the IEEE 488.2 local message "reqt" will be set true.  reqt sets local
 	message "rsv" true which in turn causes
 	the board to request service by asserting the SRQ line.
@@ -195,7 +195,7 @@ CLASS="PARAMETER"
 ><I
 >new_reason_for_request</I
 ></TT
-> is also 0, then 
+> is also 0, then
 	the "reqf" message will be set true, causing rsv to clear and
 	the board to stop requesting service.  Finally, if MSS is 1 and
 	<TT
@@ -205,7 +205,7 @@ CLASS="PARAMETER"
 ></TT
 > is 0, then ibrsv2 will have no effect on
 	the service request state (it will only update the status byte).
-	The fourth possibilty of MSS is 0 (which implies no service request) and 
+	The fourth possibilty of MSS is 0 (which implies no service request) and
 	<TT
 CLASS="PARAMETER"
 ><I
@@ -220,7 +220,7 @@ CLASS="PARAMETER"
 	</P
 ><P
 >	This function follows the preferred implementation technique described in
-	IEEE 488.2 section 11.3.3.4.1.  It can be used to avoid the spurious requests 
+	IEEE 488.2 section 11.3.3.4.1.  It can be used to avoid the spurious requests
 	for service that <A
 HREF="reference-function-ibrsv.html"
 >ibrsv()</A
@@ -259,7 +259,7 @@ CLASS="PROGRAMLISTING"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN2258"
+NAME="AEN2262"
 ></A
 ><H2
 >	Return value
@@ -321,7 +321,7 @@ WIDTH="34%"
 ALIGN="center"
 VALIGN="top"
 ><A
-HREF="reference.html#AEN895"
+HREF="reference.html#AEN899"
 ACCESSKEY="U"
 >Up</A
 ></TD

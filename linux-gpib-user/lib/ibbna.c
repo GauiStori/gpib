@@ -53,7 +53,7 @@ int my_ibbna( ibConf_t *conf, unsigned int new_board_index )
 	old_board_index = conf->settings.board;
 	conf->settings.board = board_conf->settings.board;
 
-	if( ibBoardOpen( interfaceBoard( conf ) ) < 0 )
+	if( ibBoardOpen( interfaceBoard( conf ), conf->error_msg_disable ) < 0 )
 	{
 		setIberr( EDVR );
 		return -1;

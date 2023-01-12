@@ -307,6 +307,10 @@ void cec_pci_detach(gpib_board_t *board)
 	cec_free_private(board);
 }
 
+static int cec_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
+	return 0;
+}
+
 static const struct pci_device_id cec_pci_table[] =
 {
 	{CEC_VENDOR_ID, CEC_DEV_ID, PCI_ANY_ID, CEC_SUBID, 0, 0, 0 },
@@ -314,8 +318,22 @@ static const struct pci_device_id cec_pci_table[] =
 };
 MODULE_DEVICE_TABLE(pci, cec_pci_table);
 
+static struct pci_driver cec_pci_driver = {
+	.name = "cec_gpib",
+	.id_table = cec_pci_table,
+	.probe = &cec_pci_probe
+};
+
 int __init cec_init_module(void)
 {
+	int result;
+	
+	result = pci_register_driver(&cec_pci_driver);
+	if (result) {
+		printk("cec_gpib: pci_driver_register failed!\n");
+		return result;
+	}
+	
 	gpib_register_driver(&cec_pci_interface, THIS_MODULE);
 
 	return 0;
@@ -324,6 +342,8 @@ int __init cec_init_module(void)
 void cec_exit_module(void)
 {
 	gpib_unregister_driver(&cec_pci_interface);
+	
+	pci_unregister_driver(&cec_pci_driver);
 }
 
 module_init( cec_init_module );

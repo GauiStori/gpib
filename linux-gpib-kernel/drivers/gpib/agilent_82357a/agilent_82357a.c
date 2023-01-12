@@ -453,7 +453,8 @@ static int agilent_82357a_abort(agilent_82357a_private_t *a_priv, int flush)
 			retval = 0;
 			break;
 		}
-		//fall-through
+		fallthrough;
+		// fallthrough;
 	case UGP_ERR_FLUSHING_ALREADY:
 	default:
 		printk("%s: abort returned error code=0x%x\n", __FUNCTION__, status_data[1]);
@@ -1027,7 +1028,7 @@ int agilent_82357a_line_status( const gpib_board_t *board )
 	{
 		if (retval != -EAGAIN)
 			printk("%s: agilent_82357a_read_registers() returned error\n", __FUNCTION__);
-		return 0;
+		return retval;
 	}
 	if( bus_status.value & BSR_REN_BIT )
 		status |= BusREN;

@@ -528,6 +528,10 @@ void agilent_82350b_detach(gpib_board_t *board)
 	agilent_82350b_free_private( board );
 }
 
+static int agilent_82350b_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
+	return 0;
+}
+
 static const struct pci_device_id agilent_82350b_pci_table[] =
 {
 	{ PCI_VENDOR_ID_PLX,     PCI_DEVICE_ID_PLX_9050, PCI_VENDOR_ID_HP,  PCI_SUBDEVICE_ID_82350A, 0, 0, 0 },
@@ -537,8 +541,22 @@ static const struct pci_device_id agilent_82350b_pci_table[] =
 };
 MODULE_DEVICE_TABLE(pci, agilent_82350b_pci_table);
 
+static struct pci_driver agilent_82350b_pci_driver = {
+	.name = "agilent_82350b",
+	.id_table = agilent_82350b_pci_table,
+	.probe = &agilent_82350b_pci_probe
+};
+
 static int __init agilent_82350b_init_module( void )
 {
+	int result;
+	
+	result = pci_register_driver(&agilent_82350b_pci_driver);
+	if (result) {
+		printk("agilent_82350b: pci_driver_register failed!\n");
+		return result;
+	}
+
 	gpib_register_driver(&agilent_82350b_unaccel_interface, THIS_MODULE);
 	gpib_register_driver(&agilent_82350b_interface, THIS_MODULE);
 	return 0;
@@ -548,6 +566,8 @@ static void __exit agilent_82350b_exit_module( void )
 {
 	gpib_unregister_driver(&agilent_82350b_interface);
 	gpib_unregister_driver(&agilent_82350b_unaccel_interface);
+
+	pci_unregister_driver(&agilent_82350b_pci_driver);
 }
 
 module_init( agilent_82350b_init_module );

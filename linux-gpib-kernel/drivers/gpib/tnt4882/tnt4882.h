@@ -33,10 +33,12 @@ enum
 {
 	PCI_DEVICE_ID_NI_GPIB = 0xc801,
 	PCI_DEVICE_ID_NI_GPIB_PLUS = 0xc811,
+	PCI_DEVICE_ID_NI_GPIB_PLUS2 = 0x71ad,
 	PCI_DEVICE_ID_NI_PXIGPIB = 0xc821,
 	PCI_DEVICE_ID_NI_PMCGPIB = 0xc831,
 	PCI_DEVICE_ID_NI_PCIEGPIB = 0x70cf,
 	PCI_DEVICE_ID_NI_PCIE2GPIB = 0x710e,
+	PCI_DEVICE_ID_MC_PCI488 = 0x7259,    // Measurement Computing PCI-488 same design as PCI-GPIB with TNT5004
 	PCI_DEVICE_ID_CEC_NI_GPIB = 0x7258
 };
 
@@ -149,6 +151,7 @@ static inline unsigned short tnt_readb( tnt4882_private_t *priv, unsigned long o
 		switch(priv->nec7210_priv.type)
 		{
 		case TNT4882:
+		case TNT5004:
 			retval = priv->io_readb(address);
 			break;
 		case NAT4882:
@@ -186,6 +189,7 @@ static inline void tnt_writeb( tnt4882_private_t *priv, unsigned short value, un
 		switch(priv->nec7210_priv.type)
 		{
 		case TNT4882:
+		case TNT5004:
 			priv->io_writeb( value, address );
 			break;
 		case NAT4882:
