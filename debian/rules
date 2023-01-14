@@ -10,6 +10,8 @@ export CFLAGS=$(shell dpkg-buildflags --get CFLAGS)
 export CXXFLAGS=$(shell dpkg-buildflags --get CXXFLAGS)
 export LDFLAGS=$(shell dpkg-buildflags --get LDFLAGS)
 
+export DEB_HOST_ARCH = $(shell dpkg-architecture -qDEB_HOST_ARCH)
+
 PACKAGES := gpib-modules-source libgpib-dev libgpib0 libgpib-bin libgpib-perl python3-gpib libtcl8.6-gpib libgpib-doc
 
 PACKAGE = gpib-modules
