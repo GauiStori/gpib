@@ -1,6 +1,7 @@
 gpib (4.3.5-1) UNRELEASED; urgency=medium
 
   * New upstream release
+  * Move python files from usr/local to usr. Error in configure script.
 
  -- Gudjon I. Gudjonsson <gudjon@gudjon.org>  Sat, 20 Mar 2021 21:00:00 +0100
 
