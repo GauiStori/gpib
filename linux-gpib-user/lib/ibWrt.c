@@ -42,7 +42,7 @@ int find_eos( const uint8_t *buffer, size_t length, int eos, int eos_flags )
 	return -1;
 }
 
-int send_data(ibConf_t *conf, const void *buffer, size_t count, int send_eoi, size_t *bytes_written)
+int send_data(ibConf_t *conf, unsigned int usec_timeout, const void *buffer, size_t count, int send_eoi, size_t *bytes_written)
 {
 	ibBoard_t *board;
 	read_write_ioctl_t write_cmd;
@@ -50,7 +50,7 @@ int send_data(ibConf_t *conf, const void *buffer, size_t count, int send_eoi, si
 	
 	board = interfaceBoard( conf );
 
-	set_timeout( board, conf->settings.usec_timeout );
+	set_timeout( board, usec_timeout );
 
 	assert(sizeof(buffer) <= sizeof(write_cmd.buffer_ptr));
 	write_cmd.buffer_ptr = (uintptr_t)buffer;
@@ -88,7 +88,8 @@ int send_data(ibConf_t *conf, const void *buffer, size_t count, int send_eoi, si
 	return 0;
 }
 
-int send_data_smart_eoi(ibConf_t *conf, const void *buffer, size_t count,
+int send_data_smart_eoi(ibConf_t *conf,  unsigned int usec_timeout,
+	const void *buffer, size_t count,
 	int force_eoi, size_t *bytes_written)
 {
 	int eoi_on_eos;
@@ -113,14 +114,14 @@ int send_data_smart_eoi(ibConf_t *conf, const void *buffer, size_t count,
 	}
 
 	send_eoi = force_eoi || ( eoi_on_eos && eos_found );
-	if(send_data(conf, buffer, block_size, send_eoi, bytes_written) < 0)
+	if(send_data(conf, usec_timeout, buffer, block_size, send_eoi, bytes_written) < 0)
 	{
 		return -1;
 	}
 	return 0;
 }
 
-int my_ibwrt( ibConf_t *conf,
+int my_ibwrt( ibConf_t *conf, unsigned int usec_timeout,
 	const uint8_t *buffer, size_t count, size_t *bytes_written)
 {
 	ibBoard_t *board;
@@ -130,7 +131,7 @@ int my_ibwrt( ibConf_t *conf,
 	*bytes_written = 0;
 	board = interfaceBoard( conf );
 
-	set_timeout( board, conf->settings.usec_timeout );
+	set_timeout( board, usec_timeout );
 
 	if( conf->is_interface == 0 )
 	{
@@ -143,7 +144,7 @@ int my_ibwrt( ibConf_t *conf,
 
 	while( count )
 	{
-		retval = send_data_smart_eoi( conf, buffer, count, conf->settings.send_eoi, &block_size);
+		retval = send_data_smart_eoi( conf, usec_timeout, buffer, count, conf->settings.send_eoi, &block_size);
 		*bytes_written += block_size;
 		if(retval < 0)
 		{
@@ -167,7 +168,7 @@ int ibwrt( int ud, const void *rd, long cnt )
 
 	conf->end = 0;
 
-	retval = my_ibwrt(conf, rd, cnt, &count);
+	retval = my_ibwrt(conf, conf->settings.usec_timeout, rd, cnt, &count);
 	if(retval < 0)
 	{
 		if(ThreadIberr() != EDVR) setIbcnt(count);
@@ -252,7 +253,7 @@ int my_ibwrtf( ibConf_t *conf, const char *file_path, size_t *bytes_written)
 		while(buffer_offset < fread_count)
 		{
 			send_eoi = conf->settings.send_eoi && (count == fread_count - buffer_offset);
-			retval = send_data_smart_eoi(conf, buffer + buffer_offset,
+			retval = send_data_smart_eoi(conf, conf->settings.usec_timeout, buffer + buffer_offset,
 				fread_count - buffer_offset, send_eoi, &block_size);
 			count -= block_size;
 			buffer_offset += block_size;
@@ -314,7 +315,7 @@ int InternalSendDataBytes( ibConf_t *conf, const void *buffer,
 			break;
 	}
 
-	retval = send_data( conf, buffer, count, eotmode == DABend, &num_bytes);
+	retval = send_data( conf, conf->settings.usec_timeout, buffer, count, eotmode == DABend, &num_bytes);
 	bytes_written += num_bytes;
 	if( retval < 0 )
 	{
@@ -323,7 +324,7 @@ int InternalSendDataBytes( ibConf_t *conf, const void *buffer,
 	}
 	if( eotmode == NLend )
 	{
-		retval = send_data( conf, "\n", 1, 1, &num_bytes);
+		retval = send_data( conf, conf->settings.usec_timeout, "\n", 1, 1, &num_bytes);
 		bytes_written += num_bytes;
 		if( retval < 0 )
 		{

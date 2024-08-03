@@ -62,10 +62,14 @@ int agilent_82350b_accel_write( gpib_board_t *board, uint8_t *buffer, size_t len
 	clear_bit(DEV_CLEAR_BN, &tms_priv->state);
 	smp_mb__after_atomic();
 
-	read_and_clear_event_status(board);
 	writeb(0, a_priv->gpib_base + SRAM_ACCESS_CONTROL_REG);
 
- // wait for previous BO to complete if any
+	event_status = read_and_clear_event_status(board);
+
+	//printk("ag_ac_wr: event status 0x%x tms state 0x%lx\n", event_status, tms_priv->state);
+
+#if 0
+ 	printk("ag_ac_wr: wait for previous BO to complete if any\n");
 	retval = wait_event_interruptible(board->wait,
 					  test_bit(DEV_CLEAR_BN, &tms_priv->state) ||
 					  test_bit(WRITE_READY_BN, &tms_priv->state) ||
@@ -73,8 +77,17 @@ int agilent_82350b_accel_write( gpib_board_t *board, uint8_t *buffer, size_t len
 	retval = translate_wait_return_value(board, retval);
 
 	if(retval) return retval;
+#endif
 
-	for(i = 0; i < fifoTransferLength;)
+	//printk("ag_ac_wr: sending first byte \n");
+	retval = agilent_82350b_write(board, buffer, 1, 0, &num_bytes);
+	*bytes_written += num_bytes;
+	if(retval < 0) return retval;
+
+	//printk("ag_ac_wr: %ld bytes eoi %d tms state 0x%lx\n",length, send_eoi, tms_priv->state);
+
+	write_byte(tms_priv, tms_priv->imr0_bits & ~HR_BOIE, IMR0);
+	for(i = 1; i < fifoTransferLength;)
 	{
 		smp_mb__before_atomic();
 		clear_bit(WRITE_READY_BN, &tms_priv->state);
@@ -91,23 +104,34 @@ int agilent_82350b_accel_write( gpib_board_t *board, uint8_t *buffer, size_t len
 			writeb(buffer[i], a_priv->sram_base + j);
 		}
 		writeb(ENABLE_TI_TO_SRAM, a_priv->gpib_base + SRAM_ACCESS_CONTROL_REG);
-		if(agilent_82350b_fifo_is_halted(a_priv))
+
+		//printk("ag_ac_wr: send block: %d bytes tms 0x%lx\n", block_size, tms_priv->state);
+
+		if(agilent_82350b_fifo_is_halted(a_priv)) {
 			writeb(RESTART_STREAM_BIT, a_priv->gpib_base + STREAM_STATUS_REG);
+			//	printk("ag_ac_wr: needed restart\n");
+		}
+
 		retval = wait_event_interruptible(board->wait,
 			((event_status = read_and_clear_event_status(board)) & TERM_COUNT_STATUS_BIT) ||
 			test_bit(DEV_CLEAR_BN, &tms_priv->state) ||
 			test_bit(TIMO_NUM, &board->status));
 		writeb(0, a_priv->gpib_base + SRAM_ACCESS_CONTROL_REG);
 		num_bytes = block_size - read_transfer_counter(a_priv);
+		//printk("ag_ac_wr: sent  %ld bytes tms 0x%lx \n", num_bytes, tms_priv->state);
+
 		*bytes_written += num_bytes;
 		retval = translate_wait_return_value(board, retval);
 		if(retval) break;
 	}
+	write_byte(tms_priv, tms_priv->imr0_bits, IMR0);
 	if(retval) return retval;
 
 	if(send_eoi)
 	{
-		retval = agilent_82350b_write(board, buffer + fifoTransferLength, 1, 1, &num_bytes);
+		//printk("ag_ac_wr: sending last byte with eoi byte no:   %d \n", fifoTransferLength+1);
+
+		retval = agilent_82350b_write(board, buffer + fifoTransferLength, 1, send_eoi, &num_bytes);
 		*bytes_written += num_bytes;
 		if(retval < 0) return retval;
 	}

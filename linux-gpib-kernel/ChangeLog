@@ -1,3 +1,213 @@
+2023-07-19 13:31  dpenkler
+
+	* [r2057] ChangeLog, README.txt: Update README.txt and ChangeLog
+	  for 4.3.6
+
+2023-07-19 13:29  dpenkler
+
+	* [r2056] linux-gpib-user/doc/linux-gpib.sgml: Add note in docs on
+	  NI GPIB-USB-HS clones
+
+
+2023-07-19 12:11  dpenkler
+
+	* [r2055] linux-gpib-kernel/drivers/gpib/include/version.h,
+	  linux-gpib-user/configure.ac: Bump versions
+
+2023-07-13 11:25  dpenkler
+
+	* [r2054] linux-gpib-kernel/drivers/gpib/ines/ines_cs.c: Fix bug
+	  #83 pcmcia drver struct name initialisation
+
+2023-06-06 13:55  dpenkler
+
+	* [r2053] linux-gpib-kernel/compat/include/linux/device.h,
+	  linux-gpib-kernel/drivers/gpib/sys/osinit.c: Add class_create
+	  compat call for linux 6.4
+
+2023-06-06 13:27  dpenkler
+
+	* [r2052] linux-gpib-kernel/drivers/gpib/gpio/gpib_bitbang.c:
+	  Remove unreferenced #defines
+
+2023-06-06 06:38  dpenkler
+
+	* [r2051] linux-gpib-kernel/drivers/gpib/gpio/gpib_bitbang.c:
+	  Corrections for lost interrutps from Marcello Carla'
+
+	  - Use LEVEL interrupts for first NRFD and DAV interrupts
+	  switching to EDGE thereafter
+
+	  - Remove DAV level check in bb_read
+
+	  - Reinstate SET_DIR_READ in set_atn
+
+	  - Remove SET_READ_HOLDOFF
+
+	  - Remove remaining UDELAY calls
+
+2023-04-19 08:46  dpenkler
+
+	* [r2050] linux-gpib-kernel/drivers/gpib/ni_usb/ni_usb_gpib.c:
+	  Avoid async IO race conditions in ni_usb_gpib
+	  Fix for bug report #82
+	  Add addressed_transfer mutex protection around
+	  bulk send and receive pairs for command_chunk,
+	  take_control and goto standby.
+
+2023-04-07 10:08  dpenkler
+
+	* [r2049] linux-gpib-kernel/drivers/gpib/gpio/gpib_bitbang.c:
+	  Workaround for lost interrutps
+	  - Use irq_set_irq_type instead of enable/disable_irq.
+
+	  - Add delay before spin_lock in bb_write when ATN is asserted.
+
+	  - Terminate write on NRFD interrupt for command writes
+	  to reduce spurious interrupt when idle conditions.
+
+	  - Remove assertion of ATN in command write as it is done
+	  by the library via take control.
+
+	  - Terminate on NDAC for non command writes.
+
+	  - Use SET_READ_HOLDOFF instead of SET_DIR_READ in ATN
+	  transition to LACS to avoid DAV and EOI glitches with
+	  ATN asserted.
+
+	  - Remove UDELAY in SET_DIR_READ/WRITE and reorder line
+	  transitions to reduce glitches.
+
+	  - Gather irq statistics and print them on module unload.
+
+2022-12-07 10:20  dpenkler
+
+	* [r2048] linux-gpib-user/doc/linux-gpib.sgml: Update docs for
+	  gpio_bitbang: pin_map and sn7516x_used
+
+2022-12-07 10:19  dpenkler
+
+	* [r2047] linux-gpib-kernel/drivers/gpib/gpio/gpib_bitbang.c: From
+	  Marcello Carla' Module parameters: pin_map and sn7516x_used
+
+2022-11-09 13:03  dpenkler
+
+	* [r2046] linux-gpib-kernel/drivers/gpib/gpio/gpib_bitbang.c:
+	  Cleanup naming and error handling
+
+2022-11-09 11:24  dpenkler
+
+	* [r2045] linux-gpib-user/doc/linux-gpib.sgml: Update docs for
+	  gpib_bitbang board_id module parameter
+
+2022-11-09 10:41  dpenkler
+
+	* [r2044] linux-gpib-kernel/drivers/gpib/gpio/gpib_bitbang.c: Apply
+	  patch from Marcello Carla' to unify board type mechanism
+
+2022-11-08 08:15  dpenkler
+
+	* [r2043] linux-gpib-kernel/drivers/gpib/gpio/gpib_bitbang.c: Add
+	  patch for lsi-gpib4pi-1.1 shield from Vladimir Vassilev
+
+2022-10-14 16:14  dpenkler
+
+	* [r2042] linux-gpib-kernel/drivers/gpib/gpio/gpib_bitbang.c: Go
+	  back to using spin_lock_irqsave/irqrestore
+	  - Move enable/disable_irq out of spinlock section
+	  - Associate meaningful names with irq's for /proc/interrupts
+
+2022-09-29 11:54  dpenkler
+
+	* [r2041] linux-gpib-kernel/drivers/gpib/ni_usb/ni_usb_gpib.c:
+	  Revert commit r2038
+
+2022-09-29 11:29  dpenkler
+
+	* [r2040] linux-gpib-kernel/drivers/gpib/gpio/gpib_bitbang.c:
+	  Updates from Marcello Carla'
+	  - Fix resource management for attach fail cases
+	  - Use lighter spin_(un)lock_irq() in place of
+	  spin_lock_irq(restore)save() in bb_read/bb_write()
+	  - Debug output clean-up
+
+2022-09-07 15:35  dpenkler
+
+	* [r2039] linux-gpib-kernel/drivers/gpib/ni_usb/ni_usb_gpib.c: Add
+	  message for addressing error
+
+2022-08-28 08:10  dpenkler
+
+	* [r2038] linux-gpib-kernel/drivers/gpib/ni_usb/ni_usb_gpib.c: Add
+	  ready-response option for suspected NI-USB-HS clone
+
+2022-08-26 14:24  dpenkler
+
+	* [r2037] linux-gpib-user/lib/async.c, linux-gpib-user/lib/ibRd.c,
+	  linux-gpib-user/lib/ibWrt.c, linux-gpib-user/lib/ib_internal.h:
+	  Fix for bug #81
+
+	  -- ibrda and ibwrta routines do not use the timeout value valid
+	  when
+	  the call is made
+	  Fix: Copy the timeout value to the async gpio aio arg and use
+	  it in the spawned thread.
+	  Thanks to Michael Katzmann for pointing out the bug and providing
+	  a test programme.
+
+2022-08-26 12:33  dpenkler
+
+	* [r2036]
+	  linux-gpib-kernel/drivers/gpib/agilent_82350b/agilent_82350b_read.c:
+	  Remove debug printk
+
+2022-08-26 12:28  dpenkler
+
+	* [r2035]
+	  linux-gpib-kernel/drivers/gpib/agilent_82350b/agilent_82350b.h,
+	  linux-gpib-kernel/drivers/gpib/agilent_82350b/agilent_82350b_init.c,
+	  linux-gpib-kernel/drivers/gpib/agilent_82350b/agilent_82350b_interrupt.c,
+	  linux-gpib-kernel/drivers/gpib/agilent_82350b/agilent_82350b_read.c,
+	  linux-gpib-kernel/drivers/gpib/agilent_82350b/agilent_82350b_write.c:
+	  Fixed the agilent_82350b accel write block
+
+	  -- When reading the Bus Status Register whether directly from the
+	  TMS9914 (BSR) or via the 82350 register set (offset 0x13) before
+	  doing the fifo write the write blocks and nothing is sent. When
+	  using ibwrt there is no line_status call between sending the
+	  command bytes and the data bytes -> so it always works. A
+	  subsequent unaddressed write after ibwrt() fails because of the
+	  line_status call from the general_library_exit ibstatus() call.
+	  However if you systematically write the first byte of each buffer
+	  using PIO mode and the rest using the fifos it works just fine.
+	  BO and BI interrupts are now disabled in write and read
+	  respectively.
+	  Set the fifo size for both read and write to 0x8000
+
+2022-08-26 11:18  dpenkler
+
+	* [r2034] linux-gpib-user/examples/master_read_to_file.c: Fix 0
+	  ThreadIbcntl() - move UNT+UNL ibcmd after fwrite
+
+2022-08-26 11:13  dpenkler
+
+	* [r2033] linux-gpib-kernel/drivers/gpib/tnt4882/tnt4882_write.c:
+	  Avoid unecessary HR_NFF interrupts
+
+2022-08-24 16:02  dpenkler
+
+	* [r2032] linux-gpib-user/examples/master_read_to_file.c: send
+	  UNT+UNL to clear TACS in slave
+
+2022-08-24 15:38  dpenkler
+
+	* [r2031] linux-gpib-kernel/drivers/gpib/gpio/gpib_bitbang.c: Add
+	  board LACS/TACS state management for ibrd holdoff
+
+2022-07-19 06:50  dpenkler
+
+	* [r2029] ChangeLog: Update Changelog
+
 2022-07-18 13:55  dpenkler
 
 	* [r2028] ChangeLog, README.txt: Update ChangeLog and README for

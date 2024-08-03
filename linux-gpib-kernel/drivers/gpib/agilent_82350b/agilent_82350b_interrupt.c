@@ -33,7 +33,7 @@ unsigned short read_and_clear_event_status(gpib_board_t *board)
 
 irqreturn_t agilent_82350b_interrupt(int irq, void *arg PT_REGS_ARG)
 {
-	int tms9914_status1, tms9914_status2;
+	int tms9914_status1=0, tms9914_status2=0;
 	int event_status;
 	gpib_board_t *board = arg;
 	agilent_82350b_private_t *a_priv = board->private_data;
@@ -42,7 +42,6 @@ irqreturn_t agilent_82350b_interrupt(int irq, void *arg PT_REGS_ARG)
 	
 	spin_lock_irqsave( &board->spinlock, flags );
 	event_status = readb(a_priv->gpib_base + EVENT_STATUS_REG);
-// 	printk("event_status=0x%x\n", event_status);
 	if(event_status & IRQ_STATUS_BIT)
 	{
 		retval = IRQ_HANDLED;
@@ -53,6 +52,7 @@ irqreturn_t agilent_82350b_interrupt(int irq, void *arg PT_REGS_ARG)
 		tms9914_status2 = read_byte( &a_priv->tms9914_priv, ISR1);
 		tms9914_interrupt_have_status(board, &a_priv->tms9914_priv, tms9914_status1, tms9914_status2);
 	}
+ 	//printk("event_status=0x%x s1 %x s2 %x\n", event_status,tms9914_status1,tms9914_status2);
 	//write-clear status bits
 	if(event_status & (BUFFER_END_STATUS_BIT | TERM_COUNT_STATUS_BIT))
 	{

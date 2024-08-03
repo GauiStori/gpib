@@ -47,6 +47,13 @@
  * for kernel versions prior to 2.6.26, so the 'drvdata' parameter of
  * CLASS_DEVICE_CREATE() is pretty useless.
  */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6,4,0)
+#define CLASS_CREATE(owner, name) \
+	class_create(owner, name)
+#else
+#define CLASS_CREATE(owner, name) \
+	class_create(name)
+#endif
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
 #include <pcmcia/cs_types.h>

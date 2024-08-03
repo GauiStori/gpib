@@ -27,11 +27,12 @@ int agilent_82350b_accel_read( gpib_board_t *board, uint8_t *buffer, size_t leng
 	unsigned short event_status;
 	int i, num_fifo_bytes;
 	//hardware doesn't support checking for end-of-string character when using fifo
-	if(tms_priv->eos_flags & REOS) 
+	if(tms_priv->eos_flags & REOS)
 	{
+		//printk("ag-rd: using tms9914 read for REOS %x EOS %x\n",tms_priv->eos_flags, tms_priv->eos);
 		return tms9914_read( board, tms_priv, buffer, length, end, bytes_read);
 	}
-	
+
 	smp_mb__before_atomic();
 	clear_bit( DEV_CLEAR_BN, &tms_priv->state );
 	smp_mb__after_atomic();
@@ -61,6 +62,7 @@ int agilent_82350b_accel_read( gpib_board_t *board, uint8_t *buffer, size_t leng
 	tms9914_release_holdoff(tms_priv);
 	i = 0;
 	num_fifo_bytes = length - 1;
+	write_byte(tms_priv, tms_priv->imr0_bits & ~HR_BIIE, IMR0); // disable BI interrupts
 	while(i < num_fifo_bytes && *end == 0)
 	{
 		int block_size;
@@ -78,7 +80,7 @@ int agilent_82350b_accel_read( gpib_board_t *board, uint8_t *buffer, size_t leng
 		smp_mb__before_atomic();
 		clear_bit(READ_READY_BN, &tms_priv->state);
 		smp_mb__after_atomic();
-		
+
 		if(wait_event_interruptible(board->wait, 
 			((event_status = read_and_clear_event_status(board)) & (TERM_COUNT_STATUS_BIT | BUFFER_END_STATUS_BIT)) ||
 			test_bit(DEV_CLEAR_BN, &tms_priv->state) ||
@@ -90,7 +92,7 @@ int agilent_82350b_accel_read( gpib_board_t *board, uint8_t *buffer, size_t leng
 		}
 		count = block_size - read_transfer_counter(a_priv);
 		for(j = 0; j < count && i < num_fifo_bytes; ++j)
-			buffer[i++] = readb(a_priv->sram_base + j); 
+			buffer[i++] = readb(a_priv->sram_base + j);
 		if(event_status & BUFFER_END_STATUS_BIT)
 		{
 			smp_mb__before_atomic();
@@ -113,6 +115,7 @@ int agilent_82350b_accel_read( gpib_board_t *board, uint8_t *buffer, size_t leng
 			break;
 		}
 	}
+	write_byte(tms_priv, tms_priv->imr0_bits, IMR0); // re-enable BI interrupts
 	*bytes_read += i;
 	buffer += i;
 	length -= i;

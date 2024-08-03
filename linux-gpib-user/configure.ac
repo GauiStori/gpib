@@ -1,7 +1,7 @@
 
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT([linux-gpib-user],[4.3.5])
+AC_INIT([linux-gpib-user],[4.3.6])
 # libtool version: current:revision:age
 #
 # If the library source code has changed at all since the last update, then

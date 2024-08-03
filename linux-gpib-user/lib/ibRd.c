@@ -63,7 +63,7 @@ int InternalReceiveSetup( ibConf_t *conf, Addr4882_t address )
 	return 0;
 }
 
-ssize_t read_data(ibConf_t *conf, uint8_t *buffer, size_t count, size_t *bytes_read)
+ssize_t read_data(ibConf_t *conf, unsigned int usec_timeout, uint8_t *buffer, size_t count, size_t *bytes_read)
 {
 	ibBoard_t *board;
 	read_write_ioctl_t read_cmd;
@@ -78,7 +78,7 @@ ssize_t read_data(ibConf_t *conf, uint8_t *buffer, size_t count, size_t *bytes_r
 	read_cmd.handle = conf->handle;
 	read_cmd.end = 0;
 
-	set_timeout( board, conf->settings.usec_timeout );
+	set_timeout( board, usec_timeout );
 	conf->end = 0;
 
 	retval = ioctl( board->fileno, IBRD, &read_cmd );
@@ -107,7 +107,7 @@ ssize_t read_data(ibConf_t *conf, uint8_t *buffer, size_t count, size_t *bytes_r
 	return retval;
 }
 
-ssize_t my_ibrd( ibConf_t *conf, uint8_t *buffer, size_t count, size_t *bytes_read)
+ssize_t my_ibrd( ibConf_t *conf, unsigned int usec_timeout, uint8_t *buffer, size_t count, size_t *bytes_read)
 {
 	*bytes_read = 0;
 	// set eos mode
@@ -122,7 +122,7 @@ ssize_t my_ibrd( ibConf_t *conf, uint8_t *buffer, size_t count, size_t *bytes_re
 		}
 	}
 
-	return read_data(conf, buffer, count, bytes_read);
+	return read_data(conf, usec_timeout, buffer, count, bytes_read);
 }
 
 int ibrd(int ud, void *rd, long cnt)
@@ -135,7 +135,7 @@ int ibrd(int ud, void *rd, long cnt)
 	if( conf == NULL )
 		return exit_library( ud, 1 );
 
-	retval = my_ibrd(conf, rd, cnt, &bytes_read);
+	retval = my_ibrd(conf, conf->settings.usec_timeout, rd, cnt, &bytes_read);
 	if(retval < 0)
 	{
 		if(ThreadIberr() != EDVR)
@@ -205,7 +205,7 @@ int ibrdf(int ud, const char *file_path )
 		int fwrite_count;
 		size_t bytes_read;
 
-		retval = read_data(conf, buffer, sizeof(buffer), &bytes_read);
+		retval = read_data(conf, conf->settings.usec_timeout,  buffer, sizeof(buffer), &bytes_read);
 		fwrite_count = fwrite( buffer, 1, bytes_read, save_file );
 		if( fwrite_count != bytes_read )
 		{
@@ -271,7 +271,7 @@ int InternalRcvRespMsg( ibConf_t *conf, void *buffer, long count, int terminatio
 		return retval;
 	}
 
-	retval = read_data(conf, buffer, count, &bytes_read);
+	retval = read_data(conf, conf->settings.usec_timeout, buffer, count, &bytes_read);
 	setIbcnt(bytes_read);
 	if(retval < 0)
 	{

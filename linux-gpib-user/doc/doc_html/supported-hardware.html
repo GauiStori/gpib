@@ -7,7 +7,7 @@
 NAME="GENERATOR"
 CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
 REL="HOME"
-TITLE="	Linux-GPIB 4.3.5
+TITLE="	Linux-GPIB 4.3.6
  Documentation"
 HREF="t1.html"><LINK
 REL="PREVIOUS"
@@ -35,7 +35,7 @@ CELLSPACING="0"
 ><TH
 COLSPAN="3"
 ALIGN="center"
->Linux-GPIB 4.3.5
+>Linux-GPIB 4.3.6
  Documentation</TH
 ></TR
 ><TR
@@ -999,15 +999,27 @@ CLASS="PROGRAMLISTING"
 ></TR
 ></TABLE
 ><P
->  For schematics, boards and information on driver IC's
+>  Two pin maps between gpio and gpib are currently supported: elektronomikon and gpib4pi-1.1.
+  For schematics, boards and information on driver IC's
   see <A
 HREF="http://elektronomikon.org"
 TARGET="_top"
 >http://elektronomikon.org</A
->.
-Note, by default support for the SN75160/161 driver IC's is
-  enabled (sn7516x_used=1). To disable support for the IC's
-  when they are not installed sn7516x_used must be set to 0:
+>
+  and <A
+HREF="https://www.hackster.io/lightside-instruments/the-gpib4pi-gpib-for-raspberry-pi-hat-4b3e9a"
+TARGET="_top"
+>lightside-instruments
+    gpib4pi</A
+></P
+><P
+>  The pin_maps are configured via the pin_map module parameter.
+  By default support for the elekronomikon pin_map with SN75160/161 driver IC's is
+  enabled. i.e. the default module parameter settings are
+  pin_map=elektonomikon and sn7516x_used=1. 
+  To disable support for the IC's
+  when they are not installed the module parameter sn7516x_used must
+  be set to zero:
 <TABLE
 BORDER="0"
 BGCOLOR="#E0E0E0"
@@ -1017,6 +1029,20 @@ WIDTH="100%"
 ><PRE
 CLASS="PROGRAMLISTING"
 >  modprobe gpib_bitbang sn7516x_used=0</PRE
+></TD
+></TR
+></TABLE
+>
+To set the pin_map for the Lightside instruments gpib4pi-1.1 board
+<TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>  modprobe gpib_bitbang pin_map="gpib4pi-1.1"</PRE
 ></TD
 ></TR
 ></TABLE
@@ -1071,6 +1097,16 @@ to initialize the adapter under Linux.</P
 ><P
 >The linux-gpib tarball contains udev rules which will
 automatically run gpib_config after the device is plugged in.</P
+><P
+>Beware of inexpensive NI GPIB-USB-HS clones. While they work on
+Windows most will not and cannot be made to work with linux-gpib. See
+the end of the discussion
+on <A
+HREF="https://sourceforge.net/p/linux-gpib/bugs/82/"
+TARGET="_top"
+> bug
+ticket #82</A
+>.</P
 ></DIV
 ></DIV
 ></DIV

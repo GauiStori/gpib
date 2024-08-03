@@ -812,6 +812,7 @@ static int ni_usb_write(gpib_board_t *board, uint8_t *buffer, size_t length, int
 			and returned -ERESTARTSYS */
 		break;
 	case NIUSB_ADDRESSING_ERROR:
+		printk("%s: %s: Addressing error retval %d error code=%i\n", __FILE__, __FUNCTION__, retval, status.error_code);
 		retval = -ENXIO;
 		break;
 	case NIUSB_NO_LISTENER_ERROR:
@@ -860,12 +861,16 @@ int ni_usb_command_chunk(gpib_board_t *board, uint8_t *buffer, size_t length, si
 	while(i % 4)	// pad with zeros to 4-byte boundary
 		out_data[i++] = 0x0;
 	i += ni_usb_bulk_termination(&out_data[i]);
+
+	mutex_lock(&ni_priv->addressed_transfer_lock);
+
 	retval = ni_usb_send_bulk_msg(ni_priv, out_data, i, &bytes_written,
 		ni_usb_timeout_msecs(board->usec_timeout));
 	kfree(out_data);
 	if(retval || bytes_written != i)
 	{
 		int k;
+		mutex_unlock(&ni_priv->addressed_transfer_lock);
 		printk("%s: %s: ni_usb_send_bulk_msg returned %i, bytes_written=%i, i=%i\n", __FILE__, __FUNCTION__, retval, bytes_written, i);
 		printk("\t was attempting to write command bytes:\n");
 		for(k = 0; k < length; ++k)
@@ -877,9 +882,16 @@ int ni_usb_command_chunk(gpib_board_t *board, uint8_t *buffer, size_t length, si
 	}
 
 	in_data = kmalloc(in_data_length, GFP_KERNEL);
-	if(in_data == NULL) return -ENOMEM;
+	if(in_data == NULL) {
+		mutex_unlock(&ni_priv->addressed_transfer_lock);
+		return -ENOMEM;
+	}
+
 	retval = ni_usb_receive_bulk_msg(ni_priv, in_data, in_data_length, &bytes_read,
 		ni_usb_timeout_msecs(board->usec_timeout), 1);
+
+	mutex_unlock(&ni_priv->addressed_transfer_lock);
+
 	if((retval && retval != -ERESTARTSYS) || bytes_read != 12)
 	{
 		printk("%s: %s: ni_usb_receive_bulk_msg returned %i, bytes_read=%i\n", __FILE__, __FUNCTION__, retval, bytes_read);
@@ -953,10 +965,14 @@ int ni_usb_take_control(gpib_board_t *board, int synchronous)
 	out_data[i++] = 0x0;
 	out_data[i++] = 0x0;
 	i += ni_usb_bulk_termination(&out_data[i]);
+
+	mutex_lock(&ni_priv->addressed_transfer_lock);
+
 	retval = ni_usb_send_bulk_msg(ni_priv, out_data, i, &bytes_written, 1000);
 	kfree(out_data);
 	if(retval || bytes_written != i)
 	{
+		mutex_unlock(&ni_priv->addressed_transfer_lock);
 		printk("%s: %s: ni_usb_send_bulk_msg returned %i, bytes_written=%i, i=%i\n", __FILE__, __FUNCTION__, retval, bytes_written, i);
 		return retval;
 	}
@@ -964,10 +980,14 @@ int ni_usb_take_control(gpib_board_t *board, int synchronous)
 	in_data = kmalloc(in_data_length, GFP_KERNEL);
 	if(in_data == NULL)
 	{
+		mutex_unlock(&ni_priv->addressed_transfer_lock);
 		printk("%s: kmalloc failed\n", __FILE__);
 		return -ENOMEM;
 	}
 	retval = ni_usb_receive_bulk_msg(ni_priv, in_data, in_data_length, &bytes_read, 1000, 1);
+
+	mutex_unlock(&ni_priv->addressed_transfer_lock);
+
 	if((retval && retval != -ERESTARTSYS) || bytes_read != 12)
 	{
 		if(retval == 0) retval = -EIO;
@@ -1003,10 +1023,14 @@ int ni_usb_go_to_standby(gpib_board_t *board)
 	out_data[i++] = 0x0;
 	out_data[i++] = 0x0;
 	i += ni_usb_bulk_termination(&out_data[i]);
+
+	mutex_lock(&ni_priv->addressed_transfer_lock);
+
 	retval = ni_usb_send_bulk_msg(ni_priv, out_data, i, &bytes_written, 1000);
 	kfree(out_data);
 	if(retval || bytes_written != i)
 	{
+		mutex_unlock(&ni_priv->addressed_transfer_lock);
 		printk("%s: %s: ni_usb_send_bulk_msg returned %i, bytes_written=%i, i=%i\n", __FILE__, __FUNCTION__, retval, bytes_written, i);
 		return retval;
 	}
@@ -1014,10 +1038,14 @@ int ni_usb_go_to_standby(gpib_board_t *board)
 	in_data = kmalloc(in_data_length, GFP_KERNEL);
 	if(in_data == NULL)
 	{
+		mutex_unlock(&ni_priv->addressed_transfer_lock);
 		printk("%s: kmalloc failed\n", __FILE__);
 		return -ENOMEM;
 	}
 	retval = ni_usb_receive_bulk_msg(ni_priv, in_data, in_data_length, &bytes_read, 1000, 0);
+
+	mutex_unlock(&ni_priv->addressed_transfer_lock);
+
 	if(retval || bytes_read != 12)
 	{
 		printk("%s: %s: ni_usb_receive_bulk_msg returned %i, bytes_read=%i\n", __FILE__, __FUNCTION__, retval, bytes_read);
@@ -2053,7 +2081,7 @@ static int ni_usb_hs_wait_for_ready(ni_usb_private_t *ni_priv)
 		++j;
 		if(buffer[j] != 0x0 && buffer[j] != 0x2) // MC usb-488 sends 0x2 here
 		{
-			printk("%s: %s: unexpected data: buffer[%i]=0x%x, expected 0x0 ox 0x2\n",
+			printk("%s: %s: unexpected data: buffer[%i]=0x%x, expected 0x0 or 0x2\n",
 				__FILE__, __FUNCTION__, j, (int)buffer[j]);
 			unexpected = 1;
 		}

@@ -346,6 +346,7 @@ int test_sram(gpib_board_t *board)
 		}
 		if(need_resched()) schedule();
 	}
+	printk("%s: SRAM test passed 0x%x bytes checked\n", driver_name, sram_length);
 	return 0;
 }
 
@@ -422,6 +423,7 @@ int agilent_82350b_generic_attach(gpib_board_t *board, const gpib_board_config_t
 		a_priv->borg_base = ioremap(pci_resource_start(a_priv->pci_device, BORG_82350A_REGION),
 			pci_resource_len(a_priv->pci_device, BORG_82350A_REGION));
 		printk("%s: borg base address remapped to 0x%p\n", driver_name, a_priv->borg_base );
+
 		retval = init_82350a_hardware(board, config);
 		if(retval < 0) return retval;
 		break;

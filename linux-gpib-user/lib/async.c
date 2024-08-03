@@ -28,6 +28,7 @@ struct gpib_aio_arg
 	ibConf_t *conf;
 	int gpib_aio_type;
 	int condition_flag;
+	unsigned int usec_timeout;
 };
 
 void init_async_op( struct async_operation *async )
@@ -71,7 +72,8 @@ int gpib_aio_launch( int ud, ibConf_t *conf, int gpib_aio_type,
 	arg->conf = conf;
 	arg->gpib_aio_type = gpib_aio_type;
 	arg->condition_flag = 0;
-	
+	arg->usec_timeout = conf->settings.usec_timeout; // Copy timeout
+
 	pthread_mutex_lock( &conf->async.lock );
 	if( conf->async.in_progress )
 	{
@@ -115,11 +117,13 @@ static void* do_aio( void *varg )
 	struct gpib_aio_arg arg;
 	ibConf_t *conf;
 	ibBoard_t *board;
+	unsigned int usec_timeout;
 	int retval;
 
 	arg = *arg_p;
 
 	conf = arg.conf;
+	usec_timeout = arg.usec_timeout;
 	board = interfaceBoard(conf);
 	retval = lock_board_mutex(board);
 	if(retval == 0)
@@ -145,10 +149,10 @@ static void* do_aio( void *varg )
 		count = retval = my_ibcmd( conf, conf->async.buffer, conf->async.buffer_length );
 		break;
 	case GPIB_AIO_READ:
-		retval = my_ibrd( conf, conf->async.buffer, conf->async.buffer_length, &count);
+		retval = my_ibrd( conf, usec_timeout, conf->async.buffer, conf->async.buffer_length, &count);
 		break;
 	case GPIB_AIO_WRITE:
-		retval = my_ibwrt(conf, conf->async.buffer, conf->async.buffer_length, &count);
+		retval = my_ibwrt(conf, usec_timeout, conf->async.buffer, conf->async.buffer_length, &count);
 		break;
 	default:
 		retval = -1;

@@ -207,7 +207,7 @@ static int __init gpib_common_init_module( void )
 		printk( "gpib: can't get major %d\n", GPIB_CODE );
 		return -EIO;
 	}
-	gpib_class = class_create(THIS_MODULE, "gpib_common");
+	gpib_class = CLASS_CREATE(THIS_MODULE, "gpib_common");
 	if(IS_ERR(gpib_class))
 	{
 		printk("gpib: failed to create gpib class\n");

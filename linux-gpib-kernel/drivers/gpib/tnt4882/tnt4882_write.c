@@ -154,8 +154,9 @@ static int generic_write( gpib_board_t *board, uint8_t *buffer, size_t length,
 				word |= ( buffer[ count++ ] << 8 ) & 0xff00;
 			tnt_priv->io_writew( word, nec_priv->iobase + FIFOB );
 		}
-		tnt_priv->imr3_bits |= HR_NFF;
-		tnt_writeb( tnt_priv, tnt_priv->imr3_bits, IMR3 );
+//  avoid unecessary HR_NFF interrupts
+//		tnt_priv->imr3_bits |= HR_NFF;
+//		tnt_writeb( tnt_priv, tnt_priv->imr3_bits, IMR3 );
 		spin_unlock_irqrestore( &board->spinlock, flags );
 
 		if(need_resched())

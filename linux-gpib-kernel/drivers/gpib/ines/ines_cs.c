@@ -291,7 +291,7 @@ MODULE_DEVICE_TABLE(pcmcia, ines_pcmcia_ids);
 static struct pcmcia_driver ines_gpib_cs_driver =
 {
 	.owner		= THIS_MODULE,
-	.drv = { .name = "ines_gpib_cs", },
+	.name           = "ines_gpib_cs",
 	.id_table	= ines_pcmcia_ids,
 	.probe		= ines_gpib_probe,
 	.remove		= ines_gpib_remove,

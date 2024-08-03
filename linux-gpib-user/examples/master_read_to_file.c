@@ -30,6 +30,8 @@ to separate gpib transfer speed and disk io speed in my benchmarking.
 
 #include "gpib/ib.h"
 
+unsigned char utul[] = {UNT,UNL};
+
 int main( int argc, char *argv[] )
 {
 	int dev;
@@ -100,6 +102,12 @@ int main( int argc, char *argv[] )
 		perror( "fwrite()" );
 		return -1;
 	}
+
+	if (ERR & ibcmd(board_index, utul, 2)) { // send Untalk and Unlisten
+                fprintf( stderr, "ibcmd() failed\n" );
+                fprintf( stderr, "%s\n", gpib_error_string( ThreadIberr() ) );
+                return -1;
+        }
 
 	fclose( filep );
 	free( buffer );

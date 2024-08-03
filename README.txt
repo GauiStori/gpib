@@ -7,12 +7,12 @@ The Linux GPIB Package
 
 This is a GPIB/IEEE-488 driver and utility package for LINUX.
 
-This software distribution package linux-gpib-4.3.5.tar.gz contains
+This software distribution package linux-gpib-4.3.6.tar.gz contains
 this README and two tarballs:
 
-1) kernel modules in linux-gpib-kernel-4.3.5.tar.gz
+1) kernel modules in linux-gpib-kernel-4.3.6.tar.gz
 
-2) user space software in linux-gpib-user-4.3.5.tar.gz containing the
+2) user space software in linux-gpib-user-4.3.6.tar.gz containing the
    config program, library, device scripts, examples and documentation
 
 Untar each file and see the respective INSTALL files for instructions
@@ -21,30 +21,25 @@ on building and installing.
 Send comments, questions and suggestions to to the linux-gpib mailing
 list at linux-gpib-general@lists.sourceforge.net
 
-Release Notes for linux-gpib-4.3.5
+Release Notes for linux-gpib-4.3.6
 ----------------------------------
 
-Changes since the linux-gpib-4.3.4 release
+Changes since the linux-gpib-4.3.5 release
 
-	Add board support to ibask for IbaBNA option
+	Major rework of gpib_bitbang driver for RPi gpios
+	with fix for lost edge interrupts on BCM2835 peripheral chip
+	from Marcello Carla'.
 
-	Improvements to findlisteners.c
+	Fix to avoid async IO race conditions in ni_usb_gpib.
 
-	Fixes for python3.10 from mika
-
-	Optionally suppress printing error messages in ibfind()
-	by setting IB_NO_ERROR environment variable.
-
-	Add support for pci version of fmh_gpib_core
-
-	New and improved interrupt driven version of gpib_bitbang
-	driver for RPi gpios from Marcello Carla'
+	Fix for unaddressed writes blocking in agilent_82350b with
+	the accelerated interface.
 	
-	See ChangeLog since [r1962] for bug fixes and other changes.
+	See ChangeLog since [r2031] for bug fixes and other changes.
 	  
 Note: If you have any pre 4.3.0 gpib udev rules files in
       /etc/udev/rules.d/ please remove them before installing
-      linux-gpib-user-4.3.5.
+      linux-gpib-user-4.3.6.
       
       The files to remove are:
 	   99-agilent_82357a.rules

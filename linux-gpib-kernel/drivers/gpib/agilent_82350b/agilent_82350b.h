@@ -199,7 +199,7 @@ enum borg_bits
 	BORG_DONE_BIT = 0x80
 };
 
-static const int agilent_82350b_fifo_size = 0x1000;
+static const int agilent_82350b_fifo_size = 0x8000;
 
 static inline int agilent_82350b_fifo_is_halted(agilent_82350b_private_t *a_priv)
 {
