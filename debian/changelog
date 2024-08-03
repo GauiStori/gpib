@@ -1,6 +1,7 @@
 gpib (4.3.6-1) UNRELEASED; urgency=medium
 
   * New upstream release
+  * Fix compilation errors in ibCmds.c
 
  -- Gudjon I. Gudjonsson <gudjon@gudjon.org>  Sat, 03 Aug 2024 11:34:48 +0200
 
