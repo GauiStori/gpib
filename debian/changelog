@@ -1,3 +1,9 @@
+gpib (4.3.6-1) UNRELEASED; urgency=medium
+
+  * New upstream release
+
+ -- Gudjon I. Gudjonsson <gudjon@gudjon.org>  Sat, 03 Aug 2024 11:34:48 +0200
+
 gpib (4.3.5-1) UNRELEASED; urgency=medium
 
   * New upstream release
