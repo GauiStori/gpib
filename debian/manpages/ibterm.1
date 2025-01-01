@@ -1,0 +1,64 @@
+.TH ipterm 1 "February 18, 2018"
+
+ibterm help info -
+
+Summary:
+An interactive terminal program for sending commands to a device over an 
+IEEE488 general purpose instrument bus and printing the responses.
+
+.SH OPTIONS
+.TP
+.B \-d <device primary address (pad)>                (required, no default)
+.TP
+.B \-m <minor>                                       (optional, default=0)
+.TP
+.B \-s <secondary address of device (sad)>           (optional, default=0)
+.TP
+.B \-i <assert EIO with last byte sent (eoi) flag>   (optional, default=1)
+.TP
+.B \-e <ASCII code of end of string (eos) character> (optional, default=0)
+.TP
+.B \-r <terminate read on eos character (reos) flag> (optional, default=0)
+.TP
+.B \-b <binary eos character match mode (bin)  flag> (optional, default=0)
+.TP
+.B \-x <assert EOI when tranmitting eos (xeos) flag> (optional, default=0)
+.TP
+.B \-t <timeout>       (optional, default=10 i.e. 300milliseconds)
+.TP
+.B \-p <prompt string> (optional, default="ibterm>")
+.TP
+.B \-f <history file>  (optional, default=".ibterm_hist_<pad>")
+.TP
+.B \-N No automatic read on device, enter return at prompt to read.
+.TP
+.B \-X forces hexadecimal output.
+.TP
+.B \-h prints this help info and exits.
+
+Operation:
+  loop:
+    Prompt on stdout
+    Read a line of text from stdin
+    Write the text (if any) to the device at pad
+    If -N is not set, or no text was entered
+        Attempt to read response from the device
+        If no response is received before timeout go to loop
+        else print the response on stdout
+    Go back to loop.
+
+Notes:
+  To quit the programme enter the EOF character (Ctrl-d) at the prompt.
+  For interactivity, timeout should not be greater than 13 i.e. 10 secs.
+  The timeout values are documented under the ibtmo() entry of the 
+  section Linux-GPIB Reference: http://linux-gpib.sourceforge.net/doc_html
+  A device read can always be triggered by hitting <Enter> at the prompt.
+  Interrupting the programme while reading from the device may cause hangs.
+
+Also:
+  See the readline(3) manpage for editing input and searching history.
+
+Usage:
+  /usr/bin/ibterm -d pad \
+         [-m minor] [-s sad] [-i eoi] [-e eos] [-r reos] [-b bin] [-x xeos] \
+         [-t timeout] [-p prompt] [-f history_file] [-N] [-X]

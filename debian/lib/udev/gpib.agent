@@ -1,0 +1,55 @@
+#!/bin/sh
+
+# $1 DEVPATH
+# $2 ID
+# $3 Minor
+DDIR="/lib/firmware"
+
+# pre-renumeration device IDs
+case $2 in
+# ni-usb-b without firmware
+3923:702a)
+	/usr/sbin/gpib_config --minor $3
+        ;;
+
+3923:702b)
+        /sbin/modprobe ni_usb_gpib
+        /sbin/fxload -I $DDIR/niusbb_firmware.hex -s $DDIR/niusbb_loader.hex -D $1
+	;;
+
+# Keithley without firmware
+3923:713b)
+	/sbin/modprobe ni_usb_gpib
+	/sbin/fxload -I $DDIR/niusbb_firmware.hex -s $DDIR/niusbb_loader.hex -D $1
+	;;
+
+# ni-usb-hs
+3923:709b)
+	/usr/sbin/gpib_config --minor $3
+	;;
+
+# 82357a without firmware
+0957:0007)
+	/sbin/modprobe agilent_82357a
+	/sbin/fxload -I $DDIR/82357a_fw.hex -D $1
+        ;;
+
+# 82357a with firmware
+0957:0107)
+        /usr/sbin/gpib_config --minor $3
+        ;;
+
+
+# 82357B without firmware
+0957:0518)
+	/sbin/modprobe agilent_82350b
+	/sbin/fxload -t fx2 -I $DDIR/measat_releaseX1.8.hex -D $1
+	;;
+
+# 82357B with firmware
+0957:0718)
+	/usb/sbin/gpib_config --minor $3
+	;;
+
+esac
+

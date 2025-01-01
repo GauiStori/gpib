@@ -22,12 +22,14 @@ int internal_ibrpp( ibConf_t *conf, char *result )
 	uint8_t poll_byte;
 	ibBoard_t *board;
 	int retval;
-	
+
 	board = interfaceBoard( conf );
 
-	if( is_cic( board ) == 0 )
+	retval = is_cic( board );
+	if (retval <= 0)
 	{
-		setIberr( ECIC );
+		if (retval == 0)
+			setIberr( ECIC );
 		return -1;
 	}
 

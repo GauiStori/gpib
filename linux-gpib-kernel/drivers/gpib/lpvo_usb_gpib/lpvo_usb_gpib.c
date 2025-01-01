@@ -263,7 +263,7 @@ inline int usec_diff (struct timespec64 * a, struct timespec64 * b) {
  *
  */
 
-int write_loop (void * dev, char * msg, int leng) {
+static int write_loop (void * dev, char * msg, int leng) {
 //        int nchar = 0, val;
 
 //        do {
@@ -280,7 +280,7 @@ int write_loop (void * dev, char * msg, int leng) {
 //        return leng;
 }
 
-char printable (char x) {
+static char printable (char x) {
         if (x < 32 || x > 126) return ' ';
         return x;
 }
@@ -295,7 +295,7 @@ char printable (char x) {
  *            it has to be given explicitly.
  */
 
-int send_command (gpib_board_t *board, char * msg, int leng) {
+static int send_command (gpib_board_t *board, char * msg, int leng) {
 
         char buffer[64];
         int nchar, j;
@@ -341,7 +341,7 @@ int send_command (gpib_board_t *board, char * msg, int leng) {
 *
 */
 
-int set_control_line (gpib_board_t *board, int line, int value) {
+static int set_control_line (gpib_board_t *board, int line, int value) {
 
         char msg[]=USB_GPIB_SET_LINES;
         int retval;
@@ -412,7 +412,7 @@ static int one_char(gpib_board_t *board, struct char_buf * b) {
  *         not supported.
  */
 
-void set_timeout (gpib_board_t *board) {
+static void set_timeout (gpib_board_t *board) {
 
         int n, val;
         char command[sizeof(USB_GPIB_TTMO)+6];
@@ -459,7 +459,7 @@ void set_timeout (gpib_board_t *board) {
  * detach() will be called. Always.
  */
 
-int usb_gpib_attach(gpib_board_t *board, const gpib_board_config_t *config) {
+static int usb_gpib_attach(gpib_board_t *board, const gpib_board_config_t *config) {
 
         int retval, j;
         int base = (long int) config->ibbase;
@@ -563,7 +563,7 @@ int usb_gpib_attach(gpib_board_t *board, const gpib_board_config_t *config) {
  *
  */
 
-void usb_gpib_detach(gpib_board_t *board) {
+static void usb_gpib_detach(gpib_board_t *board) {
 
         int retval;
 
@@ -594,7 +594,7 @@ void usb_gpib_detach(gpib_board_t *board) {
 
 /* command */
 
-int usb_gpib_command(gpib_board_t *board,
+static int usb_gpib_command(gpib_board_t *board,
                      uint8_t *buffer,
                      size_t length,
                      size_t *bytes_written) {
@@ -625,7 +625,7 @@ int usb_gpib_command(gpib_board_t *board,
  *   Cannot do nothing here, but remember for future use.
  */
 
-void usb_gpib_disable_eos(gpib_board_t *board) {
+static void usb_gpib_disable_eos(gpib_board_t *board) {
 
         ((usb_gpib_private_t *)board->private_data)->eos_flags &= ~REOS;
         DIA_LOG (1,"done: %x\n",
@@ -641,7 +641,7 @@ void usb_gpib_disable_eos(gpib_board_t *board) {
  *
  */
 
-int usb_gpib_enable_eos(gpib_board_t *board,
+static int usb_gpib_enable_eos(gpib_board_t *board,
                         uint8_t eos_byte,
                         int compare_8_bits) {
 
@@ -660,7 +660,7 @@ int usb_gpib_enable_eos(gpib_board_t *board,
  * @board:    the gpib_board data area for this gpib interface
  */
 
-int usb_gpib_go_to_standby(gpib_board_t *board) {
+static int usb_gpib_go_to_standby(gpib_board_t *board) {
 
         int retval = set_control_line (board, IB_BUS_ATN, 0);
 
@@ -681,7 +681,7 @@ int usb_gpib_go_to_standby(gpib_board_t *board) {
  *    the de-assert request.
  */
 
-void usb_gpib_interface_clear(gpib_board_t *board, int assert) {
+static void usb_gpib_interface_clear(gpib_board_t *board, int assert) {
 
         int retval=0;
 
@@ -717,7 +717,7 @@ void usb_gpib_interface_clear(gpib_board_t *board, int assert) {
 #define WQE entry
 #endif
 
-int usb_gpib_line_status (const gpib_board_t *board ) {
+static int usb_gpib_line_status (const gpib_board_t *board ) {
 
         int buffer;
         int line_status = ValidALL;   /* all lines will be read */
@@ -770,7 +770,7 @@ int usb_gpib_line_status (const gpib_board_t *board ) {
 
 /* parallel_poll */
 
-int usb_gpib_parallel_poll(gpib_board_t *board, uint8_t *result) {
+static int usb_gpib_parallel_poll(gpib_board_t *board, uint8_t *result) {
 
         /* request parallel poll asserting ATN | EOI;
         we suppose ATN already asserted */
@@ -959,7 +959,7 @@ read_return:
 
 /* remote_enable */
 
-void usb_gpib_remote_enable(gpib_board_t *board, int enable) {
+static void usb_gpib_remote_enable(gpib_board_t *board, int enable) {
 
         int retval;
 
@@ -973,7 +973,7 @@ void usb_gpib_remote_enable(gpib_board_t *board, int enable) {
 
 /* request_system_control */
 
-void usb_gpib_request_system_control(gpib_board_t *board,
+static void usb_gpib_request_system_control(gpib_board_t *board,
                                 int request_control ) {
 
         smp_mb__before_atomic();
@@ -992,7 +992,7 @@ void usb_gpib_request_system_control(gpib_board_t *board,
 /* take_control */
 /* beware: the sync flag is ignored; what is its real meaning? */
 
-int usb_gpib_take_control(gpib_board_t *board, int sync) {
+static int usb_gpib_take_control(gpib_board_t *board, int sync) {
 
         int retval;
 
@@ -1006,7 +1006,7 @@ int usb_gpib_take_control(gpib_board_t *board, int sync) {
 
 /* update_status */
 
-unsigned int usb_gpib_update_status( gpib_board_t *board,
+static unsigned int usb_gpib_update_status( gpib_board_t *board,
                                 unsigned int clear_mask ) {
 
         /* There is nothing we can do here, I guess */
@@ -1062,7 +1062,7 @@ static int usb_gpib_write(gpib_board_t *board,
 
 /* parallel_poll configure */
 
-void usb_gpib_parallel_poll_configure( gpib_board_t *board,
+static void usb_gpib_parallel_poll_configure( gpib_board_t *board,
                                        uint8_t configuration ) {
 
         printk (KERN_ALERT "%s:%s - currently a NOP\n", HERE);
@@ -1070,14 +1070,14 @@ void usb_gpib_parallel_poll_configure( gpib_board_t *board,
 
 /* parallel_poll_response */
 
-void usb_gpib_parallel_poll_response( gpib_board_t *board, int ist ) {
+static void usb_gpib_parallel_poll_response( gpib_board_t *board, int ist ) {
 
         printk (KERN_ALERT "%s:%s - currently a NOP\n", HERE);
 }
 
 /* primary_address */
 
-int  usb_gpib_primary_address(gpib_board_t *board, unsigned int address) {
+static int  usb_gpib_primary_address(gpib_board_t *board, unsigned int address) {
 
         printk (KERN_ALERT "%s:%s - currently a NOP\n", HERE);
         return 0;
@@ -1085,14 +1085,14 @@ int  usb_gpib_primary_address(gpib_board_t *board, unsigned int address) {
 
 /* return_to_local */
 
-void usb_gpib_return_to_local( gpib_board_t *board ) {
+static  void usb_gpib_return_to_local( gpib_board_t *board ) {
 
         printk (KERN_ALERT "%s:%s - currently a NOP\n", HERE);
 }
 
 /* secondary_address */
 
-int usb_gpib_secondary_address(gpib_board_t *board,
+static int usb_gpib_secondary_address(gpib_board_t *board,
                                 unsigned int address,
                                 int enable) {
 
@@ -1102,14 +1102,14 @@ int usb_gpib_secondary_address(gpib_board_t *board,
 
 /* serial_poll_response */
 
-void usb_gpib_serial_poll_response(gpib_board_t *board, uint8_t status) {
+static void usb_gpib_serial_poll_response(gpib_board_t *board, uint8_t status) {
 
         printk (KERN_ALERT "%s:%s - currently a NOP\n", HERE);
 }
 
 /* serial_poll_status */
 
-uint8_t usb_gpib_serial_poll_status( gpib_board_t *board ) {
+static uint8_t usb_gpib_serial_poll_status( gpib_board_t *board ) {
 
         printk (KERN_ALERT "%s:%s - currently a NOP\n", HERE);
         return 0;
@@ -1117,7 +1117,7 @@ uint8_t usb_gpib_serial_poll_status( gpib_board_t *board ) {
 
 /* t1_delay */
 
-unsigned int usb_gpib_t1_delay( gpib_board_t *board, unsigned int nano_sec ) {
+static unsigned int usb_gpib_t1_delay( gpib_board_t *board, unsigned int nano_sec ) {
 
         printk (KERN_ALERT "%s:%s - currently a NOP\n", HERE);
         return 0;

@@ -45,7 +45,6 @@ int conf_online( ibConf_t *conf, int online )
 
 	retval = board_online( board, online, conf );
 	if( retval < 0 ) return retval;
-	if( retval < 0 ) return retval;
 	if( online )
 	{
 		retval = open_gpib_handle( conf );
@@ -68,14 +67,15 @@ int reinit_descriptor( ibConf_t *conf )
 	if( retval < 0 ) return retval;
 	retval = internal_ibsad( conf, conf->defaults.sad );
 	if( retval < 0 ) return retval;
-	retval = my_ibbna( conf, conf->defaults.board );
-	if( retval < 0 ) return retval;
+	if (conf->is_interface == 0) { /* ibbna is device only */
+		retval = my_ibbna( conf, conf->defaults.board );
+		if( retval < 0 ) return retval;
+	}
 	conf->settings.usec_timeout = conf->defaults.usec_timeout;
 	conf->settings.spoll_usec_timeout = conf->defaults.usec_timeout;
 	conf->settings.ppoll_usec_timeout = conf->defaults.usec_timeout;
 	conf->settings.eos = conf->defaults.eos;
 	conf->settings.eos_flags = conf->defaults.eos_flags;
-	conf->settings.eos = conf->defaults.eos;
 	conf->settings.ppoll_config = conf->defaults.ppoll_config;
 	internal_ibeot( conf, conf->defaults.send_eoi );
 	conf->settings.local_lockout = conf->defaults.local_lockout;
@@ -121,20 +121,14 @@ int ibonl( int ud, int onl )
 	if( retval < 0 )
 	{
 		fprintf( stderr, "libgpib: failed to mark device as closed!\n" );
-		setIberr( EDVR );
-		setIbcnt( errno );
 		status |= ERR;
 		setIbsta( status );
 		sync_globals();
 		return status;
 	}
 
-	if( ud >= GPIB_MAX_NUM_BOARDS )
-	{
-		// need to take more care to clean up before freeing XXX
-		free( ibConfigs[ ud ] );
-		ibConfigs[ ud ] = NULL;
-	}
+	release_descriptor( ud );
+
 	return status;
 }
 

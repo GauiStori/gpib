@@ -120,8 +120,23 @@ void tnt4882_disable_eos(gpib_board_t *board)
 }
 unsigned int tnt4882_update_status( gpib_board_t *board, unsigned int clear_mask )
 {
+	unsigned long flags;
+	uint8_t line_status;
+	unsigned int retval;
 	tnt4882_private_t *priv = board->private_data;
-	return nec7210_update_status( board, &priv->nec7210_priv, clear_mask );
+
+	spin_lock_irqsave( &board->spinlock, flags );
+	board->status &= ~clear_mask;
+	retval = nec7210_update_status_nolock( board, &priv->nec7210_priv );
+	/* set / clear SRQ state since it is not cleared by interrupt */
+	line_status = tnt_readb( priv, BSR );
+	if( line_status & BCSR_SRQ_BIT ) {
+		set_bit( SRQI_NUM, &board->status );
+	} else {
+		clear_bit( SRQI_NUM, &board->status );
+	}
+	spin_unlock_irqrestore( &board->spinlock, flags );
+	return board->status;
 }
 int tnt4882_primary_address(gpib_board_t *board, unsigned int address)
 {
@@ -179,7 +194,7 @@ void tnt4882_serial_poll_response(gpib_board_t *board, uint8_t status)
 	nec7210_serial_poll_response(board, &priv->nec7210_priv, status);
 }
 
-void tnt4882_serial_poll_response2(gpib_board_t *board, 
+static void tnt4882_serial_poll_response2(gpib_board_t *board,
 	uint8_t status, int new_reason_for_service)
 {
 	tnt4882_private_t *priv = board->private_data;
@@ -673,7 +688,7 @@ void ni_pci_detach(gpib_board_t *board)
 	tnt4882_free_private(board);
 }
 
-int ni_isapnp_find( struct pnp_dev **dev )
+static int ni_isapnp_find( struct pnp_dev **dev )
 {
 	*dev = pnp_find_dev( NULL, ISAPNP_VENDOR_ID_NI,
 		ISAPNP_FUNCTION( ISAPNP_ID_NI_ATGPIB_TNT ), NULL );
@@ -702,7 +717,7 @@ int ni_isapnp_find( struct pnp_dev **dev )
 	return 0;
 }
 
-int ni_isa_attach_common( gpib_board_t *board, const gpib_board_config_t *config, enum nec7210_chipset chipset )
+static int ni_isa_attach_common( gpib_board_t *board, const gpib_board_config_t *config, enum nec7210_chipset chipset )
 {
 	tnt4882_private_t *tnt_priv;
 	nec7210_private_t *nec_priv;

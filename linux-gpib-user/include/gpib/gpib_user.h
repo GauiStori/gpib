@@ -51,16 +51,16 @@ enum ibsta_bits
 	TACS = ( 1 <<  TACS_NUM ),	/* GPIB interface is addressed as Talker */
 	ATN = ( 1 <<  ATN_NUM ),	/* Attention is asserted */
 	CIC = ( 1 <<  CIC_NUM ),	/* GPIB interface is Controller-in-Charge */
-	REM = ( 1 << REM_NUM ),	/* remote state */
-	LOK = ( 1 << LOK_NUM ),	/* lockout state */
+	REM = ( 1 << REM_NUM ),	        /* remote state */
+	LOK = ( 1 << LOK_NUM ),	        /* lockout state */
 	CMPL = ( 1 <<  CMPL_NUM ),	/* I/O is complete  */
 	EVENT = ( 1 << EVENT_NUM ),	/* DCAS, DTAS, or IFC has occurred */
 	SPOLL = ( 1 << SPOLL_NUM ),	/* board serial polled by busmaster */
 	RQS = ( 1 <<  RQS_NUM ),	/* Device requesting service  */
 	SRQI = ( 1 << SRQI_NUM ),	/* SRQ is asserted */
-	END = ( 1 << END_NUM ),	/* EOI or EOS encountered */
+	END = ( 1 << END_NUM ),	        /* EOI or EOS encountered */
 	TIMO = ( 1 << TIMO_NUM ),	/* Time limit on I/O or wait function exceeded */
-	ERR = ( 1 << ERR_NUM )	/* Function call terminated on error */
+	ERR = ( 1 << ERR_NUM )	        /* Function call terminated on error */
 };
 
 static const int device_status_mask = ERR | TIMO | END | CMPL | RQS;
@@ -71,7 +71,7 @@ static const int board_status_mask = ERR | TIMO | END | CMPL | SPOLL |
 enum iberr_code
 {
 	EDVR = 0,		/* system error */
-	ECIC = 1,	/* not CIC */
+	ECIC = 1,	        /* not CIC */
 	ENOL = 2,		/* no listeners */
 	EADR = 3,		/* CIC and not addressed before I/O */
 	EARG = 4,		/* bad argument to function call */
@@ -85,7 +85,8 @@ enum iberr_code
 	EBUS = 14,		/* bus error */
 	ESTB = 15,		/* lost serial poll bytes */
 	ESRQ = 16,		/* SRQ stuck on */
-	ETAB = 20              /* Table Overflow */
+	ECNF = 17,              /* Configuration file error */
+	ETAB = 20               /* Table Overflow */
 };
 /* Timeout values and meanings */
 
@@ -190,6 +191,9 @@ enum ppe_bits
 	PPC_DIO_MASK = 0x7
 };
 
+static const int gpib_addr_max = 30;	/* max address for primary/secondary gpib addresses */
+static const int gpib_sad_max = 31;	/* (0x1f) max address for secondary gpib addresses */
+
 /* confine address to range 0 to 30. */
 static __inline__ unsigned int gpib_address_restrict(unsigned int addr)
 {
@@ -210,7 +214,7 @@ static __inline__ uint8_t MTA( unsigned int addr )
 
 static __inline__ uint8_t MSA( unsigned int addr )
 {
-	return gpib_address_restrict(addr) | SAD;
+	return (addr & gpib_sad_max) | SAD;
 }
 
 static __inline__ uint8_t PPE_byte( unsigned int dio_line, int sense )
@@ -264,9 +268,9 @@ static __inline__ int in_talk_address_group( uint8_t command )
 
 static __inline__ int in_primary_command_group( uint8_t command )
 {
-	return in_addressed_command_group(command) || 
-		in_universal_command_group(command) || 
-		in_listen_address_group(command) || 
+	return in_addressed_command_group(command) ||
+		in_universal_command_group(command) ||
+		in_listen_address_group(command) ||
 		in_talk_address_group(command);
 }
 
@@ -280,8 +284,6 @@ static __inline__ int gpib_address_equal( unsigned int pad1, int sad1, unsigned 
 
 	return 0;
 }
-
-static const int gpib_addr_max = 30;	/* max address for primary/secondary gpib addresses */
 
 enum ibask_option
 {

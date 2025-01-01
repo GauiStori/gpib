@@ -37,6 +37,6 @@ man/*: $(SGML)
 	{ $(JW_PATH) -f docbook -b man -o man $(srcdir)/linux-gpib.sgml; } && { touch man/*; }
 
 gpib_version.txt: 
-	if test x`echo $(VERSION)` != x`cat gpib_version.txt` ; then \
+	if [ ! -f gpib_version.txt ] || [ `echo $(VERSION)` != `cat gpib_version.txt` ]; then \
 		echo $(VERSION) > gpib_version.txt; \
 	fi

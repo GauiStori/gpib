@@ -162,7 +162,6 @@ uint8_t agilent_82350b_serial_poll_status( gpib_board_t *board )
 int agilent_82350b_line_status( const gpib_board_t *board )
 {
 	agilent_82350b_private_t *priv = board->private_data;
-//	if (priv->using_fifos && (board->status & TACS)) return -EBUSY;
 	return tms9914_line_status( board, &priv->tms9914_priv );
 }
 unsigned int agilent_82350b_t1_delay( gpib_board_t *board, unsigned int nanosec )
@@ -258,7 +257,7 @@ void agilent_82350b_free_private( gpib_board_t *board )
 	}
 }
 
-int init_82350a_hardware(gpib_board_t *board, const gpib_board_config_t *config)
+static int init_82350a_hardware(gpib_board_t *board, const gpib_board_config_t *config)
 {
 	agilent_82350b_private_t *a_priv = board->private_data;
 	static const unsigned firmware_length = 5302;
@@ -323,7 +322,7 @@ int init_82350a_hardware(gpib_board_t *board, const gpib_board_config_t *config)
 	return 0;
 }
 
-int test_sram(gpib_board_t *board)
+static int test_sram(gpib_board_t *board)
 {
 	agilent_82350b_private_t *a_priv = board->private_data;
 	unsigned i;
@@ -350,7 +349,7 @@ int test_sram(gpib_board_t *board)
 	return 0;
 }
 
-int agilent_82350b_generic_attach(gpib_board_t *board, const gpib_board_config_t *config, int use_fifos)
+static int agilent_82350b_generic_attach(gpib_board_t *board, const gpib_board_config_t *config, int use_fifos)
 {
 	agilent_82350b_private_t *a_priv;
 	tms9914_private_t *tms_priv;

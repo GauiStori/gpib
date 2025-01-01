@@ -1,0 +1,38 @@
+# This file contains the udev rules for all supported GPIB 
+# devices, not needing any firmware.
+
+KERNEL=="gpib/*",	MODE="0660", GROUP="gpib"
+KERNEL=="gpib[0-9]*",	MODE="0660", GROUP="gpib"
+
+# USB rules where loading of firmware is not needed
+ACTION!="add", GOTO="gpib_USB_end"
+SUBSYSTEM!="usb", GOTO="gpib_USB_end"
+#NI and Keithley devices post loading
+ATTRS{idVendor}=="3923", ATTRS{idProduct}=="702a", RUN+="/lib/udev/gpib.agent X 3923:702a 1"
+#NI HS no firmware needed
+ATTRS{idVendor}=="3923", ATTRS{idProduct}=="709b", RUN+="/lib/udev/gpib.agent X 3923:709b 0"
+#82357A after loading
+ATTRS{idVendor}=="0957", ATTRS{idProduct}=="0107", RUN+="/lib/udev/gpib.agent X 0957:0107 0"
+#82357B after second loading
+ATTRS{idVendor}=="0957", ATTRS{idProduct}=="0718", RUN+="/lib/udev/gpib.agent X 0957:0718 0"
+
+LABEL="gpib_USB_end"
+
+
+
+ACTION!="add", GOTO="gpib_rules_end"
+SUBSYSTEM=="usb", GOTO="gpib_rules_end"
+DEVPATH=="/module/agilent_82357a",     RUN+="/usr/sbin/gpib_config"
+DEVPATH=="/module/agilent_82350b",     RUN+="/usr/sbin/gpib_config"
+DEVPATH=="/module/cb7210",    RUN+="/usr/sbin/gpib_config"
+DEVPATH=="/module/cec_gpib",    RUN+="/usr/sbin/gpib_config"
+DEVPATH=="/module/eastwood",    RUN+="/usr/sbin/gpib_config"
+DEVPATH=="/module/pc2_gpib",    RUN+="/usr/sbin/gpib_config"
+DEVPATH=="/module/ines_gpib",	RUN+="/usr/sbin/gpib_config"
+DEVPATH=="/module/hp82335",     RUN+="/usr/sbin/gpib_config"
+DEVPATH=="/module/hp82341",	RUN+="/usr/sbin/gpib_config"
+DEVPATH=="/module/tms9914",     RUN+="/usr/sbin/gpib_config"
+DEVPATH=="/module/tnt4882",	RUN+="/usr/sbin/gpib_config"
+LABEL="gpib_rules_end"
+
+

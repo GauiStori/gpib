@@ -47,7 +47,7 @@ int address_board_as_talker( ibConf_t *conf)
 	if(query_sad(board, &board_sad) < 0) return 0;
 	if(board_sad >= 0 )
 		cmd[j++] = MSA(board_sad);
-	return my_ibcmd( conf, cmd, j );
+	return my_ibcmd( conf, conf->settings.usec_timeout, cmd, j );
 }
 
 int unlisten_untalk( ibConf_t *conf)
@@ -59,7 +59,7 @@ int unlisten_untalk( ibConf_t *conf)
 	j = 0;
 	cmd[j++] = UNL;
 	cmd[j++] = UNT;
-	return my_ibcmd( conf, cmd, j );
+	return my_ibcmd( conf, conf->settings.usec_timeout, cmd, j );
 }
 
 int listenerFound( ibConf_t *conf, const Addr4882_t addressList[] )
@@ -95,7 +95,7 @@ int listenerFound( ibConf_t *conf, const Addr4882_t addressList[] )
 		if( sad >= 0 )
 			cmd[ j++ ] = MSA( sad );
 	}
-	retval = my_ibcmd( conf, cmd, j );
+	retval = my_ibcmd( conf, conf->settings.usec_timeout, cmd, j );
 
 	free( cmd );
 	cmd = NULL;

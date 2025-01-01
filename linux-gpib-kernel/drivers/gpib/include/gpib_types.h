@@ -261,7 +261,10 @@ struct gpib_board_struct
 	spinlock_t spinlock;
 	/* Watchdog timer to enable timeouts */
 	struct timer_list timer;
+	/* device of attached driver if any */
 	struct device *dev;
+	/* gpib_common device gpibN */
+	struct device *gpib_dev;
 	/* 'private_data' can be used as seen fit by the driver to
 	 * store additional variables for this board */
 	void *private_data;

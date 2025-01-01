@@ -119,12 +119,12 @@ void cec_serial_poll_response(gpib_board_t *board, uint8_t status )
 	cec_private_t *priv = board->private_data;
 	nec7210_serial_poll_response(board, &priv->nec7210_priv, status);
 }
-uint8_t cec_serial_poll_status( gpib_board_t *board )
+static uint8_t cec_serial_poll_status( gpib_board_t *board )
 {
 	cec_private_t *priv = board->private_data;
 	return nec7210_serial_poll_status( board, &priv->nec7210_priv );
 }
-unsigned int cec_t1_delay( gpib_board_t *board, unsigned int nano_sec )
+static unsigned int cec_t1_delay( gpib_board_t *board, unsigned int nano_sec )
 {
 	cec_private_t *priv = board->private_data;
 	return nec7210_t1_delay( board, &priv->nec7210_priv, nano_sec );
@@ -164,7 +164,7 @@ gpib_interface_t cec_pci_interface =
 	return_to_local: cec_return_to_local,
 };
 
-int cec_allocate_private(gpib_board_t *board)
+static int cec_allocate_private(gpib_board_t *board)
 {
 	cec_private_t *priv;
 
@@ -324,22 +324,22 @@ static struct pci_driver cec_pci_driver = {
 	.probe = &cec_pci_probe
 };
 
-int __init cec_init_module(void)
+static int __init cec_init_module(void)
 {
 	int result;
-	
+
 	result = pci_register_driver(&cec_pci_driver);
 	if (result) {
 		printk("cec_gpib: pci_driver_register failed!\n");
 		return result;
 	}
-	
+
 	gpib_register_driver(&cec_pci_interface, THIS_MODULE);
 
 	return 0;
 }
 
-void cec_exit_module(void)
+static void cec_exit_module(void)
 {
 	gpib_unregister_driver(&cec_pci_interface);
 	

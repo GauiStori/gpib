@@ -44,6 +44,7 @@ struct async_operation
 	volatile int ibsta;
 	volatile long ibcntl;
 	volatile short in_progress;
+	volatile short aio_type;  /* The type of aio in progress */
 	volatile short abort;
 };
 
@@ -61,6 +62,7 @@ typedef struct
 	unsigned send_eoi : 1;	/* assert EOI at end of writes */
 	unsigned local_lockout : 1;	/* send local lockout when device is brought online */
 	unsigned readdr : 1;	/* useless, exists for compatibility only at present */
+	unsigned send_unt_unl : 1;      /* flag to send untalk unlisten after ibrd/ibwrt */
 }descriptor_settings_t;
 
 typedef struct ibConfStruct
@@ -97,6 +99,7 @@ typedef struct ibBoardStruct {
 	char device[0x1000];	/* name of device file ( /dev/gpib0, etc.) */
 	char sysfs_device_path[0x1000];	/* sysfs device path, which may be used to select specific piece of hardware */
 	char serial_number[0x1000];	/* serial number, which may be used to select specific piece of hardware */
+	unsigned set_ren_on_sc : 1; /* enable REN when becoming system controlle */
 } ibBoard_t;
 
 #endif	/* _IBCONF_H */

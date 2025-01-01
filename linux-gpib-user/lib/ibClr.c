@@ -42,7 +42,7 @@ int ibclr( int ud )
 	cmd[ i++ ] = SDC;
 
 	//XXX detect no listeners (EBUS) error
-	count = my_ibcmd( conf, cmd, i );
+	count = my_ibcmd( conf, conf->settings.usec_timeout, cmd, i );
 	if(count != i)
 	{
 		return exit_library( ud, 1 );
@@ -58,6 +58,7 @@ int InternalDevClearList( ibConf_t *conf, const Addr4882_t addressList[] )
 	ibBoard_t *board;
 	uint8_t *cmd;
 	int count;
+	int retval;
 
 	if( addressListIsValid( addressList ) == 0 )
 	{
@@ -72,9 +73,11 @@ int InternalDevClearList( ibConf_t *conf, const Addr4882_t addressList[] )
 
 	board = interfaceBoard( conf );
 
-	if( is_cic( board ) == 0 )
+	retval = is_cic( board );
+	if (retval <= 0)
 	{
-		setIberr( ECIC );
+		if (retval == 0)
+			setIberr( ECIC );
 		return -1;
 	}
 
@@ -97,7 +100,7 @@ int InternalDevClearList( ibConf_t *conf, const Addr4882_t addressList[] )
 		cmd[ i++ ] = DCL;
 	}
 	//XXX detect no listeners (EBUS) error
-	count = my_ibcmd( conf, cmd, i );
+	count = my_ibcmd( conf, conf->settings.usec_timeout, cmd, i );
 
 	free( cmd );
 	cmd = NULL;

@@ -35,7 +35,7 @@ typedef struct
 	uint64_t buffer_ptr;
 	unsigned requested_transfer_count;
 	unsigned completed_transfer_count;
-	int end;
+	int end; /* end flag return for reads, end io suppression request for cmd*/
 	int handle;
 } read_write_ioctl_t;
 

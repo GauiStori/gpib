@@ -48,10 +48,11 @@ int my_wait( ibConf_t *conf, int wait_mask, int clear_mask, int set_mask, int *s
 
 	board = interfaceBoard( conf );
 
-	if( conf->is_interface == 0 &&
-		is_cic( board ) == 0 )
+
+	if(( conf->is_interface == 0) && (retval = is_cic( board )) != 1)
 	{
-		setIberr( ECIC );
+		if (retval == 0)
+			setIberr( ECIC );
 		return -1;
 	}
 

@@ -1,0 +1,3 @@
+usr/include/*
+usr/lib/libgpib.so
+usr/lib/libgpib.la

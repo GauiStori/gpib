@@ -23,7 +23,7 @@
 #include "ib_internal.h"
 
 // sets up bus to receive data from device with address pad/sad
-int InternalReceiveSetup( ibConf_t *conf, Addr4882_t address )
+int InternalReceiveSetup( ibConf_t *conf, unsigned int usec_timeout, Addr4882_t address )
 {
 	ibBoard_t *board;
 	uint8_t cmdString[8];
@@ -54,7 +54,7 @@ int InternalReceiveSetup( ibConf_t *conf, Addr4882_t address )
 	if( sad >= 0 )
 		cmdString[ i++ ] = MSA( sad );
 
-	if ( my_ibcmd( conf, cmdString, i ) < 0)
+	if ( my_ibcmd( conf, usec_timeout, cmdString, i ) < 0)
 	{
 		fprintf(stderr, "%s: command failed\n", __FUNCTION__ );
 		return -1;
@@ -63,7 +63,7 @@ int InternalReceiveSetup( ibConf_t *conf, Addr4882_t address )
 	return 0;
 }
 
-ssize_t read_data(ibConf_t *conf, unsigned int usec_timeout, uint8_t *buffer, size_t count, size_t *bytes_read)
+static int read_data(ibConf_t *conf, unsigned int usec_timeout, uint8_t *buffer, size_t count, size_t *bytes_read)
 {
 	ibBoard_t *board;
 	read_write_ioctl_t read_cmd;
@@ -107,8 +107,9 @@ ssize_t read_data(ibConf_t *conf, unsigned int usec_timeout, uint8_t *buffer, si
 	return retval;
 }
 
-ssize_t my_ibrd( ibConf_t *conf, unsigned int usec_timeout, uint8_t *buffer, size_t count, size_t *bytes_read)
+int my_ibrd( ibConf_t *conf, unsigned int usec_timeout, uint8_t *buffer, size_t count, size_t *bytes_read)
 {
+	int retval;
 	*bytes_read = 0;
 	// set eos mode
 	iblcleos( conf );
@@ -116,13 +117,18 @@ ssize_t my_ibrd( ibConf_t *conf, unsigned int usec_timeout, uint8_t *buffer, siz
 	if( conf->is_interface == 0 )
 	{
 		// set up addressing
-		if( InternalReceiveSetup( conf, packAddress( conf->settings.pad, conf->settings.sad ) ) < 0 )
+		if( InternalReceiveSetup( conf, usec_timeout, packAddress( conf->settings.pad, conf->settings.sad ) ) < 0 )
 		{
 			return -1;
 		}
 	}
 
-	return read_data(conf, usec_timeout, buffer, count, bytes_read);
+	retval =  read_data(conf, usec_timeout, buffer, count, bytes_read);
+
+	if ( !conf->is_interface && conf->settings.send_unt_unl ) {
+		retval = unlisten_untalk(conf);
+	}
+	return retval;
 }
 
 int ibrd(int ud, void *rd, long cnt)
@@ -190,7 +196,7 @@ int ibrdf(int ud, const char *file_path )
 	if( conf->is_interface == 0 )
 	{
 		// set up addressing
-		if( InternalReceiveSetup( conf, packAddress( conf->settings.pad, conf->settings.sad ) ) < 0 )
+		if( InternalReceiveSetup( conf, conf->settings.usec_timeout, packAddress( conf->settings.pad, conf->settings.sad ) ) < 0 )
 		{
 			return exit_library( ud, 1 );
 		}
@@ -221,7 +227,16 @@ int ibrdf(int ud, const char *file_path )
 		}
 	}while( conf->end == 0 && error == 0 );
 
-	setIbcnt( byte_count );
+	if ( !conf->is_interface && conf->settings.send_unt_unl ) {
+		retval = unlisten_untalk(conf);
+		if ( retval < 0)
+			error++;
+	}
+
+	if ( !error )
+	{
+		setIbcnt( byte_count );
+	}
 
 	if( fclose( save_file ) )
 	{
@@ -249,9 +264,11 @@ int InternalRcvRespMsg( ibConf_t *conf, void *buffer, long count, int terminatio
 
 	board = interfaceBoard( conf );
 
-	if( is_cic( board ) == 0 )
+	retval = is_cic( board );
+	if (retval <= 0)
 	{
-		setIberr( ECIC );
+		if (retval == 0)
+			setIberr( ECIC );
 		return -1;
 	}
 
@@ -315,7 +332,7 @@ void ReceiveSetup( int boardID, Addr4882_t address )
 		return;
 	}
 
-	retval = InternalReceiveSetup( conf, address );
+	retval = InternalReceiveSetup( conf, conf->settings.usec_timeout, address );
 	if( retval < 0 )
 	{
 		exit_library( boardID, 1 );
@@ -330,7 +347,7 @@ int InternalReceive( ibConf_t *conf, Addr4882_t address,
 {
 	int retval;
 
-	retval = InternalReceiveSetup( conf, address );
+	retval = InternalReceiveSetup( conf, conf->settings.usec_timeout, address );
 	if( retval < 0 ) return retval;
 
 	retval = InternalRcvRespMsg( conf, buffer, count, termination );

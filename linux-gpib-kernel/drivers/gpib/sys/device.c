@@ -210,7 +210,7 @@ int dvrsp( gpib_board_t *board, unsigned int pad, int sad,
 		return -1;
 	}
 
-	if( pad > gpib_addr_max || sad > gpib_addr_max )
+	if( pad > gpib_addr_max || sad > 31 )
 	{
 		printk("gpib: bad address for serial poll");
 		return -1;

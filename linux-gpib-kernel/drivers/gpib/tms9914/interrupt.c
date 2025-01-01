@@ -90,7 +90,7 @@ irqreturn_t tms9914_interrupt_have_status(gpib_board_t *board, tms9914_private_t
 		{
 		case PPConfig:
 			priv->ppoll_configure_state = 1;
-			/* AUX_PTS generates another UNC interrupt on the next command byte 
+			/* AUX_PTS generates another UNC interrupt on the next command byte
 			 * if it is in the secondary address group (such as PPE and PPD). */
 			write_byte(priv, AUX_PTS, AUXCR);
 			write_byte(priv, AUX_VAL, AUXCR);
@@ -119,7 +119,7 @@ irqreturn_t tms9914_interrupt_have_status(gpib_board_t *board, tms9914_private_t
 			}
 			break;
 		}
-		
+
 		if(in_primary_command_group(command_byte) && command_byte != PPConfig)
 		{
 			priv->ppoll_configure_state = 0;
@@ -171,8 +171,8 @@ irqreturn_t tms9914_interrupt_have_status(gpib_board_t *board, tms9914_private_t
 
 	if( ( status0 & priv->imr0_bits ) || ( status1 & priv->imr1_bits ) )
 	{
-		GPIB_DPRINTK("isr0 0x%x, imr0 0x%x, isr1 0x%x, imr1 0x%x\n",
-			status0, priv->imr0_bits, status1, priv->imr1_bits );
+//		GPIB_DPRINTK("isr0 0x%x, imr0 0x%x, isr1 0x%x, imr1 0x%x\n",
+//			status0, priv->imr0_bits, status1, priv->imr1_bits );
 		update_status_nolock( board, priv );
 		wake_up_interruptible( &board->wait );
 	}

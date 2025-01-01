@@ -24,9 +24,11 @@ int internal_ibgts( ibConf_t *conf, int shadow_handshake )
 
 	board = interfaceBoard( conf );
 
-	if( is_cic( board ) == 0 )
+	retval =  is_cic( board );
+	if (retval <= 0)
 	{
-		setIberr( ECIC );
+		if (retval == 0)
+			setIberr( ECIC );
 		return -1;
 	}
 

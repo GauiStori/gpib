@@ -108,6 +108,9 @@ void agilent_82350b_parallel_poll_configure( gpib_board_t *board, uint8_t config
 void agilent_82350b_parallel_poll_response( gpib_board_t *board, int ist );
 void agilent_82350b_serial_poll_response( gpib_board_t *board, uint8_t status );
 void agilent_82350b_return_to_local( gpib_board_t *board );
+uint8_t agilent_82350b_serial_poll_status( gpib_board_t *board );
+int agilent_82350b_line_status( const gpib_board_t *board );
+unsigned int agilent_82350b_t1_delay( gpib_board_t *board, unsigned int nanosec );
 
 // interrupt service routines
 irqreturn_t agilent_82350b_interrupt(int irq, void *arg PT_REGS_ARG);

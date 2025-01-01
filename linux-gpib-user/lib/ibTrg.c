@@ -40,7 +40,7 @@ int my_trigger( ibConf_t *conf, const Addr4882_t addressList[] )
 	i = create_send_setup( interfaceBoard( conf ), addressList, cmd );
 	cmd[ i++ ] = GET;
 
-	retval = my_ibcmd( conf, cmd, i );
+	retval = my_ibcmd( conf, conf->settings.usec_timeout, cmd, i );
 
 	free( cmd );
 	cmd = NULL;

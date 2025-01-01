@@ -24,6 +24,13 @@ extern "C" {
 
 #include <stdint.h>
 #include "gpib_user.h"
+#include "gpib_version.h"
+
+#define GPIB_CHECK_VERSION(major,minor,micro)				\
+	(GPIB_MAJOR_VERSION > (major) ||				\
+        (GPIB_MAJOR_VERSION == (major) && GPIB_MINOR_VERSION > (minor)) || \
+        (GPIB_MAJOR_VERSION == (major) && GPIB_MINOR_VERSION == (minor) && \
+        GPIB_MICRO_VERSION >= (micro)))
 
 typedef uint16_t Addr4882_t;
 static const Addr4882_t NOADDR = (Addr4882_t)-1;

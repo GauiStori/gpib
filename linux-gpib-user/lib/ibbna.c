@@ -44,9 +44,11 @@ int my_ibbna( ibConf_t *conf, unsigned int new_board_index )
 		setIberr( EARG );
 		return -1;
 	}
-	if( is_cic( interfaceBoard( board_conf ) ) == 0 )
+	retval =  is_cic( interfaceBoard( board_conf ) );
+	if (retval <= 0)
 	{
-		setIberr( ECIC );
+		if (retval == 0)
+			setIberr( ECIC );
 		return -1;
 	}
 

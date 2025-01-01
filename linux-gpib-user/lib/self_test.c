@@ -32,9 +32,11 @@ int InternalTestSys( ibConf_t *conf, const Addr4882_t addressList[], short resul
 	}
 
 	board = interfaceBoard( conf );
-	if( is_cic( board ) == 0 )
+	retval =  is_cic( board );
+	if (retval <= 0)
 	{
-		setIberr( ECIC );
+		if (retval == 0)
+			setIberr( ECIC );
 		return -1;
 	}
 

@@ -18,7 +18,7 @@
 #include "cb7210.h"
 #include <linux/delay.h>
 
-int output_fifo_empty( const cb7210_private_t *cb_priv )
+static int output_fifo_empty( const cb7210_private_t *cb_priv )
 {
 	if((cb7210_read_byte(cb_priv, HS_STATUS) & (HS_TX_MSB_NOT_EMPTY | HS_TX_LSB_NOT_EMPTY)) == 0)
 		return 1;
@@ -63,7 +63,7 @@ static inline void output_fifo_enable( gpib_board_t *board, int enable )
 	spin_unlock_irqrestore( &board->spinlock, flags );
 }
 
-int fifo_write( gpib_board_t *board, uint8_t *buffer, size_t length, size_t *bytes_written)
+static int fifo_write( gpib_board_t *board, uint8_t *buffer, size_t length, size_t *bytes_written)
 {
 	size_t count = 0;
 	ssize_t retval = 0;

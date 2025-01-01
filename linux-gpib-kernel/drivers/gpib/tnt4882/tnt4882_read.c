@@ -105,7 +105,8 @@ int tnt4882_accel_read( gpib_board_t *board, uint8_t *buffer, size_t length, int
 	*bytes_read = 0;
 	// FIXME: really, DEV_CLEAR_BN should happen elsewhere to prevent race
 	smp_mb__before_atomic();
-	clear_bit(DEV_CLEAR_BN, &nec_priv->state);	
+	clear_bit(DEV_CLEAR_BN, &nec_priv->state);
+	clear_bit(ADR_CHANGE_BN, &nec_priv->state);
 	smp_mb__after_atomic();
 
 	nec7210_set_reg_bits( nec_priv, IMR1, HR_ENDIE, HR_ENDIE );
@@ -145,6 +146,7 @@ int tnt4882_accel_read( gpib_board_t *board, uint8_t *buffer, size_t length, int
 			fifo_xfer_done( tnt_priv ) ||
 			test_bit( RECEIVED_END_BN, &nec_priv->state ) ||
 			test_bit( DEV_CLEAR_BN, &nec_priv->state ) ||
+			test_bit( ADR_CHANGE_BN, &nec_priv->state ) ||
 			test_bit( TIMO_NUM, &board->status ) ) )
 		{
 			printk("tnt4882: read interrupted\n");
@@ -153,13 +155,19 @@ int tnt4882_accel_read( gpib_board_t *board, uint8_t *buffer, size_t length, int
 		}
 		if( test_bit( TIMO_NUM, &board->status ) )
 		{
-			printk("tnt4882: minor %i read timed out\n", board->minor);
+			//printk("tnt4882: minor %i read timed out\n", board->minor);
 			retval = -ETIMEDOUT;
 			break;
 		}
 		if( test_bit( DEV_CLEAR_BN, &nec_priv->state ) )
 		{
 			printk("tnt4882: device clear interrupted read\n");
+			retval = -EINTR;
+			break;
+		}
+		if( test_bit( ADR_CHANGE_BN, &nec_priv->state ) )
+		{
+			printk("tnt4882: address change interrupted read\n");
 			retval = -EINTR;
 			break;
 		}
@@ -185,6 +193,7 @@ int tnt4882_accel_read( gpib_board_t *board, uint8_t *buffer, size_t length, int
 			fifo_xfer_done( tnt_priv ) ||
 			test_bit( RECEIVED_END_BN, &nec_priv->state ) ||
 			test_bit( DEV_CLEAR_BN, &nec_priv->state ) ||
+			test_bit( ADR_CHANGE_BN, &nec_priv->state ) ||
 			test_bit( TIMO_NUM, &board->status ) ) )
 		{
 			printk("tnt4882: read interrupted\n");
@@ -192,12 +201,17 @@ int tnt4882_accel_read( gpib_board_t *board, uint8_t *buffer, size_t length, int
 		}
 		if( test_bit( TIMO_NUM, &board->status ) )
 		{
-			printk("tnt4882: read timed out\n");
+			//printk("tnt4882: read timed out\n");
 			retval = -ETIMEDOUT;
 		}
 		if( test_bit( DEV_CLEAR_BN, &nec_priv->state ) )
 		{
 			printk("tnt4882: device clear interrupted read\n");
+			retval = -EINTR;
+		}
+		if( test_bit( ADR_CHANGE_BN, &nec_priv->state ) )
+		{
+			printk("tnt4882: address change interrupted read\n");
 			retval = -EINTR;
 		}
 		count += drain_fifo_words(tnt_priv, &buffer[count], length - count);

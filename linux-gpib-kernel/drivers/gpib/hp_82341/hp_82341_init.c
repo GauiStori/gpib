@@ -122,17 +122,17 @@ void hp_82341_serial_poll_response( gpib_board_t *board, uint8_t status )
 	hp_82341_private_t *priv = board->private_data;
 	tms9914_serial_poll_response( board, &priv->tms9914_priv, status );
 }
-uint8_t hp_82341_serial_poll_status( gpib_board_t *board )
+static uint8_t hp_82341_serial_poll_status( gpib_board_t *board )
 {
 	hp_82341_private_t *priv = board->private_data;
 	return tms9914_serial_poll_status( board, &priv->tms9914_priv );
 }
-int hp_82341_line_status( const gpib_board_t *board )
+static int hp_82341_line_status( const gpib_board_t *board )
 {
 	hp_82341_private_t *priv = board->private_data;
 	return tms9914_line_status( board, &priv->tms9914_priv );
 }
-unsigned int hp_82341_t1_delay( gpib_board_t *board, unsigned int nano_sec )
+static unsigned int hp_82341_t1_delay( gpib_board_t *board, unsigned int nano_sec )
 {
 	hp_82341_private_t *priv = board->private_data;
 	return tms9914_t1_delay( board, &priv->tms9914_priv, nano_sec );
@@ -167,6 +167,7 @@ gpib_interface_t hp_82341_unaccel_interface =
 	primary_address: hp_82341_primary_address,
 	secondary_address: hp_82341_secondary_address,
 	serial_poll_response: hp_82341_serial_poll_response,
+	serial_poll_status: hp_82341_serial_poll_status,
 	t1_delay: hp_82341_t1_delay,
 	return_to_local: hp_82341_return_to_local,
 };
@@ -217,17 +218,17 @@ void hp_82341_free_private( gpib_board_t *board )
 	}
 }
 
-uint8_t hp_82341_read_byte( tms9914_private_t *priv, unsigned int register_num )
+static uint8_t hp_82341_read_byte( tms9914_private_t *priv, unsigned int register_num )
 {
 	return inb((unsigned long)(priv->iobase) + register_num);
 }
 
-void hp_82341_write_byte( tms9914_private_t *priv, uint8_t data, unsigned int register_num )
+static void hp_82341_write_byte( tms9914_private_t *priv, uint8_t data, unsigned int register_num )
 {
 	outb(data, (unsigned long)(priv->iobase) + register_num);
 }
 
-int hp_82341_find_isapnp_board(struct pnp_dev **dev)
+static int hp_82341_find_isapnp_board(struct pnp_dev **dev)
 {
 	*dev = pnp_find_dev(NULL, ISAPNP_VENDOR('H', 'W', 'P'),
 		ISAPNP_FUNCTION(0x1411), NULL );
@@ -256,14 +257,14 @@ int hp_82341_find_isapnp_board(struct pnp_dev **dev)
 	return 0;
 }
 
-int xilinx_ready(hp_82341_private_t *hp_priv)
+static int xilinx_ready(hp_82341_private_t *hp_priv)
 {
 	switch(hp_priv->hw_version)
 	{
 	case HW_VERSION_82341C:
 		if(inb(hp_priv->iobase[0] + CONFIG_CONTROL_STATUS_REG) & XILINX_READY_BIT)
 			return 1;
-		else 
+		else
 			return 0;
 		break;
 	case HW_VERSION_82341D:
@@ -271,20 +272,20 @@ int xilinx_ready(hp_82341_private_t *hp_priv)
 		else return 0;
 		break;
 	default:
-		printk("hp_82341: %s: bug! unknown hw_version\n", __FUNCTION__); 
+		printk("hp_82341: %s: bug! unknown hw_version\n", __FUNCTION__);
 		break;
 	}
 	return 0;
 }
 
-int xilinx_done(hp_82341_private_t *hp_priv)
+static int xilinx_done(hp_82341_private_t *hp_priv)
 {
 	switch(hp_priv->hw_version)
 	{
 	case HW_VERSION_82341C:
 		if(inb(hp_priv->iobase[0] + CONFIG_CONTROL_STATUS_REG) & DONE_PGL_BIT)
 			return 1;
-		else 
+		else
 			return 0;
 		break;
 	case HW_VERSION_82341D:
@@ -292,13 +293,13 @@ int xilinx_done(hp_82341_private_t *hp_priv)
 		else return 0;
 		break;
 	default:
-		printk("hp_82341: %s: bug! unknown hw_version\n", __FUNCTION__); 
+		printk("hp_82341: %s: bug! unknown hw_version\n", __FUNCTION__);
 		break;
 	}
 	return 0;
 }
 
-int irq_valid(hp_82341_private_t *hp_priv, int irq)
+static int irq_valid(hp_82341_private_t *hp_priv, int irq)
 {
 	switch(hp_priv->hw_version)
 	{
@@ -316,7 +317,7 @@ int irq_valid(hp_82341_private_t *hp_priv, int irq)
 			return 1;
 			break;
 		default:
-			printk("hp_82341: invalid irq=%i for 82341C, irq must be 3, 5, 7, 9, 10, 11, 12, or 15.\n", irq); 
+			printk("hp_82341: invalid irq=%i for 82341C, irq must be 3, 5, 7, 9, 10, 11, 12, or 15.\n", irq);
 			return 0;
 			break;
 		}
@@ -325,13 +326,13 @@ int irq_valid(hp_82341_private_t *hp_priv, int irq)
 		return 1;
 		break;
 	default:
-		printk("hp_82341: %s: bug! unknown hw_version\n", __FUNCTION__); 
+		printk("hp_82341: %s: bug! unknown hw_version\n", __FUNCTION__);
 		break;
 	}
 	return 0;
 }
 
-int hp_82341_load_firmware_array(hp_82341_private_t *hp_priv, const unsigned char *firmware_data, 
+static int hp_82341_load_firmware_array(hp_82341_private_t *hp_priv, const unsigned char *firmware_data,
 	unsigned int firmware_length)
 {
 	int i, j;
@@ -363,11 +364,11 @@ int hp_82341_load_firmware_array(hp_82341_private_t *hp_priv, const unsigned cha
 	{
 		printk("hp_82341: timed out waiting for Xilinx done.\n");
 		return -ETIMEDOUT;
-	}	
+	}
 	return 0;
 }
 
-int hp_82341_load_firmware(hp_82341_private_t *hp_priv, const gpib_board_config_t *config)
+static int hp_82341_load_firmware(hp_82341_private_t *hp_priv, const gpib_board_config_t *config)
 {
 	if(config->init_data_length == 0)
 	{
@@ -399,13 +400,13 @@ int hp_82341_load_firmware(hp_82341_private_t *hp_priv, const gpib_board_config_
 		}
 		break;
 	default:
-		printk("hp_82341: %s: bug! unknown hw_version\n", __FUNCTION__); 
+		printk("hp_82341: %s: bug! unknown hw_version\n", __FUNCTION__);
 		break;
 	}
 	return hp_82341_load_firmware_array(hp_priv, config->init_data, config->init_data_length);
 }
 
-void set_xilinx_not_prog(hp_82341_private_t *hp_priv, int assert)
+static void set_xilinx_not_prog(hp_82341_private_t *hp_priv, int assert)
 {
 	switch(hp_priv->hw_version)
 	{
@@ -428,13 +429,13 @@ void set_xilinx_not_prog(hp_82341_private_t *hp_priv, int assert)
 }
 
 // clear xilinx firmware
-int clear_xilinx(hp_82341_private_t *hp_priv)
+static int clear_xilinx(hp_82341_private_t *hp_priv)
 {
-	set_xilinx_not_prog(hp_priv, 1);	
+	set_xilinx_not_prog(hp_priv, 1);
 	if(msleep_interruptible(1)) return -EINTR;
-	set_xilinx_not_prog(hp_priv, 0);	
+	set_xilinx_not_prog(hp_priv, 0);
 	if(msleep_interruptible(1)) return -EINTR;
-	set_xilinx_not_prog(hp_priv, 1);	
+	set_xilinx_not_prog(hp_priv, 1);
 	if(msleep_interruptible(1)) return -EINTR;
 	return 0;
 }

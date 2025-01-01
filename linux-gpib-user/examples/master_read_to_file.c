@@ -29,8 +29,16 @@ to separate gpib transfer speed and disk io speed in my benchmarking.
 #include <stdlib.h>
 
 #include "gpib/ib.h"
+char *myProg;
 
-unsigned char utul[] = {UNT,UNL};
+void usage(int brief) {
+	fprintf(stderr,"Usage: %s [-h] [-b <board index>]"
+		" [-d <device pad>] <file name>\n", myProg);
+	if (brief) exit(1);
+	fprintf(stderr,"  Default <board index> is 0\n");
+	fprintf(stderr,"  Default <device pad> is 1\n");
+	exit(0);
+}
 
 int main( int argc, char *argv[] )
 {
@@ -47,14 +55,27 @@ int main( int argc, char *argv[] )
 	FILE *filep;
 	uint8_t *buffer;
 	static const unsigned long buffer_length = 10000000;
+	int c,unaddr;
 
-	if( argc < 2 )
+	myProg = argv[0];
+	while ((c = getopt (argc, argv, "b:d:h")) != -1)
 	{
-		fprintf( stderr, "Must provide file path as arguement\n" );
-		return -1;
+		switch (c)
+		{
+		case 'b': board_index = atoi(optarg); break;
+		case 'd': pad   = atoi(optarg); break;
+		case 'h': usage(0); break;
+		default:  usage(1);
+		}
 	}
 
-	file_path = argv[ 1 ];
+	if (optind == argc)
+	{
+		fprintf( stderr, "Must provide file path as argument\n" );
+		usage(0);
+	}
+
+	file_path = argv[ optind ];
 	filep = fopen( file_path, "w" );
 	if( filep == NULL )
 	{
@@ -77,8 +98,14 @@ int main( int argc, char *argv[] )
 		return -1;
 	}
 
-	printf( "Device online: board index=%i, pad=%i, sad=%i\n"
-		"\tfile path=%s\n", board_index, pad, sad, file_path );
+	if (ERR & ibconfig(dev,IbcUnAddr,1))
+	{
+		fprintf(stderr, "Could not set automatic unaddress mode\n");
+	}
+	ibask(dev,IbaUnAddr,&unaddr);
+
+	printf( "Device online: board index=%i, pad=%i, sad=%i, unaddr=%i\n"
+		"\tfile path=%s\n", board_index, pad, sad, unaddr, file_path );
 
 	gettimeofday( &start_time, NULL );
 
@@ -102,12 +129,6 @@ int main( int argc, char *argv[] )
 		perror( "fwrite()" );
 		return -1;
 	}
-
-	if (ERR & ibcmd(board_index, utul, 2)) { // send Untalk and Unlisten
-                fprintf( stderr, "ibcmd() failed\n" );
-                fprintf( stderr, "%s\n", gpib_error_string( ThreadIberr() ) );
-                return -1;
-        }
 
 	fclose( filep );
 	free( buffer );

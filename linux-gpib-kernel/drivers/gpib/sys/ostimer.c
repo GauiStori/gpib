@@ -23,7 +23,7 @@
 
 /* Watchdog timeout routine */
 
-void watchdog_timeout( COMPAT_TIMER_ARG_TYPE t )
+static void watchdog_timeout( COMPAT_TIMER_ARG_TYPE t )
 {
 	gpib_board_t *board = COMPAT_FROM_TIMER(board, t, timer);
 	smp_mb__before_atomic();

@@ -10,7 +10,6 @@
 #include "ibConfYacc.h"
 #include "ib_internal.h"
 #include <string.h>
-
 %}
 
 %x COMMENT
@@ -27,6 +26,8 @@
 <COMMENT>[^*\n]*
 <COMMENT>"*"+[^*/i\n]*
 <COMMENT>"*"+"/" BEGIN(INITIAL);
+
+"//".*\n
 
 \" { BEGIN(STRING); }
 <STRING>[^\"]*\" {

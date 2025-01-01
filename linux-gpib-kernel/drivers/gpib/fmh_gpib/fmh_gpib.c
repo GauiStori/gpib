@@ -49,88 +49,88 @@ static struct platform_driver fmh_gpib_platform_driver;
 static struct pci_driver fmh_gpib_pci_driver;
 
 // wrappers for interface functions
-int fmh_gpib_read(gpib_board_t *board, uint8_t *buffer, size_t length, int *end, size_t *bytes_read)
+static int fmh_gpib_read(gpib_board_t *board, uint8_t *buffer, size_t length, int *end, size_t *bytes_read)
 {
 	fmh_gpib_private_t *priv = board->private_data;
 	return nec7210_read(board, &priv->nec7210_priv, buffer, length, end, bytes_read);
 }
-int fmh_gpib_write(gpib_board_t *board, uint8_t *buffer, size_t length, int send_eoi, size_t *bytes_written)
+static int fmh_gpib_write(gpib_board_t *board, uint8_t *buffer, size_t length, int send_eoi, size_t *bytes_written)
 {
 	fmh_gpib_private_t *priv = board->private_data;
 	return nec7210_write(board, &priv->nec7210_priv, buffer, length, send_eoi, bytes_written);
 }
-int fmh_gpib_command(gpib_board_t *board, uint8_t *buffer, size_t length, size_t *bytes_written)
+static int fmh_gpib_command(gpib_board_t *board, uint8_t *buffer, size_t length, size_t *bytes_written)
 {
 	fmh_gpib_private_t *priv = board->private_data;
 	return nec7210_command(board, &priv->nec7210_priv, buffer, length, bytes_written);
 }
-int fmh_gpib_take_control(gpib_board_t *board, int synchronous)
+static int fmh_gpib_take_control(gpib_board_t *board, int synchronous)
 {
 	fmh_gpib_private_t *priv = board->private_data;
 	return nec7210_take_control(board, &priv->nec7210_priv, synchronous);
 }
-int fmh_gpib_go_to_standby(gpib_board_t *board)
+static int fmh_gpib_go_to_standby(gpib_board_t *board)
 {
 	fmh_gpib_private_t *priv = board->private_data;
 	return nec7210_go_to_standby(board, &priv->nec7210_priv);
 }
-void fmh_gpib_request_system_control( gpib_board_t *board, int request_control )
+static void fmh_gpib_request_system_control( gpib_board_t *board, int request_control )
 {
 	fmh_gpib_private_t *priv = board->private_data;
 	nec7210_private_t *nec_priv = &priv->nec7210_priv;
 	nec7210_request_system_control( board, nec_priv, request_control );
 }
-void fmh_gpib_interface_clear(gpib_board_t *board, int assert)
+static void fmh_gpib_interface_clear(gpib_board_t *board, int assert)
 {
 	fmh_gpib_private_t *priv = board->private_data;
 	nec7210_interface_clear(board, &priv->nec7210_priv, assert);
 }
-void fmh_gpib_remote_enable(gpib_board_t *board, int enable)
+static void fmh_gpib_remote_enable(gpib_board_t *board, int enable)
 {
 	fmh_gpib_private_t *priv = board->private_data;
 	nec7210_remote_enable(board, &priv->nec7210_priv, enable);
 }
-int fmh_gpib_enable_eos(gpib_board_t *board, uint8_t eos_byte, int compare_8_bits)
+static int fmh_gpib_enable_eos(gpib_board_t *board, uint8_t eos_byte, int compare_8_bits)
 {
 	fmh_gpib_private_t *priv = board->private_data;
 	return nec7210_enable_eos(board, &priv->nec7210_priv, eos_byte, compare_8_bits);
 }
-void fmh_gpib_disable_eos(gpib_board_t *board)
+static void fmh_gpib_disable_eos(gpib_board_t *board)
 {
 	fmh_gpib_private_t *priv = board->private_data;
 	nec7210_disable_eos(board, &priv->nec7210_priv);
 }
-unsigned int fmh_gpib_update_status( gpib_board_t *board, unsigned int clear_mask )
+static unsigned int fmh_gpib_update_status( gpib_board_t *board, unsigned int clear_mask )
 {
 	fmh_gpib_private_t *priv = board->private_data;
 	return nec7210_update_status( board, &priv->nec7210_priv, clear_mask );
 }
-int fmh_gpib_primary_address(gpib_board_t *board, unsigned int address)
+static int fmh_gpib_primary_address(gpib_board_t *board, unsigned int address)
 {
 	fmh_gpib_private_t *priv = board->private_data;
 	return nec7210_primary_address(board, &priv->nec7210_priv, address);
 }
-int fmh_gpib_secondary_address(gpib_board_t *board, unsigned int address, int enable)
+static int fmh_gpib_secondary_address(gpib_board_t *board, unsigned int address, int enable)
 {
 	fmh_gpib_private_t *priv = board->private_data;
 	return nec7210_secondary_address(board, &priv->nec7210_priv, address, enable);
 }
-int fmh_gpib_parallel_poll(gpib_board_t *board, uint8_t *result)
+static int fmh_gpib_parallel_poll(gpib_board_t *board, uint8_t *result)
 {
 	fmh_gpib_private_t *priv = board->private_data;
 	return nec7210_parallel_poll(board, &priv->nec7210_priv, result);
 }
-void fmh_gpib_parallel_poll_configure( gpib_board_t *board, uint8_t configuration )
+static void fmh_gpib_parallel_poll_configure( gpib_board_t *board, uint8_t configuration )
 {
 	fmh_gpib_private_t *priv = board->private_data;
 	nec7210_parallel_poll_configure(board, &priv->nec7210_priv, configuration );
 }
-void fmh_gpib_parallel_poll_response( gpib_board_t *board, int ist )
+static void fmh_gpib_parallel_poll_response( gpib_board_t *board, int ist )
 {
 	fmh_gpib_private_t *priv = board->private_data;
 	nec7210_parallel_poll_response(board, &priv->nec7210_priv, ist );
 }
-void fmh_gpib_local_parallel_poll_mode( gpib_board_t *board, int local )
+static void fmh_gpib_local_parallel_poll_mode( gpib_board_t *board, int local )
 {
 	fmh_gpib_private_t *priv = board->private_data;
 	if(local)
@@ -145,7 +145,7 @@ void fmh_gpib_local_parallel_poll_mode( gpib_board_t *board, int local )
 	}
 }
 
-void fmh_gpib_serial_poll_response2(gpib_board_t *board, 
+static void fmh_gpib_serial_poll_response2(gpib_board_t *board,
 	uint8_t status, int new_reason_for_service)
 {
 	fmh_gpib_private_t *priv = board->private_data;
@@ -187,12 +187,12 @@ void fmh_gpib_serial_poll_response2(gpib_board_t *board,
 	spin_unlock_irqrestore( &board->spinlock, flags );
 }
 
-uint8_t fmh_gpib_serial_poll_status( gpib_board_t *board )
+static uint8_t fmh_gpib_serial_poll_status( gpib_board_t *board )
 {
 	fmh_gpib_private_t *priv = board->private_data;
 	return nec7210_serial_poll_status( board, &priv->nec7210_priv );
 }
-void fmh_gpib_return_to_local( gpib_board_t *board )
+static void fmh_gpib_return_to_local( gpib_board_t *board )
 {
 	fmh_gpib_private_t *priv = board->private_data;
 	nec7210_private_t *nec_priv = &priv->nec7210_priv;
@@ -200,7 +200,7 @@ void fmh_gpib_return_to_local( gpib_board_t *board )
 	udelay(1);
 	write_byte(nec_priv, AUX_RTL, AUXMR);
 }
-int fmh_gpib_line_status( const gpib_board_t *board )
+static int fmh_gpib_line_status( const gpib_board_t *board )
 {
 	int status = ValidALL;
 	int bsr_bits;
@@ -232,7 +232,7 @@ int fmh_gpib_line_status( const gpib_board_t *board )
 	return status;
 }
 
-unsigned int fmh_gpib_t1_delay( gpib_board_t *board, unsigned int nano_sec )
+static unsigned int fmh_gpib_t1_delay( gpib_board_t *board, unsigned int nano_sec )
 {
 	fmh_gpib_private_t *e_priv = board->private_data;
 	nec7210_private_t *nec_priv = &e_priv->nec7210_priv;
@@ -1243,7 +1243,7 @@ irqreturn_t fmh_gpib_internal_interrupt(gpib_board_t *board)
 	{
 		wake_up_interruptible( &board->wait );
 	}
-    
+
 	return retval;
 }
 
@@ -1252,14 +1252,14 @@ irqreturn_t fmh_gpib_interrupt(int irq, void *arg)
 	gpib_board_t *board = arg;
 	unsigned long flags;
 	irqreturn_t retval;
-	
+
 	spin_lock_irqsave(&board->spinlock, flags);
 	retval = fmh_gpib_internal_interrupt(board);
 	spin_unlock_irqrestore(&board->spinlock, flags);
 	return retval;
 }
 
-int fmh_gpib_allocate_private(gpib_board_t *board)
+static int fmh_gpib_allocate_private(gpib_board_t *board)
 {
 	fmh_gpib_private_t *priv;
 
@@ -1276,7 +1276,7 @@ int fmh_gpib_allocate_private(gpib_board_t *board)
 	return 0;
 }
 
-void fmh_gpib_generic_detach(gpib_board_t *board)
+static void fmh_gpib_generic_detach(gpib_board_t *board)
 {
 	if(board->private_data)
 	{
@@ -1291,7 +1291,7 @@ void fmh_gpib_generic_detach(gpib_board_t *board)
 }
 
 // generic part of attach functions
-int fmh_gpib_generic_attach(gpib_board_t *board)
+static int fmh_gpib_generic_attach(gpib_board_t *board)
 {
 	fmh_gpib_private_t *e_priv;
 	nec7210_private_t *nec_priv;
@@ -1344,13 +1344,13 @@ static int fmh_gpib_config_dma(gpib_board_t *board, int output)
 	return dmaengine_slave_config(e_priv->dma_channel, &config);
 }
 
-int fmh_gpib_init(fmh_gpib_private_t *e_priv, gpib_board_t *board, int handshake_mode)
+static int fmh_gpib_init(fmh_gpib_private_t *e_priv, gpib_board_t *board, int handshake_mode)
 {
 	nec7210_private_t *nec_priv = &e_priv->nec7210_priv;
 	unsigned long flags;
 	unsigned fifo_status_bits;
-	
-	fifos_write(e_priv, RX_FIFO_CLEAR | TX_FIFO_CLEAR, FIFO_CONTROL_STATUS_REG); 
+
+	fifos_write(e_priv, RX_FIFO_CLEAR | TX_FIFO_CLEAR, FIFO_CONTROL_STATUS_REG);
 
 	nec7210_board_reset(nec_priv, board);
 	write_byte(nec_priv, AUX_LO_SPEED, AUXMR);
@@ -1546,31 +1546,31 @@ void fmh_gpib_detach(gpib_board_t *board)
 		}
 		if(e_priv->dma_port_res)
 		{
-			release_mem_region(e_priv->dma_port_res->start, 
+			release_mem_region(e_priv->dma_port_res->start,
 				resource_size(e_priv->dma_port_res));
 		}
 		if(e_priv->gpib_iomem_res)
 		{
-			release_mem_region(e_priv->gpib_iomem_res->start, 
+			release_mem_region(e_priv->gpib_iomem_res->start,
 				resource_size(e_priv->gpib_iomem_res));
 		}
 	}
 	fmh_gpib_generic_detach(board);
 }
 
-int fmh_gpib_pci_attach_impl(gpib_board_t *board, const gpib_board_config_t *config, unsigned handshake_mode)
+static int fmh_gpib_pci_attach_impl(gpib_board_t *board, const gpib_board_config_t *config, unsigned handshake_mode)
 {
 	fmh_gpib_private_t *e_priv;
 	nec7210_private_t *nec_priv;
 	int retval;
 	struct pci_dev *pci_device;
-	
+
 	retval = fmh_gpib_generic_attach(board);
 	if(retval) return retval;
 
 	e_priv = board->private_data;
 	nec_priv = &e_priv->nec7210_priv;
-	
+
 	// find board
 	pci_device = gpib_pci_get_device(config, BOGUS_PCI_VENDOR_ID_FLUKE,
 		BOGUS_PCI_DEVICE_ID_FLUKE_BLADERUNNER, NULL);

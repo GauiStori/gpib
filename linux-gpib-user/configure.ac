@@ -1,7 +1,7 @@
 
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT([linux-gpib-user],[4.3.6])
+AC_INIT([linux-gpib-user],[4.3.7-rc1])
 # libtool version: current:revision:age
 #
 # If the library source code has changed at all since the last update, then
@@ -145,7 +145,7 @@ fi
 
 if test "$PHP_CONFIG" != "no"; then
 SAVE_CPPFLAGS=$CPPFLAGS
-CPPFLAGS="$CPPFLAGS $($PHP_CONFIG --includes)"
+CPPFLAGS="$CPPFLAGS $($PHP_CONFIG --includes) -D_GNU_SOURCE"
 AC_CHECK_HEADER([php.h],[],[BIND_PHP="no";AC_MSG_NOTICE([PHP headers not found, disabling PHP binding])])
 CPPFLAGS=$SAVE_CPPFLAGS
 fi

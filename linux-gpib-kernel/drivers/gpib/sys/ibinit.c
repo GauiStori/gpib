@@ -69,7 +69,7 @@ static int autospoll_thread(void *board_void)
 			printk("gpib%i: %s: try_module_get() failed!\n", board->minor, __FUNCTION__);
 		if(retval <= 0)
 		{
-			printk("gpib%i: %s: struck SRQ\n", board->minor, __FUNCTION__);
+			printk("gpib%i: %s: stuck SRQ\n", board->minor, __FUNCTION__);
 
 			smp_mb__before_atomic();
 			atomic_set(&board->stuck_srq, 1);	// XXX could be better

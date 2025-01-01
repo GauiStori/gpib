@@ -48,6 +48,7 @@ void init_ibboard(ibBoard_t *board)
 	board->autospoll = 0;
 	strcpy(board->sysfs_device_path, "");
 	strcpy(board->serial_number, "");
+	board->set_ren_on_sc = 1;
 }
 
 int configure_autospoll(ibConf_t *conf, int enable)
@@ -136,15 +137,19 @@ int InternalResetSys( ibConf_t *conf, const Addr4882_t addressList[] )
 		return -1;
 	}
 
-	if( is_system_controller( board ) == 0 )
+	retval = is_system_controller( board );
+	if (retval <= 0)
 	{
-		setIberr( ESAC );
+		if (retval == 0)
+			setIberr( ESAC );
 		return -1;
 	}
 
-	if( is_cic( board ) == 0 )
+	retval = is_cic( board );
+	if (retval <= 0)
 	{
-		setIberr( ECIC );
+		if (retval == 0)
+			setIberr( ECIC );
 		return -1;
 	}
 

@@ -109,9 +109,11 @@ void AllSPoll( int boardID, const Addr4882_t addressList[], short resultList[] )
 
 	board = interfaceBoard( conf );
 
-	if( is_cic( board ) == 0 )
+	retval = is_cic( board );
+	if (retval <= 0)
 	{
-		setIberr( ECIC );
+		if (retval == 0)
+			setIberr( ECIC );
 		exit_library( boardID, 1 );
 		return;
 	}
@@ -170,9 +172,11 @@ void FindRQS( int boardID, const Addr4882_t addressList[], short *result )
 
 	board = interfaceBoard( conf );
 
-	if( is_cic( board ) == 0 )
+	retval =  is_cic( board );
+	if (retval <= 0)
 	{
-		setIberr( ECIC );
+		if (retval == 0)
+			setIberr( ECIC );
 		exit_library( boardID, 1 );
 		return;
 	}
@@ -234,9 +238,11 @@ void ReadStatusByte( int boardID, Addr4882_t address, short *result )
 
 	board = interfaceBoard( conf );
 
-	if( is_cic( board ) == 0 )
+	retval =  is_cic( board );
+	if (retval <= 0)
 	{
-		setIberr( ECIC );
+		if (retval == 0)
+			setIberr( ECIC );
 		exit_library( boardID, 1 );
 		return;
 	}
