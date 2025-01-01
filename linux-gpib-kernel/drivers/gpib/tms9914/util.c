@@ -44,7 +44,7 @@ int tms9914_parallel_poll(gpib_board_t *board, tms9914_private_t *priv, uint8_t 
 	return 0;
 }
 
-void set_ppoll_reg( tms9914_private_t *priv, int enable,
+static void set_ppoll_reg( tms9914_private_t *priv, int enable,
 	unsigned int dio_line, int sense, int ist )
 {
 	uint8_t dio_byte;
@@ -171,6 +171,7 @@ static void update_listener_state(tms9914_private_t *priv, unsigned address_stat
 unsigned int update_status_nolock( gpib_board_t *board, tms9914_private_t *priv )
 {
 	int address_status;
+	int bsr_bits;
 
 	smp_mb__before_atomic();
 
@@ -188,30 +189,35 @@ unsigned int update_status_nolock( gpib_board_t *board, tms9914_private_t *priv 
 		clear_bit( LOK_NUM, &board->status );
 	// check for ATN
 	if(address_status & HR_ATN)
-	{
 		set_bit( ATN_NUM, &board->status );
-	}else
-	{
+	else
 		clear_bit( ATN_NUM, &board->status );
-	}
 	// check for talker/listener addressed
 	update_talker_state(priv, address_status);
-	if(priv->talker_state == talker_active || priv->talker_state == talker_addressed)
-	{
+	if(priv->talker_state == talker_active || priv->talker_state == talker_addressed) {
 		set_bit( TACS_NUM, &board->status );
-	}else
+	} else {
 		clear_bit( TACS_NUM, &board->status );
+	}
+
 	update_listener_state(priv, address_status);
-	if(priv->listener_state == listener_active || priv->listener_state == listener_addressed)
-	{
-		set_bit(LACS_NUM, &board->status);
-	}else
+	if(priv->listener_state == listener_active || priv->listener_state == listener_addressed) {
+		set_bit( LACS_NUM, &board->status );
+	} else {
 		clear_bit( LACS_NUM, &board->status );
+	}
+
+	// Check for SRQI - not reset elsewhere except in autospoll
+	if (board->status & SRQI) {
+		bsr_bits = read_byte(priv, BSR);
+		if( !(bsr_bits & BSR_SRQ_BIT) )
+			clear_bit( SRQI_NUM, &board->status );
+	}
 
 	smp_mb__after_atomic();
 
-//	GPIB_DPRINTK( "status 0x%x, state 0x%x\n", board->status, priv->state );
-	
+	GPIB_DPRINTK( "status 0x%lx, state 0x%lx\n", board->status, priv->state );
+
 	return board->status;
 }
 
@@ -221,7 +227,7 @@ int tms9914_line_status( const gpib_board_t *board, tms9914_private_t *priv)
 	int status = ValidALL;
 
 	bsr_bits = read_byte(priv, BSR);
-	
+
 	if( bsr_bits & BSR_REN_BIT )
 		status |= BusREN;
 	if( bsr_bits & BSR_IFC_BIT )

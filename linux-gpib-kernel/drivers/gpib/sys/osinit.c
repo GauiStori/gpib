@@ -104,7 +104,7 @@ void gpib_unregister_driver(gpib_interface_t *interface)
 	printk("gpib: unregistered %s interface\n", interface->name);
 }
 
-void init_gpib_board_config(gpib_board_config_t *config)
+static void init_gpib_board_config(gpib_board_config_t *config)
 {
 	memset(config, 0, sizeof(gpib_board_config_t));
 	config->pci_bus = -1;
@@ -126,6 +126,7 @@ void init_gpib_board( gpib_board_t *board )
 	spin_lock_init(&board->spinlock);
 	COMPAT_TIMER_SETUP(&board->timer, NULL, 0);
 	board->dev = NULL;
+	board->gpib_dev = NULL;
 	init_gpib_board_config(&board->config);
 	board->private_data = NULL;
 	board->use_count = 0;
@@ -176,7 +177,7 @@ void gpib_deallocate_board( gpib_board_t *board )
 
 }
 
-void init_board_array( gpib_board_t *board_array, unsigned int length )
+static void init_board_array( gpib_board_t *board_array, unsigned int length )
 {
 	int i;
 	for( i = 0; i < length; i++)
@@ -216,7 +217,7 @@ static int __init gpib_common_init_module( void )
 	}
 	for(i = 0; i < GPIB_MAX_NUM_BOARDS; ++i)
 	{
-		CLASS_DEVICE_CREATE(gpib_class, 0, MKDEV(GPIB_CODE, i), NULL, "gpib%i", i);
+		board_array[i].gpib_dev = CLASS_DEVICE_CREATE(gpib_class, 0, MKDEV(GPIB_CODE, i), NULL, "gpib%i", i);
 	}
 	return 0;
 }
@@ -240,7 +241,7 @@ int gpib_match_device_path(struct device *dev, const char *device_path_in)
 	if(device_path_in != NULL)
 	{
 		char *device_path;
-		
+
 		device_path = kobject_get_path(&dev->kobj, GFP_KERNEL);
 		if(device_path == NULL)
 		{

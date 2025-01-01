@@ -8,6 +8,12 @@
 #   (at your option) any later version.
 
 headersdir = $(includedir)/gpib
-headers_HEADERS = gpib_user.h ib.h
+headers_HEADERS = gpib_user.h ib.h gpib_version.h
 noinst_HEADERS = gpib_ioctl.h
 
+EXTRA_DIST = version_subst
+
+CLEANFILES =gpib_version.h
+
+gpib_version.h: 
+	echo $(VERSION) | $(SED) -f version_subst > $@

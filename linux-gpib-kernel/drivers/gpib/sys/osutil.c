@@ -49,7 +49,7 @@ static inline int pseudo_irq_period(void)
 	return (HZ + 99) / 100;
 }
 
-void pseudo_irq_handler(COMPAT_TIMER_ARG_TYPE t)
+static void pseudo_irq_handler(COMPAT_TIMER_ARG_TYPE t)
 {
 	struct gpib_pseudo_irq *pseudo_irq = COMPAT_FROM_TIMER(pseudo_irq, t, timer);
 	if(pseudo_irq->handler)

@@ -43,6 +43,7 @@ static char * mProg;                     // Programme name
 static char * mHist     = (char *)NULL;  // History filename pointer
 static int mAutoRead    = true;          // Automatically read from device
 static int mHex         = false;         // Force hex output flag
+static int mUnTUnL      = false;         // send untalk/unlisten
 static int devdesc  = -1;  // device descriptor
 static int minor    = 0;   // gpib driver major
 static int pad      = -1;  // device primary bus address
@@ -71,6 +72,7 @@ static const char * help_string =
 #ifdef READLINE
   " -f <history file>  (optional, default=\".ibterm_hist_<pad>\")\n"
 #endif
+  " -u Send Untalk/Unlisten after each read and write\n"
   " -N No automatic read on device, enter return at prompt to read.\n"
   " -X forces hexadecimal output.\n"
   " -h prints this help info and exits.\n"
@@ -105,7 +107,7 @@ static const char * usage_options =
 #ifdef READLINE
   " [-f history_file]"
 #endif
-  " [-N] [-X]\n";
+  " [-u] [-N] [-X] [-h]\n";
 
 #define EMES(var) fputs(var,stderr)
 
@@ -160,7 +162,7 @@ if (var != 0 && var != 1)  abend(#flag " flag must be 1 or 0.\n");
 if (var < 0 || var > 30)  abend(#var " must be between 0 and 30.\n");
 
 #define CHECK_SADDR(var) 	\
-if (var < 0x60 || var > 0x7e)  abend("linux-gpib requires the secondary address to be offset by 96,\n   that is sad must be between 96 and 126.\n");
+if (var < 0x60 || var > 0x7f)  abend("linux-gpib requires the secondary address to be offset by 96,\n   that is sad must be between 96 and 127.\n");
 
 void parse_options(int argc, char ** argv) {
   int eos_char  = 0;   // End of string character
@@ -171,7 +173,7 @@ void parse_options(int argc, char ** argv) {
 
   mProg = argv[0];
 
-  while ((c = getopt (argc, argv, "d:m:s:i:e:r:b:x:t:f:p:NXh")) != -1)
+  while ((c = getopt (argc, argv, "d:m:s:i:e:r:b:x:t:f:p:uNXh")) != -1)
     switch (c)  {
     case 'd': pad       = atoi(optarg);    break;
     case 'm': minor     = atoi(optarg);    break;
@@ -184,6 +186,7 @@ void parse_options(int argc, char ** argv) {
     case 't': timeout   = atoi(optarg);    break;
     case 'f': mHist     = optarg;          break;
     case 'p': mPrompt   = optarg;          break;
+    case 'u': mUnTUnL   = true;            break;
     case 'N': mAutoRead = false;           break;
     case 'X': mHex      = true;            break;
     case 'h':
@@ -222,6 +225,8 @@ void parse_options(int argc, char ** argv) {
 static void showError(char * mess) {
   fprintf(stderr,"ibterm error: %s\n", mess);
   fprintf(stderr," - %s\n", gpib_error_string(ThreadIberr()));
+  if (iberr==EDVR)
+	  fprintf(stderr,"\t%s\n",strerror(ibcnt));
 }
 
 #ifndef READLINE
@@ -257,10 +262,18 @@ int main (int argc, char ** argv) {
   printf("Attempting to open /dev/gpib%i\n"
 	 "pad = %d, sad = %d, timeout = %d, send_eoi = %d, eos_mode = 0x%04x\n",
 	 minor,pad,sad,timeout,send_eoi,eos_mode);
+  putenv("IB_NO_ERROR=1"); // we check for our own errors
   devdesc = ibdev(minor, pad, sad, timeout, send_eoi, eos_mode);
   if (devdesc < 0) {
     showError("open failed");
     abend("ibdev error\n");
+  }
+
+  if (mUnTUnL) {
+    if(ERR & ibconfig(devdesc, IbcUnAddr, 1))
+      EMES("Could not set IbcUnAddr\n");
+    ibask(devdesc, IbaUnAddr, &i);
+    printf("IbaUnAddr %d\n",i);
   }
 
   read_history(mHist);
@@ -270,7 +283,7 @@ int main (int argc, char ** argv) {
 
     /* write to device */
     if (*line) { /* send to device only if we got something */
-     if (ibwrt(devdesc,line,strlen(line)) & ERR ) {
+      if (ibwrt(devdesc,line,strlen(line)) & ERR ) {
 	sprintf(errmes,"Unable to write to device at pad %d\n",pad);
 	showError(errmes);
 	free(line);

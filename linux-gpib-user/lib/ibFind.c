@@ -30,15 +30,22 @@ int ibfind( const char *dev )
 	retval = ibParseConfigFile();
 	if(retval < 0)
 	{
-		setIberr( EDVR );
+		if (errno) {
+			setIbcnt( errno );
+			setIberr( EDVR );
+		} else {
+			setIberr( ECNF );
+		}
 		setIbsta( ERR );
+		sync_globals();
 		return -1;
 	}
 
 	if( ( index = ibFindDevIndex( dev ) ) < 0 )
 	{ /* find desired entry */
-		setIberr( EDVR );
+		setIberr( EARG );
 		setIbsta( ERR );
+		sync_globals();
 		return -1;
 	}
 

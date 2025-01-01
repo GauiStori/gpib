@@ -37,7 +37,7 @@ irqreturn_t fluke_gpib_internal_interrupt(gpib_board_t *board);
 
 static struct platform_device *fluke_gpib_pdev = NULL;
 
-uint8_t fluke_locking_read_byte(nec7210_private_t *nec_priv, unsigned int register_number)
+static uint8_t fluke_locking_read_byte(nec7210_private_t *nec_priv, unsigned int register_number)
 {
 	uint8_t retval;
 	unsigned long flags;
@@ -48,7 +48,7 @@ uint8_t fluke_locking_read_byte(nec7210_private_t *nec_priv, unsigned int regist
 	return retval;
 }
 
-void fluke_locking_write_byte(nec7210_private_t *nec_priv, uint8_t byte, unsigned int register_number)
+static void fluke_locking_write_byte(nec7210_private_t *nec_priv, uint8_t byte, unsigned int register_number)
 {
 	unsigned long flags;
 
@@ -58,98 +58,98 @@ void fluke_locking_write_byte(nec7210_private_t *nec_priv, uint8_t byte, unsigne
 }
 
 // wrappers for interface functions
-int fluke_read(gpib_board_t *board, uint8_t *buffer, size_t length, int *end, size_t *bytes_read)
+static int fluke_read(gpib_board_t *board, uint8_t *buffer, size_t length, int *end, size_t *bytes_read)
 {
 	fluke_private_t *priv = board->private_data;
 	return nec7210_read(board, &priv->nec7210_priv, buffer, length, end, bytes_read);
 }
-int fluke_write(gpib_board_t *board, uint8_t *buffer, size_t length, int send_eoi, size_t *bytes_written)
+static int fluke_write(gpib_board_t *board, uint8_t *buffer, size_t length, int send_eoi, size_t *bytes_written)
 {
 	fluke_private_t *priv = board->private_data;
 	return nec7210_write(board, &priv->nec7210_priv, buffer, length, send_eoi, bytes_written);
 }
-int fluke_command(gpib_board_t *board, uint8_t *buffer, size_t length, size_t *bytes_written)
+static int fluke_command(gpib_board_t *board, uint8_t *buffer, size_t length, size_t *bytes_written)
 {
 	fluke_private_t *priv = board->private_data;
 	return nec7210_command(board, &priv->nec7210_priv, buffer, length, bytes_written);
 }
-int fluke_take_control(gpib_board_t *board, int synchronous)
+static int fluke_take_control(gpib_board_t *board, int synchronous)
 {
 	fluke_private_t *priv = board->private_data;
 	return nec7210_take_control(board, &priv->nec7210_priv, synchronous);
 }
-int fluke_go_to_standby(gpib_board_t *board)
+static int fluke_go_to_standby(gpib_board_t *board)
 {
 	fluke_private_t *priv = board->private_data;
 	return nec7210_go_to_standby(board, &priv->nec7210_priv);
 }
-void fluke_request_system_control( gpib_board_t *board, int request_control )
+static void fluke_request_system_control( gpib_board_t *board, int request_control )
 {
 	fluke_private_t *priv = board->private_data;
 	nec7210_private_t *nec_priv = &priv->nec7210_priv;
 	nec7210_request_system_control( board, nec_priv, request_control );
 }
-void fluke_interface_clear(gpib_board_t *board, int assert)
+static void fluke_interface_clear(gpib_board_t *board, int assert)
 {
 	fluke_private_t *priv = board->private_data;
 	nec7210_interface_clear(board, &priv->nec7210_priv, assert);
 }
-void fluke_remote_enable(gpib_board_t *board, int enable)
+static void fluke_remote_enable(gpib_board_t *board, int enable)
 {
 	fluke_private_t *priv = board->private_data;
 	nec7210_remote_enable(board, &priv->nec7210_priv, enable);
 }
-int fluke_enable_eos(gpib_board_t *board, uint8_t eos_byte, int compare_8_bits)
+static int fluke_enable_eos(gpib_board_t *board, uint8_t eos_byte, int compare_8_bits)
 {
 	fluke_private_t *priv = board->private_data;
 	return nec7210_enable_eos(board, &priv->nec7210_priv, eos_byte, compare_8_bits);
 }
-void fluke_disable_eos(gpib_board_t *board)
+static void fluke_disable_eos(gpib_board_t *board)
 {
 	fluke_private_t *priv = board->private_data;
 	nec7210_disable_eos(board, &priv->nec7210_priv);
 }
-unsigned int fluke_update_status( gpib_board_t *board, unsigned int clear_mask )
+static unsigned int fluke_update_status( gpib_board_t *board, unsigned int clear_mask )
 {
 	fluke_private_t *priv = board->private_data;
 	return nec7210_update_status( board, &priv->nec7210_priv, clear_mask );
 }
-int fluke_primary_address(gpib_board_t *board, unsigned int address)
+static int fluke_primary_address(gpib_board_t *board, unsigned int address)
 {
 	fluke_private_t *priv = board->private_data;
 	return nec7210_primary_address(board, &priv->nec7210_priv, address);
 }
-int fluke_secondary_address(gpib_board_t *board, unsigned int address, int enable)
+static int fluke_secondary_address(gpib_board_t *board, unsigned int address, int enable)
 {
 	fluke_private_t *priv = board->private_data;
 	return nec7210_secondary_address(board, &priv->nec7210_priv, address, enable);
 }
-int fluke_parallel_poll(gpib_board_t *board, uint8_t *result)
+static int fluke_parallel_poll(gpib_board_t *board, uint8_t *result)
 {
 	fluke_private_t *priv = board->private_data;
 	return nec7210_parallel_poll(board, &priv->nec7210_priv, result);
 }
-void fluke_parallel_poll_configure( gpib_board_t *board, uint8_t configuration )
+static void fluke_parallel_poll_configure( gpib_board_t *board, uint8_t configuration )
 {
 	fluke_private_t *priv = board->private_data;
 	nec7210_parallel_poll_configure(board, &priv->nec7210_priv, configuration );
 }
-void fluke_parallel_poll_response( gpib_board_t *board, int ist )
+static void fluke_parallel_poll_response( gpib_board_t *board, int ist )
 {
 	fluke_private_t *priv = board->private_data;
 	nec7210_parallel_poll_response(board, &priv->nec7210_priv, ist );
 }
-void fluke_serial_poll_response(gpib_board_t *board, uint8_t status)
+static void fluke_serial_poll_response(gpib_board_t *board, uint8_t status)
 {
 	fluke_private_t *priv = board->private_data;
 	nec7210_serial_poll_response(board, &priv->nec7210_priv, status);
 }
-uint8_t fluke_serial_poll_status( gpib_board_t *board )
+static uint8_t fluke_serial_poll_status( gpib_board_t *board )
 {
 	fluke_private_t *priv = board->private_data;
 	return nec7210_serial_poll_status( board, &priv->nec7210_priv );
 }
-void fluke_return_to_local( gpib_board_t *board )
+static void fluke_return_to_local( gpib_board_t *board )
 {
 	fluke_private_t *priv = board->private_data;
 	nec7210_private_t *nec_priv = &priv->nec7210_priv;
@@ -157,7 +157,7 @@ void fluke_return_to_local( gpib_board_t *board )
 	udelay(1);
 	write_byte(nec_priv, AUX_RTL, AUXMR);
 }
-int fluke_line_status( const gpib_board_t *board )
+static int fluke_line_status( const gpib_board_t *board )
 {
 	int status = ValidALL;
 	int bsr_bits;
@@ -189,7 +189,7 @@ int fluke_line_status( const gpib_board_t *board )
 	return status;
 }
 
-unsigned int fluke_t1_delay( gpib_board_t *board, unsigned int nano_sec )
+static unsigned int fluke_t1_delay( gpib_board_t *board, unsigned int nano_sec )
 {
 	fluke_private_t *e_priv = board->private_data;
 	nec7210_private_t *nec_priv = &e_priv->nec7210_priv;
@@ -835,25 +835,25 @@ irqreturn_t fluke_gpib_internal_interrupt(gpib_board_t *board)
 	{
 		wake_up_interruptible( &board->wait );
 	}
-    
+
 	smp_mb__after_atomic();
 
 	return retval;
 }
 
-irqreturn_t fluke_gpib_interrupt(int irq, void *arg)
+static irqreturn_t fluke_gpib_interrupt(int irq, void *arg)
 {
 	gpib_board_t *board = arg;
 	unsigned long flags;
 	irqreturn_t retval;
-	
+
 	spin_lock_irqsave(&board->spinlock, flags);
 	retval = fluke_gpib_internal_interrupt(board);
 	spin_unlock_irqrestore(&board->spinlock, flags);
 	return retval;
 }
 
-int fluke_allocate_private(gpib_board_t *board)
+static int fluke_allocate_private(gpib_board_t *board)
 {
 	fluke_private_t *priv;
 
@@ -870,7 +870,7 @@ int fluke_allocate_private(gpib_board_t *board)
 	return 0;
 }
 
-void fluke_generic_detach(gpib_board_t *board)
+static void fluke_generic_detach(gpib_board_t *board)
 {
 	if(board->private_data)
 	{
@@ -883,7 +883,7 @@ void fluke_generic_detach(gpib_board_t *board)
 }
 
 // generic part of attach functions shared by all cb7210 boards
-int fluke_generic_attach(gpib_board_t *board)
+static int fluke_generic_attach(gpib_board_t *board)
 {
 	fluke_private_t *e_priv;
 	nec7210_private_t *nec_priv;
@@ -929,7 +929,7 @@ static int fluke_config_dma(gpib_board_t *board, int output)
 	return dmaengine_slave_config(e_priv->dma_channel, &config);
 }
 
-int fluke_init(fluke_private_t *e_priv, gpib_board_t *board, int handshake_mode)
+static int fluke_init(fluke_private_t *e_priv, gpib_board_t *board, int handshake_mode)
 {
 	nec7210_private_t *nec_priv = &e_priv->nec7210_priv;
 

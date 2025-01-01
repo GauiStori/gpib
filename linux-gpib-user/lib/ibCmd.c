@@ -38,7 +38,7 @@ int ibcmd(int ud, const void *cmd_buffer, long cnt)
 		return exit_library( ud, 1 );
 	}
 
-	count = my_ibcmd( conf, cmd_buffer, cnt);
+	count = my_ibcmd( conf, conf->settings.usec_timeout, cmd_buffer, cnt);
 	if(count < 0)
 	{
 		return exit_library( ud, 1);
@@ -71,9 +71,11 @@ int ibcmda( int ud, const void *cmd_buffer, long cnt )
 
 	board = interfaceBoard( conf );
 
-	if( is_cic( board ) == 0 )
+	retval =  is_cic( board );
+	if (retval <= 0)
 	{
-		setIberr( ECIC );
+		if (retval == 0)
+			setIberr( ECIC );
 		return general_exit_library( ud, 1, 0, 0, 0, 0, 1 );
 	}
 
@@ -85,7 +87,7 @@ int ibcmda( int ud, const void *cmd_buffer, long cnt )
 	return general_exit_library( ud, 0, 0, 0, 0, 0, 1 );
 }
 
-ssize_t my_ibcmd( ibConf_t *conf, const uint8_t *buffer, size_t count)
+ssize_t my_ibcmd( ibConf_t *conf, unsigned int usec_timeout, const uint8_t *buffer, size_t count)
 {
 	read_write_ioctl_t cmd;
 	int retval;
@@ -93,9 +95,11 @@ ssize_t my_ibcmd( ibConf_t *conf, const uint8_t *buffer, size_t count)
 
 	board = interfaceBoard( conf );
 
-	if( is_cic( board ) == 0 )
+	retval =  is_cic( board );
+	if (retval <= 0)
 	{
-		setIberr( ECIC );
+		if (retval == 0)
+			setIberr( ECIC );
 		return -1;
 	}
 
@@ -104,9 +108,10 @@ ssize_t my_ibcmd( ibConf_t *conf, const uint8_t *buffer, size_t count)
 	cmd.requested_transfer_count = count;
 	cmd.completed_transfer_count = 0;
 	cmd.handle = conf->handle;
-	cmd.end = 0;
-	
-	set_timeout( board, conf->settings.usec_timeout);
+	/* set the suppress setting CMPL flag if an asyc read or write is in progress */
+	cmd.end = ( conf->async.in_progress &&
+		( conf->async.aio_type == GPIB_AIO_READ || conf->async.aio_type == GPIB_AIO_WRITE ) );
+	set_timeout( board, usec_timeout);
 
 	retval = ioctl( board->fileno, IBCMD, &cmd );
 	if( retval < 0 )
@@ -189,14 +194,14 @@ unsigned int send_setup_string( const ibConf_t *conf,
 	return create_send_setup( board, addressList, cmdString );
 }
 
-int send_setup( ibConf_t *conf )
+int send_setup( ibConf_t *conf, unsigned int usec_timeout )
 {
 	uint8_t cmdString[8];
 	int retval;
 
 	retval = send_setup_string( conf, cmdString );
 
-	if( my_ibcmd( conf, cmdString, retval ) < 0 )
+	if( my_ibcmd( conf, usec_timeout, cmdString, retval ) < 0 )
 		return -1;
 
 	return 0;
@@ -208,6 +213,7 @@ int InternalSendSetup( ibConf_t *conf, const Addr4882_t addressList[] )
 	ibBoard_t *board;
 	uint8_t *cmd;
 	int count;
+	int retval;
 
 	if( addressListIsValid( addressList ) == 0 ||
 		numAddresses( addressList ) == 0 )
@@ -224,9 +230,11 @@ int InternalSendSetup( ibConf_t *conf, const Addr4882_t addressList[] )
 
 	board = interfaceBoard( conf );
 
-	if( is_cic( board ) == 0 )
+	retval =  is_cic( board );
+	if (retval <= 0)
 	{
-		setIberr( ECIC );
+		if (retval == 0)
+			setIberr( ECIC );
 		return -1;
 	}
 
@@ -241,7 +249,7 @@ int InternalSendSetup( ibConf_t *conf, const Addr4882_t addressList[] )
 	i = create_send_setup( board, addressList, cmd );
 
 	//XXX detect no listeners (EBUS) error
-	count = my_ibcmd( conf, cmd, i );
+	count = my_ibcmd( conf, conf->settings.usec_timeout, cmd, i );
 
 	free( cmd );
 	cmd = NULL;

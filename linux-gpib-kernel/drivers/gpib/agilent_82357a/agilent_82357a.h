@@ -168,6 +168,7 @@ typedef struct
 	unsigned bulk_out_endpoint;
 	unsigned interrupt_in_endpoint;
 	unsigned is_cic : 1;
+	unsigned ren_state : 1;
 } agilent_82357a_private_t;
 
 

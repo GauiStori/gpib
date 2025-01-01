@@ -1,0 +1,4 @@
+s/^/#define GPIB_MAJOR_VERSION /
+s/\./\n#define GPIB_MINOR_VERSION /
+s/\./\n#define GPIB_MICRO_VERSION /
+s/\-.*$//

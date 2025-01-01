@@ -118,17 +118,17 @@ void hp82335_serial_poll_response( gpib_board_t *board, uint8_t status )
 	hp82335_private_t *priv = board->private_data;
 	tms9914_serial_poll_response( board, &priv->tms9914_priv, status );
 }
-uint8_t hp82335_serial_poll_status( gpib_board_t *board )
+static uint8_t hp82335_serial_poll_status( gpib_board_t *board )
 {
 	hp82335_private_t *priv = board->private_data;
 	return tms9914_serial_poll_status( board, &priv->tms9914_priv );
 }
-int hp82335_line_status( const gpib_board_t *board )
+static int hp82335_line_status( const gpib_board_t *board )
 {
 	hp82335_private_t *priv = board->private_data;
 	return tms9914_line_status( board, &priv->tms9914_priv );
 }
-unsigned int hp82335_t1_delay( gpib_board_t *board, unsigned int nano_sec )
+static unsigned int hp82335_t1_delay( gpib_board_t *board, unsigned int nano_sec )
 {
 	hp82335_private_t *priv = board->private_data;
 	return tms9914_t1_delay( board, &priv->tms9914_priv, nano_sec );
@@ -163,6 +163,7 @@ gpib_interface_t hp82335_interface =
 	primary_address: hp82335_primary_address,
 	secondary_address: hp82335_secondary_address,
 	serial_poll_response: hp82335_serial_poll_response,
+	serial_poll_status: hp82335_serial_poll_status,
 	t1_delay: hp82335_t1_delay,
 	return_to_local: hp82335_return_to_local,
 };
@@ -190,17 +191,17 @@ static inline unsigned int tms9914_to_hp82335_offset( unsigned int register_num 
 	return 0x1ff8 + register_num;
 }
 
-uint8_t hp82335_read_byte( tms9914_private_t *priv, unsigned int register_num )
+static uint8_t hp82335_read_byte( tms9914_private_t *priv, unsigned int register_num )
 {
 	return tms9914_iomem_read_byte( priv, tms9914_to_hp82335_offset( register_num ) );
 }
 
-void hp82335_write_byte( tms9914_private_t *priv, uint8_t data, unsigned int register_num )
+static void hp82335_write_byte( tms9914_private_t *priv, uint8_t data, unsigned int register_num )
 {
 	tms9914_iomem_write_byte( priv, data, tms9914_to_hp82335_offset( register_num ) );
 }
 
-void hp82335_clear_interrupt( hp82335_private_t *hp_priv )
+static void hp82335_clear_interrupt( hp82335_private_t *hp_priv )
 {
 	tms9914_private_t *tms_priv = &hp_priv->tms9914_priv;
 	writeb( 0, tms_priv->iobase + HPREG_INTR_CLEAR );

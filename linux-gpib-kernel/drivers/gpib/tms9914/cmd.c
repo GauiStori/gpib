@@ -19,7 +19,7 @@
 #include "board.h"
 #include <linux/delay.h>
 
-void check_my_address_state( gpib_board_t *board, tms9914_private_t *priv, int cmd_byte )
+static void check_my_address_state( gpib_board_t *board, tms9914_private_t *priv, int cmd_byte )
 {
 	if( cmd_byte == MLA( board->pad ) )
 	{
@@ -32,7 +32,7 @@ void check_my_address_state( gpib_board_t *board, tms9914_private_t *priv, int c
 	{
 		// become active listener
 		write_byte(priv, AUX_LON | AUX_CS, AUXCR);
-	}else if( cmd_byte != MLA( board->pad ) && ( cmd_byte & 0xf0 ) == LAD )
+	}else if( cmd_byte != MLA( board->pad ) && ( cmd_byte & 0xe0 ) == LAD )
 	{
 		priv->primary_listen_addressed = 0;
 	}else if( cmd_byte == UNL )
@@ -50,9 +50,10 @@ void check_my_address_state( gpib_board_t *board, tms9914_private_t *priv, int c
 	{
 		// become active talker
 		write_byte(priv, AUX_TON | AUX_CS, AUXCR);
-	}else if( cmd_byte != MTA( board->pad ) && ( cmd_byte & 0xf0 ) == TAD )
-	{
+	}else if( cmd_byte != MTA( board->pad ) && ( cmd_byte & 0xe0 ) == TAD )
+	{       // Other Talk Address
 		priv->primary_talk_addressed = 0;
+		write_byte(priv, AUX_TON, AUXCR);
 	}else if( cmd_byte == UNT )
 	{
 		priv->primary_talk_addressed = 0;
@@ -60,7 +61,7 @@ void check_my_address_state( gpib_board_t *board, tms9914_private_t *priv, int c
 	}
 }
 
-int tms9914_command(gpib_board_t *board, tms9914_private_t *priv, 
+int tms9914_command(gpib_board_t *board, tms9914_private_t *priv,
 	uint8_t *buffer, size_t length, size_t *bytes_written)
 {
 	int retval = 0;

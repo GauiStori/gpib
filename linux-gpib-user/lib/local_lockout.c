@@ -26,7 +26,7 @@ static int local_lockout( ibConf_t *conf, const Addr4882_t addressList[] )
 	if( retval < 0 ) return retval;
 
 	cmd = LLO;
-	retval = my_ibcmd( conf, &cmd, 1 );
+	retval = my_ibcmd( conf, conf->settings.usec_timeout, &cmd, 1 );
 	if( retval < 0 ) return retval;
 
 	return 0;

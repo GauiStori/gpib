@@ -288,7 +288,7 @@ static int configure_sysfs_device_path(int fileno, const char *sysfs_device_path
 {
 	select_device_path_ioctl_t devpath_selection;
 	int retval;
-	
+
 	if(sysfs_device_path != NULL)
 	{
 		if(strlen(sysfs_device_path) >= sizeof(devpath_selection.device_path))
@@ -296,7 +296,7 @@ static int configure_sysfs_device_path(int fileno, const char *sysfs_device_path
 			fprintf(stderr, "device path too long.\n");
 			return -EINVAL;
 		}
-		strncpy(devpath_selection.device_path, sysfs_device_path, 
+		strncpy(devpath_selection.device_path, sysfs_device_path,
 			sizeof(devpath_selection.device_path));
 	}else
 	{
@@ -388,7 +388,7 @@ static int configure_board( int fileno, const parsed_options_t *options )
 	}
 
 	configure_sysfs_device_path(fileno, options->sysfs_device_path);
-	 
+
 	online_cmd.online = 1;
 	assert(sizeof(options->init_data) <= sizeof(online_cmd.init_data_ptr));
 	online_cmd.init_data_ptr = (uintptr_t)options->init_data;
@@ -398,6 +398,12 @@ static int configure_board( int fileno, const parsed_options_t *options )
 	{
 		fprintf( stderr, "failed to bring board online\n" );
 		return retval;
+	}
+
+	retval = ibconfig( options->minor, IbcSRE, options->assert_remote_enable );
+	if( retval < 0)
+	{
+		fprintf( stderr, "ibconfig IbcSRE %d failed\n", options->assert_remote_enable);
 	}
 
 	retval = ibrsc( options->minor, options->is_system_controller );
@@ -414,15 +420,6 @@ static int configure_board( int fileno, const parsed_options_t *options )
 			if( retval & ERR )
 			{
 				fprintf( stderr, "failed to assert interface clear\n" );
-				return -1;
-			}
-		}
-		if( options->assert_remote_enable )
-		{
-			retval = ibsre( options->minor, 1 );
-			if( retval & ERR )
-			{
-				fprintf( stderr, "failed to assert remote enable\n" );
 				return -1;
 			}
 		}
@@ -458,7 +455,8 @@ int main( int argc, char *argv[] )
 		boards, GPIB_MAX_NUM_BOARDS );
 	if( retval < 0 )
 	{
-		fprintf( stderr, "failed to parse config file %s\n", filename );
+//              Message printed in parser
+//		fprintf( stderr, "failed to parse config file %s\n", filename );
 		return retval;
 	}
 

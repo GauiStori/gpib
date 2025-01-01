@@ -60,7 +60,7 @@ BIBLIOGRAPHY:
 
 */
 
-
+#define _GNU_SOURCE
 #include "gpib/ib.h"
 #include "php.h"
 #include "ext/standard/info.h"

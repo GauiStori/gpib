@@ -106,7 +106,10 @@ options follow.
 </para>
 <para>
 <programlisting>
+  /*  This comment style is permitted */
 
+  // This is an alternat comment style
+  
 interface {
 	minor = 0
 	board_type = "ni_pci"
@@ -144,7 +147,7 @@ interface {
 
 device {
 	minor = 0
-	name = "counter"
+	name = "counter"  // name that can be used with ibfind
 	pad = 24
 }
 
@@ -268,9 +271,9 @@ device {
 	<row>
 	<entry>sad</entry>
 	<entry>Specifies the secondary GPIB address.  Valid values are 0, or
-	0x60 to 0x7e hexadecimal (96 to 126 decimal).  A value of 0 means
+	0x60 to 0x7f hexadecimal (96 to 127 decimal).  A value of 0 means
 	secondary addressing is disabled (the default).  Secondary addresses
-	from 0 to 30
+	from 0 to 31
 	are specified by the library's convention of adding an offset of 0x60.
 	</entry>
 	<entry>interface or device</entry>
@@ -470,7 +473,7 @@ pci board. If used, you must also specify the pci bus with <option>--pci-bus</op
 <para><option>-s, --sad <replaceable>number</replaceable></option></para>
 <para>
 Specify secondary gpib address.  <replaceable>number</replaceable>
-should be 0 (disabled) or in the range 96 through 126 (0x60 through 0x7e hexadecimal).
+should be 0 (disabled) or in the range 96 through 127 (0x60 through 0x7f hexadecimal).
 </para>
 
 <para><option>--[no-]sre</option></para>
@@ -1020,8 +1023,9 @@ features are flagged by a diagnostic message to syslog.
 <section ID="GPIO">
 <title>GPIO bitbang adapter</title>
 <para>
-WARNING: this driver is incomplete and its behavior does not conform to the
-IEEE 488 standards.
+WARNING: this driver is incomplete and its behavior does not fully
+conform to the IEEE 488 standards. It has, however, been sucessfully
+tested with a number of instruments.
 </para>
 <para>
 This is a simple GPIO bitbang driver that currently only works on
@@ -1032,27 +1036,84 @@ well as limitations see the source code at:
   linux-gpib-kernel/drivers/gpib/gpio/gpib_bitbang.c
 </programlisting>
 <para>
-  Two pin maps between gpio and gpib are currently supported: elektronomikon and gpib4pi-1.1.
-  For schematics, boards and information on driver IC's
-  see <ulink URL="http://elektronomikon.org">http://elektronomikon.org</ulink>
-  and <ulink URL="https://www.hackster.io/lightside-instruments/the-gpib4pi-gpib-for-raspberry-pi-hat-4b3e9a">lightside-instruments
-    gpib4pi</ulink>
-</para>
-<para>
+  Three pin maps between gpio and gpib are currently supported:
+  "elektronomikon", "gpib4pi-1.1" and "yoga".
   The pin_maps are configured via the pin_map module parameter.
-  By default support for the elekronomikon pin_map with SN75160/161 driver IC's is
-  enabled. i.e. the default module parameter settings are
+  By default support for the elekronomikon pin_map with SN75160/161
+  driver IC's is  enabled. i.e. the default module parameter settings are
   pin_map=elektonomikon and sn7516x_used=1. 
-  To disable support for the IC's
+  To disable support for the SN75160/161 IC's
   when they are not installed the module parameter sn7516x_used must
   be set to zero:
-<programlisting>
-  modprobe gpib_bitbang sn7516x_used=0
-</programlisting>
-To set the pin_map for the Lightside instruments gpib4pi-1.1 board
-<programlisting>
-  modprobe gpib_bitbang pin_map="gpib4pi-1.1"
-</programlisting>
+  <programlisting>
+    modprobe gpib_bitbang sn7516x_used=0
+  </programlisting>
+</para>
+<para>
+  For schematics, boards and information on driver IC's see
+  <itemizedlist>
+    <listitem>
+      <para>
+      <ulink URL="http://elektronomikon.org">elektronomikon</ulink>
+      </para>
+      <para>
+	This is the default pinmap. The activity led on the adapter is enabled.
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+	<ulink URL="https://www.hackster.io/lightside-instruments/the-gpib4pi-gpib-for-raspberry-pi-hat-4b3e9a"> gpib4pi-1.1</ulink>
+      </para>
+      <para>
+	To set the pin_map for the Lightside instruments gpib4pi-1.1 board
+	<programlisting>
+	  modprobe gpib_bitbang pin_map="gpib4pi-1.1"
+	</programlisting>
+	The activity led on the adapter is enabled.
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+	<ulink URL="https://www.schwingen.org/yoga-gpib/">yoga</ulink>
+      </para>
+      <para>
+	To set the pin_map for the yoga board
+	<programlisting>
+	  modprobe gpib_bitbang pin_map="yoga"
+	</programlisting>
+	For the yoga board the sn7516x_used option is ignored.  The
+	status led on the yoga board is not enabled as the activity led by default.
+      </para>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    To enable the status led as an activity led:
+	    <programlisting>
+echo "dtoverlay=gpio-led,gpio=4,trigger=heartbeat,label=hat_led" \
+ &gt&gt /boot/firmware/config.txt
+	    </programlisting>
+	    or
+	     <programlisting>
+echo "dtoverlay=gpio-led,gpio=4,trigger=heartbeat,label=hat_led" \
+ &gt&gt /boot/config.txt
+	     </programlisting>
+	     depending on your setup. After rebooting and running gpib_config
+	    <programlisting>
+	      echo "gpib" &gt /sys/class/leds/hat_led/trigger
+	    </programlisting>
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	  To enable the Raspberry Pi activity led after running gpib_config
+	  <programlisting>
+	    echo "gpib" &gt /sys/class/leds/ACT/trigger
+	  </programlisting>
+	  </para>
+	</listitem>
+      </itemizedList>
+    </listitem>
+  </itemizedlist>
 </para>
 </section>
 <section ID="ni-usb-b">
@@ -1276,6 +1337,12 @@ volatile int iberr;
 	polling routines are unaware of the device's existence and will never
 	serial poll it.
 	</entry>
+	</row>
+	<row>
+	<entry>ECNF</entry>
+	<entry>17</entry>
+	<entry>There is a syntax or value error in the configuration file. This error
+	  can be returned by ibfind() and ibdev().
 	</row>
 	<row>
 	<entry>ETAB</entry>
@@ -1549,8 +1616,8 @@ volatile int ibsta;
 	<row>
 	<entry>IbaSAD</entry>
 	<entry>0x2</entry>
-	<entry>GPIB secondary address (0 for none, 0x60 to 0x7e for secondary
-	addresses 0 to 30)</entry>
+	<entry>GPIB secondary address (0 for none, 0x60 to 0x7f for secondary
+	addresses 0 to 31)</entry>
 	<entry>board or device</entry>
 	</row>
 	<row>
@@ -1606,9 +1673,9 @@ volatile int ibsta;
 	<row>
 	<entry>IbaSRE</entry>
 	<entry>0xb</entry>
-	<entry>Nonzero if board autmatically asserts REN line when
+	<entry>Nonzero if board automatically asserts the REN line when
 	it becomes the system controller.  See
-	<link LINKEND="reference-function-ibsre">ibsre()</link>.
+	<link LINKEND="reference-function-ibrsc">ibrsc()</link>.
 	</entry>
 	<entry>board</entry>
 	</row>
@@ -1724,7 +1791,7 @@ volatile int ibsta;
 	<entry>IbaUnAddr</entry>
 	<entry>0x1b</entry>
 	<entry>Nonzero if UNT (untalk) and UNL (unlisten) commands are automatically
-	sent after a completed io operation using this descriptor.</entry>
+	sent after a completed ibrd* or ibwrt* operation using this descriptor.</entry>
 	<entry>device</entry>
 	</row>
 	<row>
@@ -2146,9 +2213,10 @@ volatile int ibsta;
 	<row>
 	<entry>IbcSRE</entry>
 	<entry>0xb</entry>
-	<entry>If setting is nonzero then board asserts REN line.  Otherwise
-	REN is unasserted.  Same as
-	<link LINKEND="reference-function-ibsre">ibsre()</link>.
+	<entry>If setting is nonzero then board asserts REN when
+	  it becomes sytem controller otherwise REN is not asserted.
+	  It is nonzero by default. See
+	<link LINKEND="reference-function-ibrsc">ibrsc()</link>.
 	</entry>
 	<entry>board</entry>
 	</row>
@@ -2286,8 +2354,7 @@ volatile int ibsta;
 	<entry>IbcUnAddr</entry>
 	<entry>0x1b</entry>
 	<entry>If setting is nonzero then UNT (untalk) and UNL (unlisten) commands
-	are automatically sent after a completed io operation using this descriptor.
-	This option is off by default.</entry>
+	are automatically sent after a completed ibrd* or ibwrt* operation using this descriptor.
 	<entry>device</entry>
 	</row>
 	<row>
@@ -2384,7 +2451,9 @@ volatile int ibsta;
 	Finally, the <parameter>eos</parameter>
 	argument specifies the end-of-string character and whether or not its
 	reception should terminate reads (see <link LINKEND="reference-function-ibeos">
-	ibeos()</link>).
+	ibeos()</link>).  To suppress error messages printed to stderr
+	by ibdev() set the evironment variable IB_NO_ERROR before
+	calling	the routine.
 	</para>
 </refsect1>
 <refsect1>
@@ -2923,7 +2992,7 @@ volatile int ibsta;
 	<parameter>pad</parameter> and <parameter>sad</parameter> arguments.
 	<parameter>pad</parameter> specifies the primary address, 0 through 30
 	are valid values.  <parameter>sad</parameter> gives the secondary
-	address, and may be a value from 0x60 through 0x7e (96 through 126), or
+	address, and may be a value from 0x60 through 0x7f (96 through 127), or
 	one of the constants NO_SAD or ALL_SAD.  NO_SAD indicates that no
 	secondary addressing is to be used, and ALL_SAD indicates that
 	all secondary addresses should be checked.
@@ -3028,18 +3097,24 @@ volatile int ibsta;
 	Description
 	</title>
 	<para>
-	If the <parameter>online</parameter> is zero, then ibonl() frees the
+	If the parameter <parameter>online</parameter> is zero, then ibonl() frees the
 	resources associated with the board or device descriptor
 	<parameter>ud</parameter>.  The descriptor cannot be used again after the
-	ibonl() call.
+	ibonl() call. The parameter <parameter>ud</parameter> cannot be a board
+	index (aka minor).
 	</para>
 	<para>
-	If the <parameter>online</parameter> is nonzero, then all the settings
+	If the parameter <parameter>online</parameter> is nonzero, then all the settings
 	associated with the descriptor (GPIB address, end-of-string mode, timeout,
 	etc.) are reset to their 'default' values.  The 'default' values are
 	the settings the descriptor had when it was first obtained with
 	<link LINKEND="reference-function-ibdev">ibdev()</link> or
 	<link LINKEND="reference-function-ibfind">ibfind()</link>.
+	The parameter <parameter>ud</parameter> can be a board index
+	(aka minor). The 'default' values are the standard default
+	values as modified by the
+	corresponding <link LINKEND="configuration-gpib-conf">gpib.conf</link> 
+	interface definition.
 	</para>
 </refsect1>
 <refsect1>
@@ -3445,8 +3520,13 @@ volatile int ibsta;
 	<para>
 	The system controller has the ability
 	to assert the REN and IFC lines, and is typically also the
-	controller-in-charge.  A GPIB bus may not have more than one
-	system controller.
+	controller-in-charge. Automatic assertion of REN is controlled with
+	<link LINKEND="reference-function-ibconfig">ibconfig()</link>.
+	If the IbcSRE configuration option has been set for the
+	board descriptor <parameter>ud</parameter>
+	then REN will automatically be asserted when the board becomes
+	system controller. The configuration option IbcSRE is set by default.
+	A GPIB bus may not have more than one system controller.
 	</para>
 </refsect1>
 <refsect1>
@@ -3729,8 +3809,8 @@ volatile int ibsta;
 	secondary addresses.  That is, if you wish to set the secondary address
 	to 3, you should set <parameter>sad</parameter> to 0x63.  Setting
 	<parameter>sad</parameter> to 0 disables the use of secondary addressing.
-	Valid GPIB secondary addresses are in the range from 0 to 30 (which correspond
-	to <parameter>sad</parameter> values of 0x60 to 0x7e).
+	Valid GPIB secondary addresses are in the range from 0 to 31 (which correspond
+	to <parameter>sad</parameter> values of 0x60 to 0x7f).
 	</para>
 </refsect1>
 <refsect1>
@@ -4466,7 +4546,7 @@ constant NOADDR.
 	</title>
 	<para>
 	DevClear() causes the interface board specified by <parameter>board_desc</parameter>
-	to send the clear command to the GPIB addresses specified by <parameter>address</parameter>.  The results of the serial polls are stored into <parameter>resultList</parameter>.
+	to send the clear command to the GPIB address specified by <parameter>address</parameter>.
 	If you wish to clear multiple devices simultaneously, use
 	<link LINKEND="reference-function-devclearlist">DevClearList()</link>
 	</para>
@@ -5838,7 +5918,7 @@ constant NOADDR.
 	Return value
 	</title>
 	<para>
-	The secondary GPIB address (from 0x60 through 0x7e, or 0 for none) stored in
+	The secondary GPIB address (from 0x60 through 0x7f, or 0 for none) stored in
 	<parameter>address</parameter>.
 	</para>
 </refsect1>
@@ -5965,9 +6045,9 @@ addressList[ 4 ] = NOADDR;
 	MSA() returns a 'my secondary address'
 	<link LINKEND="reference-command-bytes">command byte</link> corresponding
 	to the <parameter>address</parameter> argument.  The <parameter>address</parameter>
-	may be between 0 and 30.  This macro is also useful for mangling
-	secondary addresses from the 'real' values between 0 and 30 to the
-	range 0x60 to 0x7e used by most of the library's functions.
+	may be between 0 and 31.  This macro is also useful for mangling
+	secondary addresses from the 'real' values between 0 and 31 to the
+	range 0x60 to 0x7f used by most of the library's functions.
 	</para>
 </refsect1>
 <refsect1>
@@ -6308,16 +6388,11 @@ addressList[ 4 ] = NOADDR;
 	</entry>
 	</row>
 	<row>
-	<entry>0x70 to 0x7e</entry>
-	<entry>MSA16 to MSA30, also PPD</entry>
+	<entry>0x70 to 0x7f</entry>
+	<entry>MSA16 to MSA31, also PPD</entry>
 	<entry>When following a talk or listen address, this is
-	'my secondary address' 16 to 30.  When following a parallel
+	'my secondary address' 16 to 31.  When following a parallel
 	poll configure, this is 'parallel poll disable'.</entry>
-	</row>
-	<row>
-	<entry>0x7f</entry>
-	<entry>PPD</entry>
-	<entry>Parallel poll disable</entry>
 	</row>
 	</tbody>
 	</tgroup>

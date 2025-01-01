@@ -461,6 +461,7 @@ long ibioctl(struct file *filep, unsigned int cmd, unsigned long arg)
 
 done:
 	mutex_unlock(&board->big_gpib_mutex);
+	GPIB_DPRINTK( "ioctl done status = 0x%lx\n", board->status);
 	return retval;
 }
 
@@ -615,6 +616,7 @@ static int command_ioctl( gpib_file_private_t *file_priv,
 	int fault = 0;
 	gpib_descriptor_t *desc;
 	size_t bytes_written;
+	int no_clear_io_in_prog;
 
 	retval = copy_from_user(&cmd, (void*) arg, sizeof(cmd));
 	if( retval )
@@ -628,6 +630,9 @@ static int command_ioctl( gpib_file_private_t *file_priv,
 
 	userbuf = (uint8_t*)(unsigned long)cmd.buffer_ptr;
 	userbuf += cmd.completed_transfer_count;
+
+	no_clear_io_in_prog = cmd.end;
+        cmd.end = 0;
 
 	remain = cmd.requested_transfer_count - cmd.completed_transfer_count;
 
@@ -675,10 +680,17 @@ static int command_ioctl( gpib_file_private_t *file_priv,
 	if(fault == 0)
 		fault = copy_to_user((void*) arg, &cmd, sizeof(cmd));
 
-	smp_mb__before_atomic();
-	atomic_set(&desc->io_in_progress, 0);
-	smp_mb__after_atomic();
-
+	/*
+	  no_clear_io_in_prog (cmd.end) is true when io_in_progress should
+          not be set to zero because the cmd in progress is the address setup
+	  operation for an async read or write. This causes CMPL not to be set
+	  in general_ibstatus until the async read or write completes.
+	*/
+	if ( !no_clear_io_in_prog || fault ) {
+		smp_mb__before_atomic();
+		atomic_set(&desc->io_in_progress, 0);
+		smp_mb__after_atomic();
+	}
 	wake_up_interruptible( &board->wait );
 	if( fault ) return -EFAULT;
 
@@ -1092,7 +1104,7 @@ static int take_control_ioctl( gpib_board_t *board, unsigned long arg )
 	if( retval )
 		return -EFAULT;
 
-	return ibcac( board, synchronous, 0 );
+	return ibcac( board, synchronous, 1 );
 }
 
 static int line_status_ioctl( gpib_board_t *board, unsigned long arg )

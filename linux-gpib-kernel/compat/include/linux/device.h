@@ -48,8 +48,13 @@
  * CLASS_DEVICE_CREATE() is pretty useless.
  */
 #if LINUX_VERSION_CODE < KERNEL_VERSION(6,4,0)
+#if CLASS_CREATE1ARG > 0
 #define CLASS_CREATE(owner, name) \
+	class_create(name)
+#else
+#define CLASS_CREATE(owner, name)		\
 	class_create(owner, name)
+#endif
 #else
 #define CLASS_CREATE(owner, name) \
 	class_create(name)

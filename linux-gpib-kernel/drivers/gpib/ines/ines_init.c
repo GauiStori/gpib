@@ -343,7 +343,7 @@ gpib_interface_t ines_isa_interface =
 	return_to_local: ines_return_to_local,
 };
 
-int ines_allocate_private(gpib_board_t *board)
+static int ines_allocate_private(gpib_board_t *board)
 {
 	ines_private_t *priv;
 
@@ -422,7 +422,7 @@ void ines_online( ines_private_t *ines_priv, const gpib_board_t *board, int use_
 		nec7210_set_reg_bits( nec_priv, IMR1, HR_DOIE | HR_DIIE, 0 );
 }
 
-int ines_common_pci_attach( gpib_board_t *board, const gpib_board_config_t *config)
+static int ines_common_pci_attach( gpib_board_t *board, const gpib_board_config_t *config)
 {
 	ines_private_t *ines_priv;
 	nec7210_private_t *nec_priv;

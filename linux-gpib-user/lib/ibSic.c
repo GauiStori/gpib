@@ -33,6 +33,7 @@ int assert_ifc( ibBoard_t *board, unsigned int usec_duration )
 int internal_ibsic( ibConf_t *conf )
 {
 	ibBoard_t *board;
+	int retval;
 
 	if( conf->is_interface == 0 )
 	{
@@ -42,9 +43,11 @@ int internal_ibsic( ibConf_t *conf )
 
 	board = interfaceBoard( conf );
 
-	if( is_system_controller( board ) == 0 )
+	retval = is_system_controller( board );
+	if (retval <= 0)
 	{
-		setIberr( ESAC );
+		if (retval == 0)
+			setIberr( ESAC );
 		return -1;
 	}
 
@@ -89,6 +92,16 @@ int request_system_control( ibBoard_t *board, int request_control )
 		return retval;
 	}
 	board->is_system_controller = request_control != 0;
+	if ( request_control && board->set_ren_on_sc ) {
+		retval = remote_enable( board, 1 );
+		if( retval < 0 )
+		{
+			fprintf( stderr, "libgpib: IBRSC remote enable failed\n" );
+			setIberr( EDVR );
+			setIbcnt( errno );
+			return retval;
+		}
+	}
 	return 0;
 }
 

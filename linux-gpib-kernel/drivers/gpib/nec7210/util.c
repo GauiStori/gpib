@@ -85,9 +85,9 @@ void nec7210_serial_poll_response(gpib_board_t *board, nec7210_private_t *priv, 
 
 	spin_lock_irqsave( &board->spinlock, flags );
 	if(status & request_service_bit)
-	{	
+	{
 		priv->srq_pending = 1;
-		
+
 		smp_mb__before_atomic();
 		clear_bit(SPOLL_NUM, &board->status);
 		smp_mb__after_atomic();
@@ -171,7 +171,7 @@ static void update_listener_state(nec7210_private_t *priv, unsigned address_stat
 	}
 }
 
-unsigned int update_status_nolock( gpib_board_t *board, nec7210_private_t *priv )
+unsigned int nec7210_update_status_nolock( gpib_board_t *board, nec7210_private_t *priv )
 {
 	int address_status_bits;
 	uint8_t spoll_status;
@@ -229,7 +229,7 @@ unsigned int nec7210_update_status(gpib_board_t *board, nec7210_private_t *priv,
 
 	spin_lock_irqsave( &board->spinlock, flags );
 	board->status &= ~clear_mask;
-	retval = update_status_nolock( board, priv );
+	retval = nec7210_update_status_nolock( board, priv );
 	spin_unlock_irqrestore( &board->spinlock, flags );
 
 	return retval;
@@ -249,7 +249,7 @@ void nec7210_set_handshake_mode( gpib_board_t *board, nec7210_private_t *priv, i
 	unsigned long flags;
 
 	mode &= HR_HANDSHAKE_MASK;
-	
+
 	spin_lock_irqsave( &board->spinlock, flags );
 	if((priv->auxa_bits & HR_HANDSHAKE_MASK) != mode)
 	{
@@ -287,6 +287,7 @@ EXPORT_SYMBOL( nec7210_parallel_poll );
 EXPORT_SYMBOL( nec7210_primary_address );
 EXPORT_SYMBOL( nec7210_secondary_address );
 EXPORT_SYMBOL( nec7210_update_status );
+EXPORT_SYMBOL( nec7210_update_status_nolock );
 EXPORT_SYMBOL( nec7210_set_reg_bits );
 EXPORT_SYMBOL( nec7210_set_handshake_mode );
 EXPORT_SYMBOL( nec7210_read_data_in );

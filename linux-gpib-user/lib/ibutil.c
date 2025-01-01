@@ -41,7 +41,7 @@ int insert_descriptor( ibConf_t p, int ud )
 		if( i == GPIB_CONFIGS_LENGTH )
 		{
 			fprintf( stderr, "libgpib: out of room in ibConfigs[]\n" );
-			setIberr( ENEB ); // ETAB?
+			setIberr( ETAB );
 			return -1;
 		}
 		ud = i;
@@ -70,11 +70,20 @@ int insert_descriptor( ibConf_t p, int ud )
 		setIbcnt( ENOMEM );
 		return -1;
 	}
-	init_ibconf(ibConfigs[ ud ]);
 	/* put entry to the table */
 	*ibConfigs[ud] = p;
 
 	return ud;
+}
+
+int release_descriptor( int ud )
+{
+	if( ud >= GPIB_MAX_NUM_BOARDS  && ud < GPIB_CONFIGS_LENGTH && ibConfigs[ ud ] )
+	{
+		// need to take more care to clean up before freeing XXX
+		free( ibConfigs[ ud ] );
+		ibConfigs[ ud ] = NULL;
+	}
 }
 
 int setup_global_board_descriptors( void )
@@ -176,25 +185,6 @@ int ibParseConfigFile( void )
 	return retval;
 }
 
-/**********************************************************************/
-
-int ibGetDescriptor( ibConf_t p )
-{
-	int retval;
-
-	/* XXX should go somewhere else XXX check validity of values */
-	if(p.settings.pad > gpib_addr_max || p.settings.sad > gpib_addr_max)
-	{
-		setIberr( ETAB );
-		return -1;
-	}
-
-	retval = insert_descriptor( p, -1 );
-	if( retval < 0 )
-		return retval;
-
-	return retval;
-}
 
 int ibFindDevIndex( const char *name )
 {
@@ -236,6 +226,7 @@ void init_descriptor_settings( descriptor_settings_t *settings )
 	settings->send_eoi = 1;
 	settings->local_lockout = 0;
 	settings->readdr = 0;
+	settings->send_unt_unl = 0;
 }
 
 void init_ibconf( ibConf_t *conf )
@@ -272,7 +263,8 @@ int open_gpib_handle( ibConf_t *conf )
 	retval = ioctl( board->fileno, IBOPENDEV, &open_cmd );
 	if( retval < 0 )
 	{
-		fprintf( stderr, "libgpib: IBOPENDEV ioctl failed\n" );
+		if (!conf->error_msg_disable)
+			fprintf( stderr, "libgpib: IBOPENDEV ioctl failed\n" );
 		setIberr( EDVR );
 		setIbcnt( errno );
 		return retval;
@@ -432,8 +424,11 @@ int ibstatus( ibConf_t *conf, int error, int clear_mask, int set_mask )
 	int status = 0;
 	int retval;
 
-	retval = my_wait( conf, 0, clear_mask, set_mask, &status);
-	if( retval < 0 ) error = 1;
+	if (!error)
+	{
+		retval = my_wait( conf, 0, clear_mask, set_mask, &status);
+		if( retval < 0 ) error = 1;
+	}
 
 	if( error ) status |= ERR;
 	if( conf->timed_out )
@@ -505,7 +500,7 @@ int extractSAD( Addr4882_t address )
 
 	sad &= ~0x60;
 
-	if( sad < 0 || sad > gpib_addr_max ) return ADDR_INVALID;
+	if( sad < 0 || sad > gpib_sad_max ) return ADDR_INVALID;
 
 	return sad;
 }
@@ -588,7 +583,7 @@ int is_cic( const ibBoard_t *board )
 	{
 		setIberr( EDVR );
 		setIbcnt( errno );
-		fprintf( stderr, "libgpib: error in is_cic()!\n");
+//		fprintf( stderr, "libgpib: error in is_cic()!\n");
 		return -1;
 	}
 
@@ -606,8 +601,10 @@ int is_system_controller( const ibBoard_t *board )
 	retval = ioctl( board->fileno, IBBOARD_INFO, &info );
 	if( retval < 0 )
 	{
-		fprintf( stderr, "libgpib: error in is_system_controller()!\n");
-		return retval;
+		setIberr( EDVR );
+		setIbcnt( errno );
+//	fprintf( stderr, "libgpib: error in is_system_controller()!\n");
+		return -1;
 	}
 
 	return info.is_system_controller;
@@ -634,7 +631,7 @@ const char* gpib_error_string( int error )
 		"EBUS 14: Bus error",
 		"ESTB 15: Lost status byte",
 		"ESRQ 16: Stuck service request",
-		"libgpib: Unknown error code 17",
+		"ECNF 17: Configuration file errpr",
 		"libgpib: Unknown error code 18",
 		"libgpib: Unknown error code 19",
 		"ETAB 20: Table problem",

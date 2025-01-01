@@ -57,7 +57,7 @@ int ibloc(int ud)
 			return exit_library( ud, 1 );
 		}
 		cmd[ i++ ] = GTL;
-		count = my_ibcmd( conf, cmd, i);
+		count = my_ibcmd( conf, conf->settings.usec_timeout, cmd, i);
 		if(count != i)
 		{
 			return exit_library( ud, 1 );
@@ -75,7 +75,7 @@ void EnableLocal( int boardID, const Addr4882_t addressList[] )
 	uint8_t *cmd;
 	int count;
 	int retval;
-	
+
 	conf = enter_library( boardID );
 	if( conf == NULL )
 	{
@@ -97,9 +97,11 @@ void EnableLocal( int boardID, const Addr4882_t addressList[] )
 
 	board = interfaceBoard( conf );
 
-	if( is_cic( board ) == 0 )
+	retval = is_cic( board );
+	if (retval <= 0)
 	{
-		setIberr( ECIC );
+		if (retval == 0)
+			setIberr( ECIC );
 		exit_library( boardID, 1 );
 		return;
 	}
@@ -125,7 +127,7 @@ void EnableLocal( int boardID, const Addr4882_t addressList[] )
 	cmd[ i++ ] = GTL;
 
 	//XXX detect no listeners (EBUS) error
-	count = my_ibcmd( conf, cmd, i );
+	count = my_ibcmd( conf, conf->settings.usec_timeout, cmd, i );
 
 	free( cmd );
 	cmd = NULL;

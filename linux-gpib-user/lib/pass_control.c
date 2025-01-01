@@ -23,10 +23,10 @@ int my_pass_control( ibConf_t *conf, unsigned int pad, int sad )
 	int retval;
 	int i;
 
-	i = InternalReceiveSetup( conf, packAddress( pad, sad ) );
+	i = InternalReceiveSetup( conf, conf->settings.usec_timeout, packAddress( pad, sad ) );
 
 	cmd = TCT;
-	retval = my_ibcmd( conf, &cmd, 1 );
+	retval = my_ibcmd( conf, conf->settings.usec_timeout, &cmd, 1 );
 	if( retval < 0 ) return retval;
 
 	retval = internal_ibgts( conf, 0 );

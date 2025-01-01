@@ -20,7 +20,19 @@ slave_read_to_file in order to test read/write speed between two boards.
 
 #include <stdio.h>
 #include <sys/time.h>
+#include <unistd.h>
+#include <stdlib.h>
 #include "gpib/ib.h"
+char *myProg;
+
+void usage(int brief) {
+	fprintf(stderr,"Usage: %s [-h] [-b <board index>]"
+		" [-d <device pad>] <file name>\n", myProg);
+	if (brief) exit(1);
+	fprintf(stderr,"  Default <board index> is 0\n");
+	fprintf(stderr,"  Default <device pad> is 1\n");
+	exit(0);
+}
 
 int main( int argc, char *argv[] )
 {
@@ -34,14 +46,27 @@ int main( int argc, char *argv[] )
 	int status;
 	struct timeval start_time, end_time;
 	float elapsed_time;
+	int c;
 
-	if( argc < 2 )
+	myProg = argv[0];
+	while ((c = getopt (argc, argv, "b:d:h")) != -1)
 	{
-		fprintf( stderr, "Must provide file path as arguement\n" );
-		return -1;
+		switch (c)
+		{
+		case 'b': board_index = atoi(optarg); break;
+		case 'd': pad   = atoi(optarg); break;
+		case 'h': usage(0); break;
+		default:  usage(1);
+		}
 	}
 
-	file_path = argv[ 1 ];
+	if (optind == argc)
+	{
+		fprintf( stderr, "Must provide file path as argument\n" );
+		usage(0);
+	}
+
+	file_path = argv[ optind ];
 
 	dev = ibdev( board_index, pad, sad, TNONE, send_eoi, eos_mode );
 	if( dev < 0 )

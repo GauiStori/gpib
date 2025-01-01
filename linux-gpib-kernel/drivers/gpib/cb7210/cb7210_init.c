@@ -318,7 +318,7 @@ gpib_interface_t cb_isa_accel_interface =
 	return_to_local: cb7210_return_to_local,
 };
 
-int cb7210_allocate_private(gpib_board_t *board)
+static int cb7210_allocate_private(gpib_board_t *board)
 {
 	cb7210_private_t *priv;
 

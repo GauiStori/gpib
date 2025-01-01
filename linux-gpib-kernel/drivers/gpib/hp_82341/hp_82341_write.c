@@ -19,12 +19,12 @@
 #include <linux/delay.h>
 #include <linux/sched.h>
 
-int restart_write_fifo(gpib_board_t *board, hp_82341_private_t *hp_priv)
-{	
+static int restart_write_fifo(gpib_board_t *board, hp_82341_private_t *hp_priv)
+{
 	tms9914_private_t *tms_priv = &hp_priv->tms9914_priv;
 	if((inb(hp_priv->iobase[0] + STREAM_STATUS_REG) & HALTED_STATUS_BIT) == 0)
-		return 0; 
-	while(1) 
+		return 0;
+	while(1)
 	{
 		int status;
 		//restart doesn't work if data holdoff is in effect

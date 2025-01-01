@@ -49,7 +49,7 @@ static void cleanup_aio( void *varg )
 {
 	struct gpib_aio_arg arg = *((struct gpib_aio_arg*) varg);
 	ibBoard_t *board = interfaceBoard(arg.conf);
-	ibstatus( arg.conf, 0, 0, CMPL);
+	ibstatus( arg.conf, 0, 0, CMPL); // set CMPL flag
 	int retval = unlock_board_mutex(board);
 	assert(retval == 0);
 }
@@ -87,6 +87,7 @@ int gpib_aio_launch( int ud, ibConf_t *conf, int gpib_aio_type,
 	conf->async.buffer = buffer;
 	conf->async.buffer_length = cnt;
 	conf->async.abort = 0;
+	conf->async.aio_type = gpib_aio_type; /* used in my_ibcmd to suppress setting CMPL */
 
 	pthread_attr_init( &attributes );
 	pthread_attr_setstacksize( &attributes, 0x10000 );
@@ -128,7 +129,7 @@ static void* do_aio( void *varg )
 	retval = lock_board_mutex(board);
 	if(retval == 0)
 	{
-		ibstatus(conf, 0, CMPL, 0);
+		ibstatus(conf, 0, CMPL, 0);  // clear CMPL flag
 	}
 	pthread_mutex_lock(&conf->async.lock);
 	arg_p->condition_flag = 1;
@@ -136,7 +137,7 @@ static void* do_aio( void *varg )
 	pthread_mutex_unlock(&conf->async.lock);
 	// don't use arg_p after this point, it may be
 	// deallocated by the thread which launched this one.
-	
+
 	if( retval < 0 ) return NULL;
 
 	pthread_cleanup_push( cleanup_aio, &arg );
@@ -146,7 +147,7 @@ static void* do_aio( void *varg )
 	switch( arg.gpib_aio_type )
 	{
 	case GPIB_AIO_COMMAND:
-		count = retval = my_ibcmd( conf, conf->async.buffer, conf->async.buffer_length );
+		count = retval = my_ibcmd( conf, usec_timeout, conf->async.buffer, conf->async.buffer_length );
 		break;
 	case GPIB_AIO_READ:
 		retval = my_ibrd( conf, usec_timeout, conf->async.buffer, conf->async.buffer_length, &count);

@@ -49,23 +49,55 @@ static int is_device_addr( int minor, int pad, int sad )
 
 int ibdev( int minor, int pad, int sad, int timo, int eot, int eosmode )
 {
-	int retval;
+	int retval,ud;
 	ibConf_t new_conf;
+	int no_show_error = getenv("IB_NO_ERROR") ? 1 : 0;
+	ibBoard_t *board;
+	unsigned  board_pad;
+	int my_sad, board_sad;
 
 	retval = ibParseConfigFile();
 	if(retval < 0)
 	{
+		if (errno) {
+			setIberr( EDVR );
+			setIbcnt( errno );
+		} else {
+			setIberr( ECNF );
+		}
 		setIbsta( ERR );
+		sync_globals();
 		return -1;
 	}
 
-	sad -= sad_offset;
+	/*  Check for valid address arguments */
+
+	if (pad < 0 || pad > gpib_addr_max) {
+		if (!no_show_error)
+			fprintf(stderr,"ibdev: invalid pad %d, expected 0 <= pad <= 30\n", pad);
+		setIberr( EARG );
+		sync_globals();
+		return -1;
+	}
+
+	if (!sad) /* 0 means no address */
+		my_sad = -1;
+	else
+		my_sad = sad - sad_offset;
+
+	if (my_sad < -1 || my_sad > gpib_sad_max) {
+		if (!no_show_error)
+			fprintf(stderr,"ibdev: invalid sad 0x%02x, expected 0, or 0x60 <= sad <= 0x7f\n", sad);
+		setIberr( EARG );
+		sync_globals();
+		return -1;
+	}
 
 	init_ibconf( &new_conf );
 	new_conf.settings.pad = pad;
-	new_conf.settings.sad = sad;                        /* device address                   */
-	new_conf.settings.board = minor;                         /* board number                     */
-	new_conf.settings.eos = eosmode & 0xff;                           /* local eos modes                  */
+	new_conf.settings.sad = my_sad;                     /* device address                   */
+	new_conf.settings.board = minor;                    /* board number                     */
+	new_conf.settings.eos = eosmode & 0xff;             /* local eos modes                  */
 	new_conf.settings.eos_flags = eosmode & 0xff00;
 	new_conf.settings.usec_timeout = timeout_to_usec( timo );
 	if( eot )
@@ -74,9 +106,42 @@ int ibdev( int minor, int pad, int sad, int timo, int eot, int eosmode )
 		new_conf.settings.send_eoi = 0;
 	new_conf.defaults = new_conf.settings;
 	new_conf.is_interface = 0;
-	
-	return my_ibdev( new_conf );
-	// XXX check for address conflicts with boards
+	new_conf.error_msg_disable = no_show_error;
+
+	ud = my_ibdev( new_conf );
+
+	if (ud < 0)
+		return -1;
+
+// check for address conflicts with board addresses
+
+	board = interfaceBoard(&new_conf);
+
+	if( query_pad( board, &board_pad ) < 0 ) {
+		goto ibdev_err;
+	}
+	if( query_sad( board, &board_sad ) < 0 ) {
+		goto ibdev_err;
+	}
+
+	if (board_pad == pad) {
+		fprintf(stderr,"ibdev: address conflict with board pad\n");
+		setIberr( EARG );
+		goto ibdev_err;
+	}
+
+	return ud;
+ibdev_err:
+	retval = close_gpib_handle(&new_conf);
+	if( retval < 0 ) {
+		if (!no_show_error)
+			fprintf( stderr, "ibdev: cleanup failed\n" );
+		sync_globals();
+		return -1;
+	}
+	release_descriptor( ud );
+	sync_globals();
+	return -1;
 }
 
 int my_ibdev( ibConf_t new_conf )
@@ -84,10 +149,10 @@ int my_ibdev( ibConf_t new_conf )
 	int ud;
 	ibConf_t *conf;
 
-	ud = ibGetDescriptor(new_conf);
+	ud = insert_descriptor(new_conf, -1);
 	if( ud < 0 )
 	{
-		if (!conf->error_msg_disable)
+		if (!new_conf.error_msg_disable)
 			fprintf( stderr, "libgpib: ibdev failed to get descriptor\n" );
 		setIbsta( ERR );
 		return -1;
@@ -97,6 +162,7 @@ int my_ibdev( ibConf_t new_conf )
 	if( conf == NULL )
 	{
 		exit_library( ud, 1 );
+		release_descriptor( ud );
 		return -1;
 	}
 	// XXX do local lockout if appropriate
