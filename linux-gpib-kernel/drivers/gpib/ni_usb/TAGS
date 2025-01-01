@@ -1,0 +1,173 @@
+
+ni_usb_gpib.c,2814
+#define MAX_NUM_NI_USB_INTERFACES 30,1271
+static struct usb_interface *ni_usb_driver_interfaces[ni_usb_driver_interfaces31,1309
+static inline unsigned long ni_usb_timeout_msecs(40,1749
+static unsigned short ni_usb_timeout_code(46,1936
+static void ni_usb_bulk_complete(75,2963
+static void ni_usb_timeout_handler(84,3259
+int ni_usb_nonblocking_send_bulk_msg(93,3593
+static int ni_usb_send_bulk_msg(158,5593
+int ni_usb_nonblocking_receive_bulk_msg(174,6361
+static int ni_usb_receive_bulk_msg(257,8841
+int ni_usb_receive_control_msg(275,9574
+void ni_usb_soft_update_status(295,10228
+static int ni_usb_parse_status_block(326,11395
+static void ni_usb_dump_raw_block(340,11721
+int ni_usb_parse_register_read_block(354,11951
+int ni_usb_parse_termination_block(402,13120
+int parse_board_ibrd_readback(420,13576
+int ni_usb_parse_reg_write_status_block(514,16257
+int ni_usb_write_registers(524,16516
+int ni_usb_read(613,19143
+static int ni_usb_write(735,23011
+int ni_usb_command_chunk(833,25961
+int ni_usb_command(916,28670
+int ni_usb_take_control(931,29026
+int ni_usb_go_to_standby(984,30583
+void ni_usb_request_system_control(1037,32146
+void ni_usb_interface_clear(1085,33506
+void ni_usb_remote_enable(1135,35016
+int ni_usb_enable_eos(1161,35604
+void ni_usb_disable_eos(1174,35894
+unsigned int ni_usb_update_status(1183,36161
+static void ni_usb_stop(1213,37110
+int ni_usb_primary_address(1239,37803
+int ni_usb_write_sad(1265,38487
+int ni_usb_secondary_address(1296,39194
+int ni_usb_parallel_poll(1314,39708
+void ni_usb_parallel_poll_configure(1364,41390
+void ni_usb_parallel_poll_response(1385,41986
+void ni_usb_serial_poll_response(1409,42616
+uint8_t ni_usb_serial_poll_status(1430,43202
+void ni_usb_return_to_local(1434,43274
+int ni_usb_line_status(1456,43844
+unsigned int ni_usb_t1_delay(1545,46339
+static int ni_usb_allocate_private(1591,47517
+static void ni_usb_free_private(1607,48003
+static int ni_usb_init(1615,48161
+void ni_usb_interrupt_complete(1741,51995
+static int ni_usb_set_interrupt_monitor(1787,53254
+static int ni_usb_setup_urbs(1819,54391
+static void ni_usb_cleanup_urbs(1855,55465
+static int ni_usb_b_read_serial_number(1866,55705
+static int ni_usb_hs_wait_for_ready(1930,57935
+static int ni_usb_hs_plus_extra_init(2102,63486
+static inline int ni_usb_device_match(2171,65680
+int ni_usb_attach(2181,65892
+static int ni_usb_shutdown_hardware(2300,69265
+void ni_usb_detach(2331,70083
+gpib_interface_t ni_usb_gpib_interface 2357,70847
+static struct usb_device_id ni_usb_driver_device_table 2388,71921
+static int ni_usb_driver_probe(2400,72458
+static void ni_usb_driver_disconnect(2441,73570
+static struct usb_driver ni_usb_bus_driver 2482,74718
+static int __init ni_usb_init_module(2493,74984
+static void __exit ni_usb_exit_module(2506,75276
+
+ni_usb_gpib.h,3678
+#define _NI_USB_GPIB_H20,1038
+	USB_VENDOR_ID_NI 30,1191
+	USB_DEVICE_ID_NI_USB_B 35,1229
+	USB_DEVICE_ID_NI_USB_B_PREINIT 36,1263
+	USB_DEVICE_ID_NI_USB_HS 37,1344
+	USB_DEVICE_ID_NI_USB_HS_PLUS 38,1379
+	USB_DEVICE_ID_KUSB_488A 39,1419
+	USB_DEVICE_ID_MC_USB_488 40,1454
+enum ni_usb_device43,1493
+	NIUSB_SUBDEV_TNT4882 45,1514
+	NIUSB_SUBDEV_UNKNOWN2 46,1541
+	NIUSB_SUBDEV_UNKNOWN3 47,1569
+enum endpoint_addresses50,1601
+	NIUSB_B_BULK_OUT_ENDPOINT 52,1627
+	NIUSB_B_BULK_IN_ENDPOINT 53,1661
+	NIUSB_B_BULK_IN_ALT_ENDPOINT 54,1694
+	NIUSB_B_INTERRUPT_IN_ENDPOINT 55,1731
+enum hs_enpoint_addresses58,1773
+	NIUSB_HS_BULK_OUT_ENDPOINT 60,1801
+	NIUSB_HS_BULK_OUT_ALT_ENDPOINT 61,1836
+	NIUSB_HS_BULK_IN_ENDPOINT 62,1875
+	NIUSB_HS_BULK_IN_ALT_ENDPOINT 63,1909
+	NIUSB_HS_INTERRUPT_IN_ENDPOINT 64,1947
+enum hs_plus_endpoint_addresses67,1990
+  	NIUSB_HS_PLUS_BULK_OUT_ENDPOINT 69,2024
+	NIUSB_HS_PLUS_BULK_OUT_ALT_ENDPOINT 70,2066
+	NIUSB_HS_PLUS_BULK_IN_ENDPOINT 71,2110
+	NIUSB_HS_PLUS_BULK_IN_ALT_ENDPOINT 72,2149
+	NIUSB_HS_PLUS_INTERRUPT_IN_ENDPOINT 73,2192
+	struct semaphore complete;78,2257
+	unsigned timed_out 79,2285
+} ni_usb_urb_context_t;80,2310
+	struct usb_interface *bus_interface;bus_interface85,2408
+	int bulk_out_endpoint;86,2446
+	int bulk_in_endpoint;87,2470
+	int interrupt_in_endpoint;88,2493
+	uint8_t eos_char;89,2521
+	unsigned short eos_mode;90,2540
+	unsigned int monitored_ibsta_bits;91,2566
+	struct urb *bulk_urb;bulk_urb92,2602
+	struct urb *interrupt_urb;interrupt_urb93,2625
+	uint8_t interrupt_buffer[interrupt_buffer94,2653
+	struct mutex addressed_transfer_lock;95,2686
+	struct mutex bulk_transfer_lock;96,2725
+	struct mutex control_transfer_lock;97,2759
+	struct mutex interrupt_transfer_lock;98,2796
+	struct timer_list bulk_timer;99,2835
+	ni_usb_urb_context_t context;100,2866
+} ni_usb_private_t;101,2897
+struct ni_usb_status_block103,2918
+	short id;105,2947
+	unsigned short ibsta;106,2958
+	short error_code;107,2981
+	unsigned short count;108,3000
+struct ni_usb_register111,3027
+	enum ni_usb_device device;113,3052
+	short address;114,3080
+	unsigned short value;115,3096
+enum ni_usb_bulk_ids118,3123
+	NIUSB_IBCAC_ID 120,3146
+	NIUSB_UNKNOWN3_ID 121,3169
+	NIUSB_TERM_ID 122,3224
+	NIUSB_IBGTS_ID 123,3246
+	NIUSB_IBRPP_ID 124,3269
+	NIUSB_REG_READ_ID 125,3292
+	NIUSB_REG_WRITE_ID 126,3318
+	NIUSB_IBSIC_ID 127,3345
+	NIUSB_REGISTER_READ_DATA_START_ID 128,3368
+	NIUSB_REGISTER_READ_DATA_END_ID 129,3411
+	NIUSB_IBRD_DATA_ID 130,3452
+	NIUSB_IBRD_EXTENDED_DATA_ID 131,3480
+	NIUSB_IBRD_STATUS_ID 132,3517
+enum ni_usb_error_codes135,3550
+	NIUSB_NO_ERROR 137,3576
+	NIUSB_ABORTED_ERROR 140,3719
+	NIUSB_ADDRESSING_ERROR 142,3842
+	NIUSB_EOSMODE_ERROR 146,4067
+	NIUSB_NO_BUS_ERROR 148,4211
+	NIUSB_NO_LISTENER_ERROR 150,4321
+	NIUSB_TIMEOUT_ERROR 152,4407
+enum ni_usb_control_requests155,4438
+	NI_USB_STOP_REQUEST 157,4469
+	NI_USB_WAIT_REQUEST 158,4498
+	NI_USB_POLL_READY_REQUEST 159,4527
+	NI_USB_SERIAL_NUMBER_REQUEST 160,4562
+	NI_USB_HS_PLUS_0x48_REQUEST 161,4600
+	NI_USB_HS_PLUS_LED_REQUEST 162,4637
+	NI_USB_HS_PLUS_0xf8_REQUEST 163,4673
+static const unsigned int ni_usb_ibsta_monitor_mask 166,4713
+static inline int nec7210_to_tnt4882_offset(168,4826
+static inline int ni_usb_bulk_termination(172,4907
+enum ni_usb_unknown3_register183,5085
+	SERIAL_NUMBER_4_REG 185,5117
+	SERIAL_NUMBER_3_REG 186,5145
+	SERIAL_NUMBER_2_REG 187,5173
+	SERIAL_NUMBER_1_REG 188,5201
+static inline int ni_usb_bulk_register_write_header(191,5233
+static inline int ni_usb_bulk_register_write(201,5429
+static inline int ni_usb_bulk_register_read_header(211,5629
+static inline int ni_usb_bulk_register_read(220,5801
+
+ni_usb_gpib.mod.c,71
+#define INCLUDE_VERMAGIC2,26
+BUILD_SALT;9,204
+BUILD_LTO_INFO;10,216

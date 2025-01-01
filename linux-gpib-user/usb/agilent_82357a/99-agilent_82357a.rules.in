@@ -1,0 +1,18 @@
+#82357a without firmware
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0957", ATTR{idProduct}=="0007", ENV{DEVICE}="$devnode", RUN+="@UDEV_LIBDIR@/gpib_udev_fxloader"
+#82357b without firmware
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0957", ATTR{idProduct}=="0518", ENV{DEVICE}="$devnode", RUN+="@UDEV_LIBDIR@/gpib_udev_fxloader"
+
+#automatically set the correct --board-type option
+ACTION=="add|change", SUBSYSTEM=="usb", DRIVER=="agilent_82357a_gpib", ATTRS{serial}=="*", ENV{GPIB_CONFIG_OPTIONS}+="--board-type agilent_82357a", ENV{SERIAL}="$attr{serial}"
+
+#82357a with firmware
+ACTION=="add|change", SUBSYSTEM=="usb", DRIVER=="agilent_82357a_gpib", ATTRS{idVendor}=="0957", ATTRS{idProduct}=="0107", RUN+="@UDEV_LIBDIR@/gpib_udev_config"
+#82357b with firmware
+ACTION=="add|change", SUBSYSTEM=="usb", DRIVER=="agilent_82357a_gpib", ATTRS{idVendor}=="0957", ATTRS{idProduct}=="0718", RUN+="@UDEV_LIBDIR@/gpib_udev_config"
+
+#this rule generates new "change" udev events for devices supported by the 
+#driver after the module is loaded.
+#it is needed because if the driver is not already loaded when the hardware is plugged in,
+#then the initial hardware "add" event will not be able to accomplish anything.
+SUBSYSTEM=="module", ACTION=="add", DEVPATH=="/module/agilent_82357a", RUN+="@UDEV_LIBDIR@/gpib_udevadm_wrapper trigger --property-match DRIVER=agilent_82357a_gpib"
