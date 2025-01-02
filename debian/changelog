@@ -1,6 +1,7 @@
 gpib (4.3.6.1+gitd79837-1) UNRELEASED; urgency=medium
 
   * New git version
+  * Remove perl examples
 
  -- Gudjon I. Gudjonsson <gudjon@gudjon.org>  Wed, 01 Jan 2025 23:38:00 +0200
 

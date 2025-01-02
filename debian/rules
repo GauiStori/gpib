@@ -127,7 +127,7 @@ install: build
 	cd build/language/perl && $(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
 	#Documentation for Perl
 	mkdir -p debian/tmp/usr/share/linux-gpib/examples-perl
-	cp build/language/perl/examples/examples/n8ur/* debian/tmp/usr/share/linux-gpib/examples-perl
+	#cp build/language/perl/examples/examples/n8ur/* debian/tmp/usr/share/linux-gpib/examples-perl FIXME should work
 
 	#Documentation for Tcl
 	mkdir -p debian/tmp/usr/share/linux-gpib/examples-tcl
