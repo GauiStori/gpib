@@ -1,5 +1,5 @@
 usr/bin/*
 usr/sbin/*
 etc/gpib.conf
-etc/udev/gpib.rules
+etc/udev/rules.d/98-gpib.rules
 usr/share/man/*
