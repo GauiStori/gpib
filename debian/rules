@@ -6,9 +6,9 @@
 include /usr/share/dpkg/pkg-info.mk
 
 # export CPPFLAGS=$(shell dpkg-buildflags --get CPPFLAGS)
-export CFLAGS=$(shell dpkg-buildflags --get CFLAGS)
-export CXXFLAGS=$(shell dpkg-buildflags --get CXXFLAGS)
-export LDFLAGS=$(shell dpkg-buildflags --get LDFLAGS)
+#export CFLAGS=$(shell dpkg-buildflags --get CFLAGS)
+#export CXXFLAGS=$(shell dpkg-buildflags --get CXXFLAGS)
+#export LDFLAGS=$(shell dpkg-buildflags --get LDFLAGS)
 
 export DEB_HOST_ARCH = $(shell dpkg-architecture -qDEB_HOST_ARCH)
 
