@@ -6,8 +6,9 @@ gpib (4.3.7~rc1-1) UNRELEASED; urgency=medium
   * Comment out dpkg-buildflags.
   * Move and rename gpib.rules
   * Add gpib-firmware package
+  * Make gpib.agent executable
 
- -- Gudjon I. Gudjonsson <gudjon@gudjon.org>  Wed, 01 Jan 2025 23:38:00 +0200
+ -- Gudjon I. Gudjonsson <gudjon@gudjon.org>  Sat, 11 Jan 2025 17:13:00 +0200
 
 gpib (4.3.6-1) UNRELEASED; urgency=medium
 

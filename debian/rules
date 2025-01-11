@@ -5,6 +5,7 @@
 #export DH_VERBOSE=1
 include /usr/share/dpkg/pkg-info.mk
 
+# The dpkg-buildflags stalls the make process but the compilation seems to work without it.
 # export CPPFLAGS=$(shell dpkg-buildflags --get CPPFLAGS)
 #export CFLAGS=$(shell dpkg-buildflags --get CFLAGS)
 #export CXXFLAGS=$(shell dpkg-buildflags --get CXXFLAGS)
@@ -161,6 +162,7 @@ install: build
 	cp build/util/templates/gpib.conf debian/tmp/etc
 	#Install gpib.agent (free) and non-free firmware, must be changed before upload ???
 	cp -a debian/lib debian/tmp
+	chmod a+x debian/tmp/lib/udev/gpib.agent
 	#Install the other include file needed (Mention to Frank that it lacks ???)
 	#cp build/include/gpib_user.h debian/tmp/usr/include/gpib
 
