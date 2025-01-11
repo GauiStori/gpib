@@ -1,0 +1,4 @@
+lib/firmware/*
+lib/udev/*
+etc/udev/rules.d/98-gpib_usb.rules
+

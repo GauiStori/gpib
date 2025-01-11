@@ -87,6 +87,15 @@ Description:  Documentation for the linux-gpib library
  This package contains the documentation and examples for the
  linux-gpib library.
 
+Package: gpib-firmware
+Section: misc
+Architecture: all
+Depends: ${misc:Depends}, libgpib0, fxload
+Description:  Firmware for GPIB USB dongles
+ ${Common:Description}
+ This package contains the firmware for some GPIB
+ USB dongles.
+
 Package: gpib-modules-source
 Architecture: all
 Depends:  ${misc:Depends}, bzip2
