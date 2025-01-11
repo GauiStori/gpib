@@ -1,4 +1,4 @@
-gpib (4.3.6.1+gitd79837-1) UNRELEASED; urgency=medium
+gpib (4.3.7~rc1-1) UNRELEASED; urgency=medium
 
   * New git version
   * Remove perl examples
